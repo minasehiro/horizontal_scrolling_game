@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 
 // 色管理
 class ColorTable {
+  static const int _primaryRedValue = 0xFFDB5E4B;
+  static const MaterialColor primaryRedColor = MaterialColor(
+    _primaryRedValue,
+    <int, Color>{
+      500: Color(_primaryRedValue),
+    },
+  );
+
   static const int _primaryBlueValue = 0xFF398FD8;
   static const MaterialColor primaryBlueColor = MaterialColor(
     _primaryBlueValue,
