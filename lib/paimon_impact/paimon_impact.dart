@@ -7,6 +7,7 @@ import 'package:horizontal_scrolling_game/home_page.dart';
 import 'package:horizontal_scrolling_game/color_table.dart';
 import 'package:horizontal_scrolling_game/paimon_impact/paimon.dart';
 import 'package:horizontal_scrolling_game/paimon_impact/game_banner.dart';
+import 'package:horizontal_scrolling_game/paimon_impact/unusual_hilichurl.dart';
 
 class PaimonImpact extends StatefulWidget {
   const PaimonImpact({super.key});
@@ -16,6 +17,12 @@ class PaimonImpact extends StatefulWidget {
 }
 
 class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderStateMixin {
+  // ゲーム設定
+  final Duration frameRate = const Duration(milliseconds: 50);
+  final double scoreRangeStartXPoint = -0.05;
+  final double scoreRangeEndXPoint = -0.1;
+  bool isGameStarted = false;
+
   // paimon が持つ情報
   static double paimonX = -0.5;
   static double paimonY = 0.85;
@@ -28,11 +35,12 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
   double paimonHeight = 0.15;
   double elementsCount = 0;
 
-  // ゲーム設定
-  final Duration frameRate = const Duration(milliseconds: 50);
-  final double scoreRangeStartXPoint = -0.05;
-  final double scoreRangeEndXPoint = -0.1;
-  bool isGameStarted = false;
+  // 変わったヒルチャールの情報
+  double unusualHilichurlXCoordinate = 3.0;
+  double unusualHilichurlYCoordinate = 0.85;
+  double unusualHilichurlWidth = 0.15;
+  double unusualHilichurlHeight = 0.15;
+  bool isDeadUnusualHilichurl = false;
 
   // 元素設定
   static double elementWidth = 0.15;
@@ -69,6 +77,9 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
 
     // 背景画像スクロールを開始
     controller.repeat();
+
+    // 変わったヒルチャールを登場させる
+    moveUnusualHilichurl();
 
     Timer.periodic(frameRate, (timer) {
       // 擬似的なジャンプの計算（放物線を描く）
@@ -158,6 +169,8 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
     setState(() {
       paimonX = -0.5;
       paimonY = 0.85;
+      unusualHilichurlXCoordinate = 3.0;
+      isDeadUnusualHilichurl = false;
 
       isGameStarted = false;
       time = 0;
@@ -182,16 +195,26 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
   shootElementalBurst() {
     if (elementsCount >= 5) {
       setState(() {
-        elementalBurstCoordinate[0] = paimonWidth + 0.1;
+        elementalBurstCoordinate[0] = paimonX;
         elementalBurstCoordinate[1] += paimonY + paimonHeight;
         isShootElementalBurst = true;
         elementsCount -= 5;
       });
 
-      Timer.periodic(const Duration(milliseconds: 30), (timer) {
+      Timer.periodic(const Duration(milliseconds: 20), (timer) {
         setState(() {
           elementalBurstCoordinate[0] += 0.05;
         });
+
+        if (isDeadUnusualHilichurl == false && unusualHilichurlXCoordinate < 1.0 && elementalBurstCoordinate[0] >= unusualHilichurlXCoordinate) {
+          setState(() {
+            isDeadUnusualHilichurl = true;
+
+            timer.cancel();
+            isShootElementalBurst = false;
+            elementalBurstCoordinate = [0, 0];
+          });
+        }
 
         if (elementalBurstCoordinate[0] > 1.5) {
           timer.cancel();
@@ -202,6 +225,20 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
     }
   }
 
+  // 変わったヒルチャールを登場させる
+  void moveUnusualHilichurl() {
+    Timer.periodic(frameRate, (timer) {
+      setState(() {
+        if (unusualHilichurlXCoordinate > 0.5) {
+          unusualHilichurlXCoordinate -= 0.05;
+        } else {
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  // 背景画像のリピート
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -221,7 +258,6 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
       duration: const Duration(seconds: 20),
     );
 
-    // 背景画像のリピート
     rectAnimation = RelativeRectTween(
       begin: RelativeRect.fromLTRB(imageWidth, 0, 0, 0),
       end: RelativeRect.fromLTRB(0, 0, imageWidth, 0),
@@ -334,6 +370,15 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
                         paimonY: paimonY,
                         paimonWidth: paimonWidth,
                         paimonHeight: paimonHeight,
+                      ),
+                      Visibility(
+                        visible: !isDeadUnusualHilichurl,
+                        child: UnusualHilichurl(
+                          xCoordinate: unusualHilichurlXCoordinate,
+                          yCoordinate: unusualHilichurlYCoordinate,
+                          width: unusualHilichurlWidth,
+                          height: unusualHilichurlHeight,
+                        ),
                       ),
                       Visibility(
                         visible: isShootElementalBurst,
