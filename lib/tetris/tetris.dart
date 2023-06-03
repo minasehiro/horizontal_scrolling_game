@@ -175,6 +175,7 @@ class _TetrisState extends State<Tetris> {
   void showGameOverDialog() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           backgroundColor: ColorTable.primaryNavyColor,
@@ -308,6 +309,7 @@ class _TetrisState extends State<Tetris> {
         body: Column(
           children: [
             Expanded(
+              flex: 20,
               child: GridView.builder(
                 itemCount: rowlength * colLength,
                 physics: const NeverScrollableScrollPhysics(),
@@ -342,33 +344,98 @@ class _TetrisState extends State<Tetris> {
                 },
               ),
             ),
-            Text(
-              isGameStarted ? "Score: $currentScore" : "画面タップでスタート",
-              style: const TextStyle(
-                fontSize: 18,
-                color: ColorTable.primaryWhiteColor,
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Text(
+                  isGameStarted ? "Score: $currentScore" : "画面タップでスタート",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: ColorTable.primaryWhiteColor,
+                  ),
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 50.0),
+            Expanded(
+              flex: 4,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  IconButton(
-                    onPressed: moveLeft,
-                    icon: const Icon(Icons.arrow_back_ios),
-                    color: ColorTable.primaryWhiteColor,
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: moveLeft,
+                      child: Container(
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: ColorTable.primaryWhiteColor.withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.arrow_back_ios,
+                            color: ColorTable.primaryWhiteColor,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  IconButton(
-                    onPressed: rotatePiece,
-                    icon: const Icon(Icons.rotate_right),
-                    color: ColorTable.primaryWhiteColor,
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: rotatePiece,
+                      child: Container(
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: ColorTable.primaryWhiteColor.withOpacity(0.1),
+                              width: 1,
+                            ),
+                            right: BorderSide(
+                              color: ColorTable.primaryWhiteColor.withOpacity(0.1),
+                              width: 1,
+                            ),
+                            left: BorderSide(
+                              color: ColorTable.primaryWhiteColor.withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.rotate_right,
+                            color: ColorTable.primaryWhiteColor,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  IconButton(
-                    onPressed: moveRight,
-                    icon: const Icon(Icons.arrow_forward_ios),
-                    color: ColorTable.primaryWhiteColor,
-                  )
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: moveRight,
+                      child: Container(
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: ColorTable.primaryWhiteColor.withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.arrow_forward_ios,
+                            color: ColorTable.primaryWhiteColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             )
