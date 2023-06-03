@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:horizontal_scrolling_game/paimon_impact/element_energy_box.dart';
 
 import 'package:horizontal_scrolling_game/paimon_impact/element_energy_class.dart';
 import 'package:horizontal_scrolling_game/home_page.dart';
@@ -346,7 +347,7 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
                           ),
                         ),
                       ),
-                      ...elementEnergies.map((ElementEnergy elementEnergy) => elementEnergyBox(elementEnergy)).toList(),
+                      ...elementEnergies.map((ElementEnergy elementEnergy) => ElementEnergyBox(elementEnergy: elementEnergy)).toList(),
                     ],
                   ),
                 ),
@@ -403,35 +404,6 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // 元素エネルギー描画用
-  Widget elementEnergyBox(ElementEnergy elementEnergy) {
-    return Container(
-      alignment: Alignment(
-        elementEnergy.coordinate[0],
-        (2 * elementEnergy.coordinate[1] + elementEnergy.height) / (2 - elementEnergy.height),
-      ),
-      child: Stack(
-        alignment: AlignmentDirectional.center,
-        children: [
-          Container(
-            width: (MediaQuery.of(context).size.width * elementEnergy.width / 2) * 1.1,
-            height: (MediaQuery.of(context).size.height * 3 / 4 * elementEnergy.height / 3) * 1.1,
-            decoration: const BoxDecoration(
-              color: ColorTable.primaryWhiteColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          Image.asset(
-            'lib/assets/images/elements/${elementEnergy.elementType}.png',
-            width: MediaQuery.of(context).size.width * elementEnergy.width / 2,
-            height: MediaQuery.of(context).size.height * 3 / 4 * elementEnergy.height / 3,
-            fit: BoxFit.fill,
-          ),
-        ],
       ),
     );
   }
