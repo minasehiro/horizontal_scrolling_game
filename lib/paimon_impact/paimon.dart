@@ -17,7 +17,10 @@ class Paimon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment(paimonX, (2 * paimonY + paimonHeight) / (2 - paimonHeight)),
+      alignment: Alignment(
+        paimonX,
+        (2 * paimonY + paimonHeight) / (2 - paimonHeight),
+      ),
       child: Image.asset(
         'lib/assets/images/paimon.png',
         width: MediaQuery.of(context).size.height * paimonHeight / 2,

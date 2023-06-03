@@ -28,18 +28,14 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
   double elementsCount = 0;
 
   // ゲーム設定
-  bool isGameStarted = false;
-  final int gameSpeed = 50; // スコアが高まるごとにスピードを上げていく説
+  final Duration frameRate = const Duration(milliseconds: 50);
   final double scoreRangeStartXPoint = -0.05;
   final double scoreRangeEndXPoint = -0.1;
-
-  // 成績
-  int currentScore = 0;
-  int bestScore = 0;
+  bool isGameStarted = false;
 
   // 元素設定
-  static double elementWidth = 0.2;
-  static double elementHeight = 0.2;
+  static double elementWidth = 0.15;
+  static double elementHeight = 0.15;
 
   List<ElementEnergy> elementEnergies = [
     ElementEnergy(elementWidth, elementHeight, [0.75, 0.85], "pyro", true),
@@ -73,7 +69,7 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
     // 背景画像スクロールを開始
     controller.repeat();
 
-    Timer.periodic(Duration(milliseconds: gameSpeed), (timer) {
+    Timer.periodic(frameRate, (timer) {
       // 擬似的なジャンプの計算（放物線を描く）
       height = gravity * time * time + jumpVelocity * time;
 
@@ -103,18 +99,23 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
     // 元素エネルギーとの衝突処理
     for (int i = 0; i < elementEnergies.length; i++) {
       var paimonLeftEdge = paimonX;
-      var paimonRightEdge = paimonX + MediaQuery.of(context).size.height * paimonHeight / 2;
-      var paimonTopEdge = paimonY + paimonHeight;
+      var paimonRightEdge = paimonX + paimonWidth;
+      var paimonTopEdge = paimonY - paimonHeight;
       var paimonBottomEdge = paimonY;
 
-      // パイモンの左端が元素エネルギーの左端より右
-      if ((paimonLeftEdge >= elementEnergies[i].coordinate[0] ||
-              // パイモンの右端が元素エネルギーの右端より左
-              paimonRightEdge <= elementEnergies[i].coordinate[0] + elementEnergies[i].width) &&
-          // パイモンの上端が元素エネルギーの下端より上にある
-          (paimonTopEdge >= (elementEnergies[i].coordinate[1]) ||
-              // パイモンの下端が元素エネルギーの上端より下にある
-              paimonBottomEdge <= (elementEnergies[i].coordinate[1] + elementEnergies[i].height))) {
+      var elementLeftEdge = elementEnergies[i].coordinate[0];
+      var elementRightEdge = elementEnergies[i].coordinate[0] + elementEnergies[i].width;
+      var elementTopEdge = elementEnergies[i].coordinate[1] - elementEnergies[i].height;
+      var elementBottomEdge = elementEnergies[i].coordinate[1];
+
+      // パイモンの左端が、元素エネルギーの左端より右 かつ 右端より左
+      if ((paimonLeftEdge >= elementLeftEdge && paimonLeftEdge <= elementRightEdge ||
+              // パイモンの右端が、元素エネルギーの左端より右 かつ 右端より左
+              paimonRightEdge >= elementLeftEdge && paimonRightEdge <= elementRightEdge) &&
+          // パイモンの上端が、元素エネルギーの下端より上 かつ 上端より下
+          (paimonTopEdge <= elementBottomEdge && paimonTopEdge >= elementTopEdge ||
+              // パイモンの下端が、元素エネルギーの下端より上 かつ 上端より下
+              paimonBottomEdge <= elementBottomEdge && paimonBottomEdge >= elementTopEdge)) {
         elementsCount += 1;
         elementEnergies.removeAt(i);
       }
@@ -169,10 +170,6 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
         ElementEnergy(elementWidth, elementHeight, [3.9, 0.85], "cryo", true),
         ElementEnergy(elementWidth, elementHeight, [4.6, 0.79], "geo", true),
       ];
-      if (currentScore > bestScore) {
-        bestScore = currentScore;
-      }
-      currentScore = 0;
       elementsCount = 0;
 
       isShootElementalBurst = false;
@@ -223,7 +220,7 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
       duration: const Duration(seconds: 20),
     );
 
-    // 1枚目が終わったら止めてリピートする
+    // 背景画像のリピート
     rectAnimation = RelativeRectTween(
       begin: RelativeRect.fromLTRB(imageWidth, 0, 0, 0),
       end: RelativeRect.fromLTRB(0, 0, imageWidth, 0),
@@ -247,26 +244,10 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
           backgroundColor: ColorTable.primaryNavyColor,
           title: Center(
             child: Column(
-              children: [
-                const Text(
-                  'ゲームオーバー',
-                  style: TextStyle(color: ColorTable.primaryWhiteColor),
-                ),
-                const SizedBox(height: 30),
-                const Text(
-                  'スコア',
-                  style: TextStyle(
-                    color: ColorTable.primaryWhiteColor,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 10),
+              children: const [
                 Text(
-                  currentScore.toString(),
-                  style: const TextStyle(
-                    color: ColorTable.primaryWhiteColor,
-                    fontSize: 24,
-                  ),
+                  '元素をすべて集めました',
+                  style: TextStyle(color: ColorTable.primaryWhiteColor),
                 ),
               ],
             ),
@@ -429,7 +410,10 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
   // 元素エネルギー描画用
   Widget elementEnergyBox(ElementEnergy elementEnergy) {
     return Container(
-      alignment: Alignment((2 * elementEnergy.coordinate[0] + elementEnergy.width) / (2 - elementEnergy.width), elementEnergy.coordinate[1]),
+      alignment: Alignment(
+        elementEnergy.coordinate[0],
+        (2 * elementEnergy.coordinate[1] + elementEnergy.height) / (2 - elementEnergy.height),
+      ),
       child: Stack(
         alignment: AlignmentDirectional.center,
         children: [
@@ -445,6 +429,7 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
             'lib/assets/images/elements/${elementEnergy.elementType}.png',
             width: MediaQuery.of(context).size.width * elementEnergy.width / 2,
             height: MediaQuery.of(context).size.height * 3 / 4 * elementEnergy.height / 3,
+            fit: BoxFit.fill,
           ),
         ],
       ),
