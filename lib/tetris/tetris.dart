@@ -208,6 +208,9 @@ class _TetrisState extends State<Tetris> {
           actions: [
             GestureDetector(
               onTap: () {
+                // ゲームの初期化
+                resetGame();
+
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => const HomePage()),
                 );
@@ -226,8 +229,16 @@ class _TetrisState extends State<Tetris> {
             ),
             GestureDetector(
               onTap: () {
+                // ゲームの初期化
                 resetGame();
 
+                // 最初に落とすピースを用意
+                buildNewPiece();
+
+                // ゲームスタート
+                startGame();
+
+                // ダイアログを閉じる
                 Navigator.pop(context);
               },
               child: ClipRRect(
@@ -249,7 +260,7 @@ class _TetrisState extends State<Tetris> {
     );
   }
 
-  // ゲームをリスタート
+  // ゲームを初期化
   void resetGame() {
     // 必要なデータを初期化
     setState(() {
@@ -263,12 +274,6 @@ class _TetrisState extends State<Tetris> {
       isGameOver = false;
       isGameStarted = false;
       currentScore = 0;
-
-      // 最初に落とすピースを用意
-      buildNewPiece();
-
-      // ゲームスタート
-      startGame();
     });
   }
 
@@ -340,30 +345,26 @@ class _TetrisState extends State<Tetris> {
                 itemBuilder: (context, index) {
                   int row = (index / rowlength).floor(); // X座標
                   int col = index % rowlength; // Y座標
+                  Color currentColor = Colors.white;
 
-                  // 移動中のピース
+                  // 移動中のピースの色
                   if (currentPiece.position.contains(index)) {
-                    return Pixel(
-                      color: Colors.yellow,
-                      childStr: index.toString(),
-                    );
+                    currentColor = Colors.yellow;
                   }
-                  // 衝突済みのピース
+                  // 衝突済みのピースの色
                   else if (gameBoard[row][col] != null) {
                     final Tetromino? tetrominoType = gameBoard[row][col];
-
-                    return Pixel(
-                      color: tetrominoColors[tetrominoType] ?? Colors.white,
-                      childStr: "",
-                    );
+                    currentColor = tetrominoColors[tetrominoType] ?? Colors.white;
                   }
-                  // 空いているグリッド
+                  // 空いているグリッドの色
                   else {
-                    return Pixel(
-                      color: Colors.grey,
-                      childStr: index.toString(),
-                    );
+                    currentColor = Colors.grey;
                   }
+
+                  return Pixel(
+                    color: currentColor,
+                    childStr: "",
+                  );
                 },
               ),
             ),
@@ -383,7 +384,6 @@ class _TetrisState extends State<Tetris> {
             Expanded(
               flex: 4,
               child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Expanded(
                     child: GestureDetector(

@@ -6,7 +6,11 @@ class Pixel extends StatelessWidget {
   final Color color;
   final String childStr;
 
-  const Pixel({super.key, required this.color, required this.childStr});
+  const Pixel({
+    super.key,
+    required this.color,
+    required this.childStr,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +23,9 @@ class Pixel extends StatelessWidget {
       child: Center(
         child: Text(
           childStr,
-          style: const TextStyle(color: ColorTable.primaryWhiteColor),
+          style: const TextStyle(
+            color: ColorTable.primaryWhiteColor,
+          ),
         ),
       ),
     );
