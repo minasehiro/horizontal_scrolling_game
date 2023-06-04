@@ -24,7 +24,7 @@ enum Tetromino {
 
 // ピースごとの色
 const Map<Tetromino, Color> tetrominoColors = {
-  Tetromino.L: Colors.white,
+  Tetromino.L: Colors.orange,
   Tetromino.J: Colors.green,
   Tetromino.I: Colors.blue,
   Tetromino.O: Colors.lightGreen,
