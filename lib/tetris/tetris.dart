@@ -297,13 +297,34 @@ class _TetrisState extends State<Tetris> {
     }
   }
 
+  // ピースを下に移動
+  void moveDown() {
+    if (!isLanded(MoveDirection.down)) {
+      setState(() {
+        currentPiece.movePiece(MoveDirection.down);
+      });
+    }
+  }
+
   // UI
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        isGameStarted ? {} : startGame();
+        isGameStarted ? rotatePiece() : startGame();
       },
+      onVerticalDragUpdate: ((details) {
+        if (details.delta.dy > 0) {
+          moveDown();
+        }
+      }),
+      onHorizontalDragUpdate: ((details) {
+        if (details.delta.dx > 0) {
+          moveRight();
+        } else if (details.delta.dx < 0) {
+          moveLeft();
+        }
+      }),
       child: Scaffold(
         backgroundColor: ColorTable.primaryBlackColor,
         body: Column(
