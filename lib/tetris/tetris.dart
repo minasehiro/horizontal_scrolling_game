@@ -313,15 +313,17 @@ class _TetrisState extends State<Tetris> {
       onTap: () {
         isGameStarted ? rotatePiece() : startGame();
       },
+      // DragUpdate の感度が高すぎるので偶数の時だけ処理
       onVerticalDragUpdate: ((details) {
-        if (details.delta.dy > 0) {
+        if (details.delta.dy > 0 && details.delta.dy.floor().isEven) {
           moveDown();
         }
       }),
+      // DragUpdate の感度が高すぎるので3の倍数の時だけ処理
       onHorizontalDragUpdate: ((details) {
-        if (details.delta.dx > 0) {
+        if (details.delta.dx > 0 && details.delta.dx.floor() % 3 == 0) {
           moveRight();
-        } else if (details.delta.dx < 0) {
+        } else if (details.delta.dx < 0 && details.delta.dx.floor() % 3 == 0) {
           moveLeft();
         }
       }),
@@ -336,8 +338,8 @@ class _TetrisState extends State<Tetris> {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: rowlength),
                 itemBuilder: (context, index) {
-                  int row = (index / rowlength).floor();
-                  int col = index % rowlength;
+                  int row = (index / rowlength).floor(); // X座標
+                  int col = index % rowlength; // Y座標
 
                   // 移動中のピース
                   if (currentPiece.position.contains(index)) {
