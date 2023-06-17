@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:horizontal_scrolling_game/shogi/shogi.dart';
 import 'package:horizontal_scrolling_game/color_table.dart';
 import 'package:horizontal_scrolling_game/flappy_paimon/flappy_paimon.dart';
 import 'package:horizontal_scrolling_game/paimon_impact/paimon_impact.dart';
@@ -112,6 +113,35 @@ class _HomePageState extends State<HomePage> {
                 child: const Center(
                   child: Text(
                     "TETRIS with Genshin Impact",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      letterSpacing: 2.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const Shogi()),
+                );
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: 50,
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: ColorTable.primaryNavyColor,
+                    width: 3.0,
+                  ),
+                ),
+                child: const Center(
+                  child: Text(
+                    "Shogi",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
