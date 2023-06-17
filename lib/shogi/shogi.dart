@@ -5,7 +5,9 @@ import 'package:horizontal_scrolling_game/shogi/components/square.dart';
 import 'package:horizontal_scrolling_game/shogi/helper_methods.dart';
 
 // TODO: 二歩の禁止
-// TODO: 成り
+// TODO: 成りの実装（カードフリップアニメーション）
+// TODO: 持ち駒を選択し、やっぱりやめたの時に isSelectingDropPosition を false に
+// TODO: 今どっちのターンなのか分かりやすく
 
 class Shogi extends StatefulWidget {
   const Shogi({super.key});
