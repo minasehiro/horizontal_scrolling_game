@@ -990,9 +990,6 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
                 onTap: () {
                   // ゲームの初期化
                   resetGame();
-
-                  // ダイアログを閉じる
-                  Navigator.pop(context);
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
@@ -1113,18 +1110,22 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            width: MediaQuery.of(context).size.width * 0.5,
-            color: Colors.yellow,
-            child: Text(
-              "${isAllyTurn ? "あなたの" : "相手の"}ターンです\n\n${isCheck ? "王手！！" : ""}",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
+          if (isCheck)
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              width: MediaQuery.of(context).size.width * 0.3,
+              decoration: BoxDecoration(
+                color: ColorTable.primaryNavyColor,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: const Text(
+                "王手！！",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
           Expanded(
             flex: 4,
             child: GridView.builder(
@@ -1272,9 +1273,6 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         },
       );
     } else {
-      print("CPU処理開始");
-      print(candidatePices);
-
       // 駒群からランダムにひとつ駒を選ぶ
       int randomIndex = random.nextInt(candidatePices.length);
       derivedActionPiece = candidatePices[randomIndex][0]["piece"];
@@ -1282,10 +1280,6 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
       // ピースを選択
       selectPiece(derivedActionPieceCoordinates[0], derivedActionPieceCoordinates[1]);
-
-      print(selectedPiece!.type);
-      print([selectedRow, selectedCol]);
-      print(validMoves);
 
       // 王手状態の場合は最優先で王を逃す
       if (validMoves.isEmpty) {
