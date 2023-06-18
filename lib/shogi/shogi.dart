@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:horizontal_scrolling_game/color_table.dart';
 import 'package:horizontal_scrolling_game/home_page.dart';
@@ -5,10 +7,10 @@ import 'package:horizontal_scrolling_game/shogi/components/dead_piece.dart';
 import 'package:horizontal_scrolling_game/shogi/components/piece.dart';
 import 'package:horizontal_scrolling_game/shogi/components/square.dart';
 import 'package:horizontal_scrolling_game/shogi/helper_methods.dart';
+import 'package:horizontal_scrolling_game/shogi/shogi_ai.dart';
 
-// TODO: 成る時にカードフリップアニメーションしたい
-// TODO: CPU実装（持ちうる手を全て洗い出し、優先度付けして実行）
-// 優先度: 強駒が取られるのを防ぐ > 相手の強駒が取れる > 弱駒が取られるのを防ぐ > 相手の弱駒が取れる > 相手陣に近づける（終盤になると持ち駒の選択肢をランダムに入れ込む）
+// TODO: 成る時にフリップアニメーションしたい
+// TODO: 自分と相手の打った手を表示する「三六歩」
 
 class Shogi extends StatefulWidget {
   const Shogi({super.key});
@@ -30,6 +32,16 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
   List<int> enemyKingPosition = [0, 4]; // 敵の王将の初期位置
   bool isCheck = false; // 王手がかかっているかどうか
   bool isSelectingDropPosition = false; // 手持ちの駒を打とうとしている
+  int turnCount = 1; // 経過ターン
+  List<ShogiPieceType> promotablePieceTypes = [
+    // 成れる駒
+    ShogiPieceType.hisya, // 飛
+    ShogiPieceType.kakugyo, // 角
+    ShogiPieceType.keima, // 桂馬
+    ShogiPieceType.kyousya, // 香車
+    ShogiPieceType.ginsho, // 銀
+    ShogiPieceType.hohei, // 歩
+  ];
 
   @override
   void initState() {
@@ -41,9 +53,6 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
   // 盤面の初期化
   void _initializeBoard() {
     List<List<ShogiPiece?>> newBoard = List.generate(9, (index) => List.generate(9, (index) => null));
-
-    // validMoves のテスト用
-    // newBoard[4][4] = ShogiPiece(type: ShogiPieceType.kakugyo, isally: true, imagePath: "lib/assets/images/shogi/up_kakugyo.png");
 
     for (int i = 0; i < 9; i++) {
       // 敵陣
@@ -198,6 +207,16 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
     board = newBoard;
   }
 
+  // ターン切り替え
+  void turnChange() {
+    setState(() {
+      isAllyTurn = !isAllyTurn;
+    });
+
+    // CPU行動
+    cpuActionWithShogiAi();
+  }
+
   // ピースを選択する
   void selectPiece(int row, int col) {
     setState(() {
@@ -246,6 +265,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         // 詰んでいた場合ダイアログを表示
         if (isCheckMate(isAllyTurn)) {
           showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) {
               return AlertDialog(
@@ -325,7 +345,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         }
 
         // ターンチェンジ
-        isAllyTurn = !isAllyTurn;
+        turnChange();
       }
 
       validMoves = calculateRealValidMoves(selectedRow, selectedCol, selectedPiece, true); // 移動可能な座標を再計算
@@ -789,7 +809,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
   }
 
   // 駒を移動
-  void movePiece(int newRow, int newCol) {
+  void movePiece(int newRow, int newCol) async {
     if (board[newRow][newCol] != null) {
       var capturedPiece = board[newRow][newCol];
 
@@ -818,11 +838,12 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
     if (selectedPiece != null) {
       ShogiPiece currentPiece = selectedPiece!;
 
-      if (!selectedPiece!.isPromoted) {
+      // 成りの対象駒で、まだ成っていない
+      if (promotablePieceTypes.contains(currentPiece.type) && !selectedPiece!.isPromoted) {
         if (selectedPiece!.isally) {
           // 敵陣に入ったか、出た時
           if (newRow <= 2 && selectedRow >= 3 || newRow >= 3 && selectedRow <= 2) {
-            showDialog(
+            await showDialog(
               barrierDismissible: false,
               context: context,
               builder: (context) {
@@ -838,8 +859,8 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          // 成り
-                          board[newRow][newCol] = promotePiece(currentPiece);
+                          board[newRow][newCol] = promotePiece(currentPiece); // 成り
+                          board[selectedRow][selectedCol] = null; //元の座標を初期化
                         });
 
                         // ダイアログを閉じる
@@ -881,17 +902,21 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
             );
           }
         } else {
-          // 自陣に入ったか、出た時
-          if (newRow >= 6 && selectedRow <= 5 || newRow <= 5 && selectedRow >= 6) {
-            setState(() {
-              // 成り
-              board[newRow][newCol] = promotePiece(currentPiece);
-            });
+          // 成りの対象駒かどうか
+          if (promotablePieceTypes.contains(currentPiece.type)) {
+            // 自陣に入ったか、出た時
+            if (newRow >= 6 && selectedRow <= 5 || newRow <= 5 && selectedRow >= 6) {
+              setState(() {
+                // 成り
+                board[newRow][newCol] = promotePiece(currentPiece);
+              });
+            }
           }
         }
       }
     }
 
+    // 王手があるか判定
     if (isKingInCheck(isAllyTurn)) {
       isCheck = true;
     } else {
@@ -909,6 +934,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
     // 詰んでいた場合ダイアログを表示
     if (isCheckMate(isAllyTurn)) {
       showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -985,10 +1011,12 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
           );
         },
       );
+    } else {
+      // ターンチェンジ
+      if (isAllyTurn) {
+        turnChange();
+      }
     }
-
-    // ターンチェンジ
-    isAllyTurn = !isAllyTurn;
   }
 
   // 手持ちの駒を取りどこに打つか決める
@@ -1087,6 +1115,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
           ),
           Container(
             padding: const EdgeInsets.all(8.0),
+            width: MediaQuery.of(context).size.width * 0.5,
             color: Colors.yellow,
             child: Text(
               "${isAllyTurn ? "あなたの" : "相手の"}ターンです\n\n${isCheck ? "王手！！" : ""}",
@@ -1151,5 +1180,129 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+
+  // CPUの行動制御
+  void cpuActionWithShogiAi() {
+    // 自分の駒群を取得
+    List<List<Map<String, dynamic>>> candidatePices = enumerateAvailableActions(board, turnCount, isCheck);
+    ShogiPiece derivedActionPiece;
+    List<int> derivedActionPieceCoordinates;
+    List<int> candidateMoves;
+    var random = Random();
+
+    // 詰んでいた場合ダイアログを表示
+    if (isCheckMate(!isAllyTurn)) {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Center(
+              child: Column(
+                children: const [
+                  Text(
+                    "詰みです",
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              GestureDetector(
+                onTap: () {
+                  // ゲームの初期化
+                  resetGame();
+
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const HomePage()),
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    color: ColorTable.primaryWhiteColor,
+                    child: const Text(
+                      'ホーム',
+                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  // ダイアログを閉じる
+                  Navigator.pop(context);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    color: ColorTable.primaryWhiteColor,
+                    child: const Text(
+                      '盤面を見る',
+                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  // ゲームの初期化
+                  resetGame();
+
+                  // ダイアログを閉じる
+                  Navigator.pop(context);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    color: ColorTable.primaryWhiteColor,
+                    child: const Text(
+                      '再挑戦',
+                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                    ),
+                  ),
+                ),
+              )
+            ],
+            actionsAlignment: MainAxisAlignment.center,
+          );
+        },
+      );
+    } else {
+      print("CPU処理開始");
+      print(candidatePices);
+
+      // 駒群からランダムにひとつ駒を選ぶ
+      int randomIndex = random.nextInt(candidatePices.length);
+      derivedActionPiece = candidatePices[randomIndex][0]["piece"];
+      derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"];
+
+      // ピースを選択
+      selectPiece(derivedActionPieceCoordinates[0], derivedActionPieceCoordinates[1]);
+
+      print(selectedPiece!.type);
+      print([selectedRow, selectedCol]);
+      print(validMoves);
+
+      // 王手状態の場合は最優先で王を逃す
+      if (validMoves.isEmpty) {
+        selectPiece(enemyKingPosition[0], enemyKingPosition[1]);
+      }
+
+      // 移動可能な座標からランダムにひとつ選ぶ
+      randomIndex = random.nextInt(validMoves.length);
+      candidateMoves = validMoves[randomIndex];
+
+      // 移動実行
+      movePiece(candidateMoves[0], candidateMoves[1]);
+
+      // ターンチェンジ
+      setState(() {
+        isAllyTurn = !isAllyTurn;
+      });
+    }
   }
 }
