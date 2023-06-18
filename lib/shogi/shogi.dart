@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:horizontal_scrolling_game/color_table.dart';
+import 'package:horizontal_scrolling_game/home_page.dart';
 import 'package:horizontal_scrolling_game/shogi/components/dead_piece.dart';
 import 'package:horizontal_scrolling_game/shogi/components/piece.dart';
 import 'package:horizontal_scrolling_game/shogi/components/square.dart';
@@ -485,15 +487,63 @@ class _ShogiState extends State<Shogi> {
     if (isCheckMate(isAllyTurn)) {
       showDialog(
         context: context,
-        builder: (cntext) => AlertDialog(
-          title: const Text("詰みです"),
-          actions: [
-            TextButton(
-              onPressed: resetGame,
-              child: const Text("もう一度"),
+        builder: (context) {
+          return AlertDialog(
+            title: Center(
+              child: Column(
+                children: const [
+                  Text(
+                    "詰みです",
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+            actions: [
+              GestureDetector(
+                onTap: () {
+                  // ゲームの初期化
+                  resetGame();
+
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const HomePage()),
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    color: ColorTable.primaryWhiteColor,
+                    child: const Text(
+                      'ホームに戻る',
+                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  // ゲームの初期化
+                  resetGame();
+
+                  // ダイアログを閉じる
+                  Navigator.pop(context);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    color: ColorTable.primaryWhiteColor,
+                    child: const Text(
+                      'もう一度挑戦する',
+                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                    ),
+                  ),
+                ),
+              )
+            ],
+            actionsAlignment: MainAxisAlignment.center,
+          );
+        },
       );
     }
 
