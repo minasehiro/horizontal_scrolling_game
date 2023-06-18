@@ -22,7 +22,7 @@ class UnusualHilichurl extends StatelessWidget {
         (2 * yCoordinate + height) / (2 - height),
       ),
       child: Image.asset(
-        'lib/assets/images/unusual_hilichurl.png',
+        'lib/assets/images/paimon_impact/unusual_hilichurl.png',
         width: MediaQuery.of(context).size.height * height / 2,
         height: MediaQuery.of(context).size.height * height / 2,
         fit: BoxFit.fill,

@@ -353,12 +353,12 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
                               Image(
                                 height: deviceHeight, // 画面の高さに合わせる
                                 fit: BoxFit.fitHeight,
-                                image: const AssetImage('lib/assets/images/background.png'),
+                                image: const AssetImage('lib/assets/images/paimon_impact/background.png'),
                               ),
                               Image(
                                 height: deviceHeight, // 画面の高さに合わせる
                                 fit: BoxFit.fitHeight,
-                                image: const AssetImage('lib/assets/images/background.png'),
+                                image: const AssetImage('lib/assets/images/paimon_impact/background.png'),
                               ),
                             ],
                           ),
