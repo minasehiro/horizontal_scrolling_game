@@ -7,7 +7,7 @@ import 'package:horizontal_scrolling_game/shogi/components/square.dart';
 import 'package:horizontal_scrolling_game/shogi/helper_methods.dart';
 
 // TODO: 二歩の禁止
-// TODO: 成りの実装（with カードフリップアニメーション）
+// TODO: 成る時にカードフリップアニメーションしたい
 // TODO: CPU実装（持ちうる手を全て洗い出し、優先度付けして実行）
 // 優先度: 強駒が取られるのを防ぐ > 相手の強駒が取れる > 弱駒が取られるのを防ぐ > 相手の弱駒が取れる > 相手陣に近づける（終盤になると持ち駒の選択肢をランダムに入れ込む）
 
@@ -18,7 +18,7 @@ class Shogi extends StatefulWidget {
   State<Shogi> createState() => _ShogiState();
 }
 
-class _ShogiState extends State<Shogi> {
+class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
   late List<List<ShogiPiece?>> board; // 盤面管理用の配列
   ShogiPiece? selectedPiece; // 選択されている駒
   int selectedRow = -1; // 選択されている駒の行番号
@@ -48,32 +48,152 @@ class _ShogiState extends State<Shogi> {
 
     for (int i = 0; i < 9; i++) {
       // 敵陣
-      newBoard[0][0] = ShogiPiece(type: ShogiPieceType.kyousya, isally: false, imagePath: "lib/assets/images/shogi/down_kyousya.png");
-      newBoard[0][1] = ShogiPiece(type: ShogiPieceType.keima, isally: false, imagePath: "lib/assets/images/shogi/down_keima.png");
-      newBoard[0][2] = ShogiPiece(type: ShogiPieceType.ginsho, isally: false, imagePath: "lib/assets/images/shogi/down_ginsho.png");
-      newBoard[0][3] = ShogiPiece(type: ShogiPieceType.kinsho, isally: false, imagePath: "lib/assets/images/shogi/down_kinsho.png");
-      newBoard[0][4] = ShogiPiece(type: ShogiPieceType.ousho, isally: false, imagePath: "lib/assets/images/shogi/down_ousho.png");
-      newBoard[0][5] = ShogiPiece(type: ShogiPieceType.kinsho, isally: false, imagePath: "lib/assets/images/shogi/down_kinsho.png");
-      newBoard[0][6] = ShogiPiece(type: ShogiPieceType.ginsho, isally: false, imagePath: "lib/assets/images/shogi/down_ginsho.png");
-      newBoard[0][7] = ShogiPiece(type: ShogiPieceType.keima, isally: false, imagePath: "lib/assets/images/shogi/down_keima.png");
-      newBoard[0][8] = ShogiPiece(type: ShogiPieceType.kyousya, isally: false, imagePath: "lib/assets/images/shogi/down_kyousya.png");
-      newBoard[1][1] = ShogiPiece(type: ShogiPieceType.hisya, isally: false, imagePath: "lib/assets/images/shogi/down_hisya.png");
-      newBoard[1][7] = ShogiPiece(type: ShogiPieceType.kakugyo, isally: false, imagePath: "lib/assets/images/shogi/down_kakugyo.png");
-      newBoard[2][i] = ShogiPiece(type: ShogiPieceType.hohei, isally: false, imagePath: "lib/assets/images/shogi/down_hohei.png");
+      newBoard[0][0] = ShogiPiece(
+        type: ShogiPieceType.kyousya,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_kyousya.png",
+        isPromoted: false,
+      );
+      newBoard[0][1] = ShogiPiece(
+        type: ShogiPieceType.keima,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_keima.png",
+        isPromoted: false,
+      );
+      newBoard[0][2] = ShogiPiece(
+        type: ShogiPieceType.ginsho,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_ginsho.png",
+        isPromoted: false,
+      );
+      newBoard[0][3] = ShogiPiece(
+        type: ShogiPieceType.kinsho,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_kinsho.png",
+        isPromoted: false,
+      );
+      newBoard[0][4] = ShogiPiece(
+        type: ShogiPieceType.ousho,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_ousho.png",
+        isPromoted: false,
+      );
+      newBoard[0][5] = ShogiPiece(
+        type: ShogiPieceType.kinsho,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_kinsho.png",
+        isPromoted: false,
+      );
+      newBoard[0][6] = ShogiPiece(
+        type: ShogiPieceType.ginsho,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_ginsho.png",
+        isPromoted: false,
+      );
+      newBoard[0][7] = ShogiPiece(
+        type: ShogiPieceType.keima,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_keima.png",
+        isPromoted: false,
+      );
+      newBoard[0][8] = ShogiPiece(
+        type: ShogiPieceType.kyousya,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_kyousya.png",
+        isPromoted: false,
+      );
+      newBoard[1][1] = ShogiPiece(
+        type: ShogiPieceType.hisya,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_hisya.png",
+        isPromoted: false,
+      );
+      newBoard[1][7] = ShogiPiece(
+        type: ShogiPieceType.kakugyo,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_kakugyo.png",
+        isPromoted: false,
+      );
+      newBoard[2][i] = ShogiPiece(
+        type: ShogiPieceType.hohei,
+        isally: false,
+        imagePath: "lib/assets/images/shogi/down_hohei.png",
+        isPromoted: false,
+      );
 
       // 自陣
-      newBoard[6][i] = ShogiPiece(type: ShogiPieceType.hohei, isally: true, imagePath: "lib/assets/images/shogi/up_hohei.png");
-      newBoard[7][1] = ShogiPiece(type: ShogiPieceType.kakugyo, isally: true, imagePath: "lib/assets/images/shogi/up_kakugyo.png");
-      newBoard[7][7] = ShogiPiece(type: ShogiPieceType.hisya, isally: true, imagePath: "lib/assets/images/shogi/up_hisya.png");
-      newBoard[8][0] = ShogiPiece(type: ShogiPieceType.kyousya, isally: true, imagePath: "lib/assets/images/shogi/up_kyousya.png");
-      newBoard[8][1] = ShogiPiece(type: ShogiPieceType.keima, isally: true, imagePath: "lib/assets/images/shogi/up_keima.png");
-      newBoard[8][2] = ShogiPiece(type: ShogiPieceType.ginsho, isally: true, imagePath: "lib/assets/images/shogi/up_ginsho.png");
-      newBoard[8][3] = ShogiPiece(type: ShogiPieceType.kinsho, isally: true, imagePath: "lib/assets/images/shogi/up_kinsho.png");
-      newBoard[8][4] = ShogiPiece(type: ShogiPieceType.gyokusho, isally: true, imagePath: "lib/assets/images/shogi/up_gyokusho.png");
-      newBoard[8][5] = ShogiPiece(type: ShogiPieceType.kinsho, isally: true, imagePath: "lib/assets/images/shogi/up_kinsho.png");
-      newBoard[8][6] = ShogiPiece(type: ShogiPieceType.ginsho, isally: true, imagePath: "lib/assets/images/shogi/up_ginsho.png");
-      newBoard[8][7] = ShogiPiece(type: ShogiPieceType.keima, isally: true, imagePath: "lib/assets/images/shogi/up_keima.png");
-      newBoard[8][8] = ShogiPiece(type: ShogiPieceType.kyousya, isally: true, imagePath: "lib/assets/images/shogi/up_kyousya.png");
+      newBoard[6][i] = ShogiPiece(
+        type: ShogiPieceType.hohei,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_hohei.png",
+        isPromoted: false,
+      );
+      newBoard[7][1] = ShogiPiece(
+        type: ShogiPieceType.kakugyo,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_kakugyo.png",
+        isPromoted: false,
+      );
+      newBoard[7][7] = ShogiPiece(
+        type: ShogiPieceType.hisya,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_hisya.png",
+        isPromoted: false,
+      );
+      newBoard[8][0] = ShogiPiece(
+        type: ShogiPieceType.kyousya,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_kyousya.png",
+        isPromoted: false,
+      );
+      newBoard[8][1] = ShogiPiece(
+        type: ShogiPieceType.keima,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_keima.png",
+        isPromoted: false,
+      );
+      newBoard[8][2] = ShogiPiece(
+        type: ShogiPieceType.ginsho,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_ginsho.png",
+        isPromoted: false,
+      );
+      newBoard[8][3] = ShogiPiece(
+        type: ShogiPieceType.kinsho,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_kinsho.png",
+        isPromoted: false,
+      );
+      newBoard[8][4] = ShogiPiece(
+        type: ShogiPieceType.gyokusho,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_gyokusho.png",
+        isPromoted: false,
+      );
+      newBoard[8][5] = ShogiPiece(
+        type: ShogiPieceType.kinsho,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_kinsho.png",
+        isPromoted: false,
+      );
+      newBoard[8][6] = ShogiPiece(
+        type: ShogiPieceType.ginsho,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_ginsho.png",
+        isPromoted: false,
+      );
+      newBoard[8][7] = ShogiPiece(
+        type: ShogiPieceType.keima,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_keima.png",
+        isPromoted: false,
+      );
+      newBoard[8][8] = ShogiPiece(
+        type: ShogiPieceType.kyousya,
+        isally: true,
+        imagePath: "lib/assets/images/shogi/up_kyousya.png",
+        isPromoted: false,
+      );
     }
 
     board = newBoard;
@@ -328,6 +448,73 @@ class _ShogiState extends State<Shogi> {
         }
 
         break;
+      case ShogiPieceType.promotedHisya: // 龍王
+        // 上下左右にはいくらでも移動できる
+        var runningDirections = [
+          [-1, 0], // 上
+          [1, 0], // 下
+          [0, -1], // 左
+          [0, 1], // 右
+        ];
+
+        // 斜めにはひとつ移動できる
+        var singleDirections = [
+          [-1, -1], // 左上
+          [-1, 1], // 右上
+          [1, -1], // 左下
+          [1, 1], // 右下
+        ];
+
+        // 上下左右移動判定
+        for (var direction in runningDirections) {
+          var i = 1;
+
+          while (true) {
+            var newRow = row + (direction[0] * i);
+            var newCol = col + (direction[1] * i);
+
+            // 盤面から出た場合
+            if (!isInBoard(newRow, newCol)) {
+              break;
+            }
+
+            // 対象の座標に駒がある
+            if (board[newRow][newCol] != null) {
+              // 対象の駒が敵
+              if (board[newRow][newCol]!.isally != piece.isally) {
+                candidateMoves.add([newRow, newCol]);
+              }
+              break;
+            }
+
+            candidateMoves.add([newRow, newCol]);
+            i++;
+          }
+        }
+
+        // 斜め移動判定
+        for (var direction in singleDirections) {
+          var newRow = row + (direction[0]);
+          var newCol = col + (direction[1]);
+
+          // 盤面から出た場合
+          if (!isInBoard(newRow, newCol)) {
+            continue;
+          }
+
+          // 対象の座標に駒がある
+          if (board[newRow][newCol] != null) {
+            // 対象の駒が敵
+            if (board[newRow][newCol]!.isally != piece.isally) {
+              candidateMoves.add([newRow, newCol]);
+            }
+            continue;
+          }
+
+          candidateMoves.add([newRow, newCol]);
+        }
+
+        break;
       case ShogiPieceType.kakugyo: // 角行
         var directions = [
           [-1, -1], // 左上
@@ -360,6 +547,73 @@ class _ShogiState extends State<Shogi> {
             candidateMoves.add([newRow, newCol]);
             i++;
           }
+        }
+
+        break;
+      case ShogiPieceType.promotedKakugyo: // 龍馬
+        // 斜めにはいくらでも移動できる
+        var runningDirections = [
+          [-1, -1], // 左上
+          [-1, 1], // 右上
+          [1, -1], // 左下
+          [1, 1], // 右下
+        ];
+
+        // 上下左右にはひとつ移動できる
+        var singleDirections = [
+          [-1, 0], // 上
+          [1, 0], // 下
+          [0, -1], // 左
+          [0, 1], // 右
+        ];
+
+        // 斜め移動判定
+        for (var direction in runningDirections) {
+          var i = 1;
+
+          while (true) {
+            var newRow = row + (direction[0] * i);
+            var newCol = col + (direction[1] * i);
+
+            // 盤面から出た場合
+            if (!isInBoard(newRow, newCol)) {
+              break;
+            }
+
+            // 対象の座標に駒がある
+            if (board[newRow][newCol] != null) {
+              // 対象の駒が敵
+              if (board[newRow][newCol]!.isally != piece.isally) {
+                candidateMoves.add([newRow, newCol]);
+              }
+              break;
+            }
+
+            candidateMoves.add([newRow, newCol]);
+            i++;
+          }
+        }
+
+        // 上下左右移動判定
+        for (var direction in singleDirections) {
+          var newRow = row + (direction[0]);
+          var newCol = col + (direction[1]);
+
+          // 盤面から出た場合
+          if (!isInBoard(newRow, newCol)) {
+            continue;
+          }
+
+          // 対象の座標に駒がある
+          if (board[newRow][newCol] != null) {
+            // 対象の駒が敵
+            if (board[newRow][newCol]!.isally != piece.isally) {
+              candidateMoves.add([newRow, newCol]);
+            }
+            continue;
+          }
+
+          candidateMoves.add([newRow, newCol]);
         }
 
         break;
@@ -454,6 +708,10 @@ class _ShogiState extends State<Shogi> {
 
         break;
       case ShogiPieceType.kinsho: // 金将
+      case ShogiPieceType.promotedKeima:
+      case ShogiPieceType.promotedKyousya:
+      case ShogiPieceType.promotedGinsho:
+      case ShogiPieceType.promotedHohei:
         var directions = [
           [-1, 0], // 上
           [1, 0], // 下
@@ -556,6 +814,84 @@ class _ShogiState extends State<Shogi> {
 
     board[newRow][newCol] = selectedPiece; // 新しい座標へ移動
     board[selectedRow][selectedCol] = null; //元の座標を初期化
+
+    // 成りの判定
+    if (selectedPiece != null) {
+      ShogiPiece currentPiece = selectedPiece!;
+
+      if (!selectedPiece!.isPromoted) {
+        if (selectedPiece!.isally) {
+          // 敵陣に入ったか、出た時
+          if (newRow <= 2 && selectedRow >= 3 || newRow >= 3 && selectedRow <= 2) {
+            showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Center(
+                    child: Column(
+                      children: const [
+                        Text("成りますか？"),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          // 成り
+                          board[newRow][newCol] = promotePiece(currentPiece);
+                        });
+
+                        // ダイアログを閉じる
+                        Navigator.pop(context);
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          color: ColorTable.primaryWhiteColor,
+                          child: const Text(
+                            '成る',
+                            style: TextStyle(color: ColorTable.primaryNavyColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        // ダイアログを閉じる
+                        Navigator.pop(context);
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          color: ColorTable.primaryWhiteColor,
+                          child: const Text(
+                            'そのまま',
+                            style: TextStyle(color: ColorTable.primaryNavyColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  actionsAlignment: MainAxisAlignment.center,
+                );
+              },
+            );
+          }
+        } else {
+          // 自陣に入ったか、出た時
+          if (newRow >= 6 && selectedRow <= 5 || newRow <= 5 && selectedRow >= 6) {
+            setState(() {
+              // 成り
+              board[newRow][newCol] = promotePiece(currentPiece);
+            });
+          }
+        }
+      }
+    }
 
     if (isKingInCheck(isAllyTurn)) {
       isCheck = true;
@@ -786,6 +1122,32 @@ class _ShogiState extends State<Shogi> {
                   onTap: () => selectPiece(row, col),
                   isSelectingDropPosition: isSelectingDropPosition,
                 );
+
+                // return Transform(
+                //   alignment: FractionalOffset.center,
+                //   transform: Matrix4.identity()
+                //     ..setEntry(3, 2, 0.0015)
+                //     ..rotateY(pi * _animation.value),
+                //   child: Card(
+                //     child: _animation.value <= 0.5
+                //         ? Square(
+                //             piece: board[row][col],
+                //             imagePath: board[row][col] != null ? board[row][col]!.imagePath : "",
+                //             isSelected: isSelected,
+                //             isValidMove: isValidMove,
+                //             onTap: () => selectPiece(row, col),
+                //             isSelectingDropPosition: isSelectingDropPosition,
+                //           )
+                //         : Square(
+                //             piece: board[row][col],
+                //             imagePath: board[row][col] != null ? board[row][col]!.promotedImagePath : "",
+                //             isSelected: isSelected,
+                //             isValidMove: isValidMove,
+                //             onTap: () => selectPiece(row, col),
+                //             isSelectingDropPosition: isSelectingDropPosition,
+                //           ),
+                //   ),
+                // );
               },
             ),
           ),
