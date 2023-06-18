@@ -8,7 +8,6 @@ import 'package:horizontal_scrolling_game/shogi/helper_methods.dart';
 
 // TODO: 二歩の禁止
 // TODO: 成りの実装（with カードフリップアニメーション）
-// TODO: 今どっちのターンなのか分かりやすく
 // TODO: CPU実装（持ちうる手を全て洗い出し、優先度付けして実行）
 // 優先度: 強駒が取られるのを防ぐ > 相手の強駒が取れる > 弱駒が取られるのを防ぐ > 相手の弱駒が取れる > 相手陣に近づける（終盤になると持ち駒の選択肢をランダムに入れ込む）
 
@@ -111,12 +110,100 @@ class _ShogiState extends State<Shogi> {
           piecesTakenByEnemy.remove(selectedPiece);
         }
 
+        // 王手がかかっているかチェック
+        if (isKingInCheck(isAllyTurn)) {
+          isCheck = true;
+        } else {
+          isCheck = false;
+        }
+
         // 現在の選択をリセット
         selectedPiece = null;
         selectedRow = -1;
         selectedCol = -1;
         validMoves = [];
         isSelectingDropPosition = false;
+
+        // 詰んでいた場合ダイアログを表示
+        if (isCheckMate(isAllyTurn)) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Center(
+                  child: Column(
+                    children: const [
+                      Text(
+                        "詰みです",
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  GestureDetector(
+                    onTap: () {
+                      // ゲームの初期化
+                      resetGame();
+
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => const HomePage()),
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        color: ColorTable.primaryWhiteColor,
+                        child: const Text(
+                          'ホーム',
+                          style: TextStyle(color: ColorTable.primaryNavyColor),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // ダイアログを閉じる
+                      Navigator.pop(context);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        color: ColorTable.primaryWhiteColor,
+                        child: const Text(
+                          '盤面を見る',
+                          style: TextStyle(color: ColorTable.primaryNavyColor),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // ゲームの初期化
+                      resetGame();
+
+                      // ダイアログを閉じる
+                      Navigator.pop(context);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        color: ColorTable.primaryWhiteColor,
+                        child: const Text(
+                          '再挑戦',
+                          style: TextStyle(color: ColorTable.primaryNavyColor),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+                actionsAlignment: MainAxisAlignment.center,
+              );
+            },
+          );
+        }
 
         // ターンチェンジ
         isAllyTurn = !isAllyTurn;
@@ -484,6 +571,7 @@ class _ShogiState extends State<Shogi> {
       validMoves = [];
     });
 
+    // 詰んでいた場合ダイアログを表示
     if (isCheckMate(isAllyTurn)) {
       showDialog(
         context: context,
@@ -514,7 +602,24 @@ class _ShogiState extends State<Shogi> {
                     padding: const EdgeInsets.all(10),
                     color: ColorTable.primaryWhiteColor,
                     child: const Text(
-                      'ホームに戻る',
+                      'ホーム',
+                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  // ダイアログを閉じる
+                  Navigator.pop(context);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    color: ColorTable.primaryWhiteColor,
+                    child: const Text(
+                      '盤面を見る',
                       style: TextStyle(color: ColorTable.primaryNavyColor),
                     ),
                   ),
@@ -534,7 +639,7 @@ class _ShogiState extends State<Shogi> {
                     padding: const EdgeInsets.all(10),
                     color: ColorTable.primaryWhiteColor,
                     child: const Text(
-                      'もう一度挑戦する',
+                      '再挑戦',
                       style: TextStyle(color: ColorTable.primaryNavyColor),
                     ),
                   ),
@@ -561,18 +666,15 @@ class _ShogiState extends State<Shogi> {
     }
   }
 
-  // 駒を打つ
-  void dropPiece() {}
-
   // 王手をかけている駒があるかどうか
   // isEnemyKing == true なら味方の駒が相手に王手をかけているかチェック
   // isEnemyKing == false なら相手の駒が味方に王手をかけているかチェック
-  bool isKingInCheck(bool isEnemyKing) {
-    List<int> kingPosition = isEnemyKing ? enemyKingPosition : allyKingPosition;
+  bool isKingInCheck(bool isAllyTurn) {
+    List<int> kingPosition = isAllyTurn ? enemyKingPosition : allyKingPosition;
 
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 9; j++) {
-        if (board[i][j] == null || board[i][j]!.isally != isEnemyKing) {
+        if (board[i][j] == null || board[i][j]!.isally != isAllyTurn) {
           continue;
         }
 
@@ -588,16 +690,16 @@ class _ShogiState extends State<Shogi> {
   }
 
   // 詰み判定
-  bool isCheckMate(bool isEnemyKing) {
-    // 王手をかけられていない場合は処理しない
-    if (isKingInCheck(!isEnemyKing)) {
+  bool isCheckMate(bool isAllyTurn) {
+    // 王手がかかっていない場合は処理しない
+    if (!isKingInCheck(isAllyTurn)) {
       return false;
     }
 
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 9; j++) {
-        // 対象の王・玉の味方の駒は判定しない
-        if (board[i][j] == null || board[i][j]!.isally == isEnemyKing) {
+        // 対象の王・玉の敵の駒は判定しない
+        if (board[i][j] == null || board[i][j]!.isally == isAllyTurn) {
           continue;
         }
 
@@ -648,7 +750,17 @@ class _ShogiState extends State<Shogi> {
               ),
             ),
           ),
-          Text(isCheck ? "王手！！" : ""),
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            color: Colors.yellow,
+            child: Text(
+              "${isAllyTurn ? "あなたの" : "相手の"}ターンです\n\n${isCheck ? "王手！！" : ""}",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
           Expanded(
             flex: 4,
             child: GridView.builder(
