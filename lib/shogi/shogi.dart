@@ -5,9 +5,10 @@ import 'package:horizontal_scrolling_game/shogi/components/square.dart';
 import 'package:horizontal_scrolling_game/shogi/helper_methods.dart';
 
 // TODO: 二歩の禁止
-// TODO: 成りの実装（カードフリップアニメーション）
-// TODO: 持ち駒を選択し、やっぱりやめたの時に isSelectingDropPosition を false に
+// TODO: 成りの実装（with カードフリップアニメーション）
 // TODO: 今どっちのターンなのか分かりやすく
+// TODO: CPU実装（持ちうる手を全て洗い出し、優先度付けして実行）
+// 優先度: 強駒が取られるのを防ぐ > 相手の強駒が取れる > 弱駒が取られるのを防ぐ > 相手の弱駒が取れる > 相手陣に近づける（終盤になると持ち駒の選択肢をランダムに入れ込む）
 
 class Shogi extends StatefulWidget {
   const Shogi({super.key});
@@ -92,6 +93,7 @@ class _ShogiState extends State<Shogi> {
         selectedPiece = board[row][col];
         selectedRow = row;
         selectedCol = col;
+        isSelectingDropPosition = false;
         // 移動可能な座標を選択した時
       } else if (selectedPiece != null && validMoves.any((coordinate) => coordinate[0] == row && coordinate[1] == col)) {
         movePiece(row, col);
