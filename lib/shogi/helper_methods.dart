@@ -75,3 +75,39 @@ ShogiPiece promotePiece(ShogiPiece piece) {
     isPromoted: true,
   );
 }
+
+String toKanjiNumeral(int int) {
+  String returnStr = "";
+  switch (int) {
+    case 1:
+      returnStr = "一";
+      break;
+    case 2:
+      returnStr = "二";
+      break;
+    case 3:
+      returnStr = "三";
+      break;
+    case 4:
+      returnStr = "四";
+      break;
+    case 5:
+      returnStr = "五";
+      break;
+    case 6:
+      returnStr = "六";
+      break;
+    case 7:
+      returnStr = "七";
+      break;
+    case 8:
+      returnStr = "八";
+      break;
+    case 9:
+      returnStr = "九";
+      break;
+    default:
+  }
+
+  return returnStr;
+}

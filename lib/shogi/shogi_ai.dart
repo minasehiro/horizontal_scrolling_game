@@ -19,7 +19,7 @@ List<List<Map<String, dynamic>>> enumerateAvailableActions(board, turnCount, isC
   List<List<Map<String, dynamic>>> theirPreciousPieces = []; // 相手の重要な駒と座標
   List<List<Map<String, dynamic>>> theirNormalPieces = []; // 相手の普通の駒と座標
   List<ShogiPieceType> preciousPieceTypes = [
-    // 重要な駒
+    // 重要な駒の種類
     ShogiPieceType.ousho, // 王
     ShogiPieceType.gyokusho, // 玉
     ShogiPieceType.hisya, // 飛

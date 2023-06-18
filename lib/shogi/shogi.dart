@@ -33,15 +33,15 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
   bool isCheck = false; // 王手がかかっているかどうか
   bool isSelectingDropPosition = false; // 手持ちの駒を打とうとしている
   int turnCount = 1; // 経過ターン
+  List<String> coordinatesHistory = []; // 棋譜
   List<ShogiPieceType> promotablePieceTypes = [
-    // 成れる駒
     ShogiPieceType.hisya, // 飛
     ShogiPieceType.kakugyo, // 角
     ShogiPieceType.keima, // 桂馬
     ShogiPieceType.kyousya, // 香車
     ShogiPieceType.ginsho, // 銀
     ShogiPieceType.hohei, // 歩
-  ];
+  ]; // 成れる駒
 
   @override
   void initState() {
@@ -211,6 +211,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
   void turnChange() {
     setState(() {
       isAllyTurn = !isAllyTurn;
+      turnCount++;
     });
 
     // CPU行動
@@ -254,6 +255,10 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         } else {
           isCheck = false;
         }
+
+        // 棋譜に記録
+        coordinatesHistory.add("${toKanjiNumeral(selectedRow + 1)}${selectedCol.toString()}${selectedPiece!.typeStr()}");
+        print(coordinatesHistory);
 
         // 現在の選択をリセット
         selectedPiece = null;
@@ -925,6 +930,10 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
     // 現在の選択をリセット
     setState(() {
+      // 棋譜に記録
+      coordinatesHistory.add("${toKanjiNumeral(selectedRow + 1)}${selectedCol.toString()}${selectedPiece!.typeStr()}");
+      print(coordinatesHistory);
+
       selectedPiece = null;
       selectedRow = -1;
       selectedCol = -1;
@@ -1088,6 +1097,8 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
       piecesTakenByEnemy.clear();
       allyKingPosition = [8, 4];
       enemyKingPosition = [0, 4];
+      coordinatesHistory.clear();
+      turnCount = 1;
       isAllyTurn = true;
     });
   }
@@ -1185,13 +1196,6 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
   // CPUの行動制御
   void cpuActionWithShogiAi() {
-    // 自分の駒群を取得
-    List<List<Map<String, dynamic>>> candidatePices = enumerateAvailableActions(board, turnCount, isCheck);
-    ShogiPiece derivedActionPiece;
-    List<int> derivedActionPieceCoordinates;
-    List<int> candidateMoves;
-    var random = Random();
-
     // 詰んでいた場合ダイアログを表示
     if (isCheckMate(!isAllyTurn)) {
       showDialog(
@@ -1273,10 +1277,19 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         },
       );
     } else {
+      // 選択できる手を取得
+      List<List<Map<String, dynamic>>> candidatePices = enumerateAvailableActions(board, turnCount, isCheck);
+      ShogiPiece derivedActionPiece;
+      List<int> derivedActionPieceCoordinates;
+      List<int> candidateMoves;
+      var random = Random();
+
       // 駒群からランダムにひとつ駒を選ぶ
       int randomIndex = random.nextInt(candidatePices.length);
-      derivedActionPiece = candidatePices[randomIndex][0]["piece"];
-      derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"];
+      derivedActionPiece = candidatePices[randomIndex][0]["piece"]; // 導き出された駒
+      derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"]; // 導き出された駒の座標
+
+      // 相手の駒を取れる駒があるならそちらを優先
 
       // ピースを選択
       selectPiece(derivedActionPieceCoordinates[0], derivedActionPieceCoordinates[1]);
