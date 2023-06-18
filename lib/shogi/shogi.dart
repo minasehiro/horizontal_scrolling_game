@@ -12,7 +12,7 @@ import 'package:horizontal_scrolling_game/shogi/shogi_ai.dart';
 // TODO: 成る時にフリップアニメーションしたい
 // TODO: 棋譜は右上から数えるらしい。成ったかどうかも書くらしい
 // TODO: 駒の移動の過程を見せるために1ずつ移動させてもいいかも
-// メッセージウィンドウほしい
+// TODO: メッセージウィンドウほしい
 
 class Shogi extends StatefulWidget {
   const Shogi({super.key});
