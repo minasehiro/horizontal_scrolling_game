@@ -8,6 +8,7 @@ class Square extends StatelessWidget {
   final bool isValidMove;
   final void Function()? onTap;
   final bool isSelectingDropPosition;
+  final bool isHoheiLineUpVertically;
 
   const Square({
     super.key,
@@ -16,6 +17,7 @@ class Square extends StatelessWidget {
     required this.isValidMove,
     required this.onTap,
     required this.isSelectingDropPosition,
+    required this.isHoheiLineUpVertically,
   });
 
   @override
@@ -23,7 +25,7 @@ class Square extends StatelessWidget {
     Color? squareColor;
 
     // 座標の状態によって背景色を変化
-    if (isSelectingDropPosition && piece == null) {
+    if (isSelectingDropPosition && piece == null && !isHoheiLineUpVertically) {
       squareColor = Colors.green[200];
     } else if (isSelected) {
       squareColor = ColorTable.primaryGreenColor; // 駒を選択中

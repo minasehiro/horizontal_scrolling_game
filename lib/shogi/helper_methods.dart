@@ -1,12 +1,38 @@
 import 'package:horizontal_scrolling_game/shogi/components/piece.dart';
 
+// 駒を自分のものにする
 ShogiPiece turnOverPiece(ShogiPiece piece) {
-  String currentKeyString = piece.isally ? "up" : "down";
-  String newKeyString = piece.isally ? "down" : "up";
-  String newImagePath = piece.imagePath.replaceFirst(currentKeyString, newKeyString);
+  String currentKeyString = piece.isally ? "up" : "down"; // 画像パスから検索する文字列
+  String newKeyString = piece.isally ? "down" : "up"; // 置き換える文字列
+  String newImagePath = piece.imagePath.replaceFirst(currentKeyString, newKeyString); // 画像パスの置き換え
+  newImagePath = newImagePath.replaceFirst("promoted_", ""); // 成り駒を取った場合、画像パスを変更
+  ShogiPieceType newShogiPieceType = piece.type; // 成り駒から通常駒への変換用
+
+  // 成り駒を通常駒に戻す
+  switch (piece.type) {
+    case ShogiPieceType.promotedHisya:
+      newShogiPieceType = ShogiPieceType.hisya;
+      break;
+    case ShogiPieceType.promotedKakugyo:
+      newShogiPieceType = ShogiPieceType.kakugyo;
+      break;
+    case ShogiPieceType.promotedKeima:
+      newShogiPieceType = ShogiPieceType.keima;
+      break;
+    case ShogiPieceType.promotedKyousya:
+      newShogiPieceType = ShogiPieceType.kyousya;
+      break;
+    case ShogiPieceType.promotedGinsho:
+      newShogiPieceType = ShogiPieceType.ginsho;
+      break;
+    case ShogiPieceType.promotedHohei:
+      newShogiPieceType = ShogiPieceType.hohei;
+      break;
+    default:
+  }
 
   return ShogiPiece(
-    type: piece.type,
+    type: newShogiPieceType,
     isally: !piece.isally,
     imagePath: newImagePath,
     isPromoted: false,
@@ -15,10 +41,11 @@ ShogiPiece turnOverPiece(ShogiPiece piece) {
 
 // 成り
 ShogiPiece promotePiece(ShogiPiece piece) {
-  String keyString = piece.isally ? "up" : "down";
-  String newImagePath = piece.imagePath.replaceFirst(keyString, "promoted_$keyString");
-  ShogiPieceType newShogiPieceType = piece.type;
+  String keyString = piece.isally ? "up" : "down"; // 画像パスから検索する文字列
+  String newImagePath = piece.imagePath.replaceFirst(keyString, "promoted_$keyString"); // 画像パスの置き換え
+  ShogiPieceType newShogiPieceType = piece.type; // 成り駒への変換用
 
+  // 成り駒の取得
   switch (piece.type) {
     case ShogiPieceType.hisya:
       newShogiPieceType = ShogiPieceType.promotedHisya;
@@ -45,6 +72,6 @@ ShogiPiece promotePiece(ShogiPiece piece) {
     type: newShogiPieceType,
     isally: piece.isally,
     imagePath: newImagePath,
-    isPromoted: false,
+    isPromoted: true,
   );
 }

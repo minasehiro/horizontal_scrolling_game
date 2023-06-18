@@ -6,7 +6,6 @@ import 'package:horizontal_scrolling_game/shogi/components/piece.dart';
 import 'package:horizontal_scrolling_game/shogi/components/square.dart';
 import 'package:horizontal_scrolling_game/shogi/helper_methods.dart';
 
-// TODO: 二歩の禁止
 // TODO: 成る時にカードフリップアニメーションしたい
 // TODO: CPU実装（持ちうる手を全て洗い出し、優先度付けして実行）
 // 優先度: 強駒が取られるのを防ぐ > 相手の強駒が取れる > 弱駒が取られるのを防ぐ > 相手の弱駒が取れる > 相手陣に近づける（終盤になると持ち駒の選択肢をランダムに入れ込む）
@@ -1108,10 +1107,21 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
                 int col = index % 9;
                 bool isSelected = row == selectedRow && col == selectedCol;
                 bool isValidMove = false;
+                bool isHoheiLineUpVertically = false;
 
+                // 選択中の駒が移動可能な座標かどうか
                 for (var position in validMoves) {
                   if (position[0] == row && position[1] == col) {
                     isValidMove = true;
+                  }
+                }
+
+                // 二歩が起きうる座標かどうか
+                if (selectedPiece != null && selectedPiece!.type == ShogiPieceType.hohei) {
+                  for (int i = 0; i < 9; i++) {
+                    if (board[i][col] != null && board[i][col]!.type == ShogiPieceType.hohei && board[i][col]!.isally == selectedPiece!.isally) {
+                      isHoheiLineUpVertically = true;
+                    }
                   }
                 }
 
@@ -1121,33 +1131,8 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
                   isValidMove: isValidMove,
                   onTap: () => selectPiece(row, col),
                   isSelectingDropPosition: isSelectingDropPosition,
+                  isHoheiLineUpVertically: isHoheiLineUpVertically,
                 );
-
-                // return Transform(
-                //   alignment: FractionalOffset.center,
-                //   transform: Matrix4.identity()
-                //     ..setEntry(3, 2, 0.0015)
-                //     ..rotateY(pi * _animation.value),
-                //   child: Card(
-                //     child: _animation.value <= 0.5
-                //         ? Square(
-                //             piece: board[row][col],
-                //             imagePath: board[row][col] != null ? board[row][col]!.imagePath : "",
-                //             isSelected: isSelected,
-                //             isValidMove: isValidMove,
-                //             onTap: () => selectPiece(row, col),
-                //             isSelectingDropPosition: isSelectingDropPosition,
-                //           )
-                //         : Square(
-                //             piece: board[row][col],
-                //             imagePath: board[row][col] != null ? board[row][col]!.promotedImagePath : "",
-                //             isSelected: isSelected,
-                //             isValidMove: isValidMove,
-                //             onTap: () => selectPiece(row, col),
-                //             isSelectingDropPosition: isSelectingDropPosition,
-                //           ),
-                //   ),
-                // );
               },
             ),
           ),
