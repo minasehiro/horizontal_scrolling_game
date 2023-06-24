@@ -1111,16 +1111,14 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            flex: 1,
-            child: GridView.builder(
-              itemCount: piecesTakenByEnemy.length,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
-              itemBuilder: (context, index) => DeadPiece(
-                imagePath: piecesTakenByEnemy[index].imagePath,
-                onTap: () => selectDropPosition(piecesTakenByEnemy[index]),
-              ),
+          GridView.builder(
+            shrinkWrap: true,
+            itemCount: piecesTakenByEnemy.length,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+            itemBuilder: (context, index) => DeadPiece(
+              imagePath: piecesTakenByEnemy[index].imagePath,
+              onTap: () => selectDropPosition(piecesTakenByEnemy[index]),
             ),
           ),
           if (isCheck)
@@ -1139,56 +1137,52 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
                 ),
               ),
             ),
-          Expanded(
-            flex: 4,
-            child: GridView.builder(
-              itemCount: 9 * 9,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 9),
-              itemBuilder: (context, index) {
-                int row = index ~/ 9;
-                int col = index % 9;
-                bool isSelected = row == selectedRow && col == selectedCol;
-                bool isValidMove = false;
-                bool isHoheiLineUpVertically = false;
+          GridView.builder(
+            shrinkWrap: true,
+            itemCount: 9 * 9,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 9),
+            itemBuilder: (context, index) {
+              int row = index ~/ 9;
+              int col = index % 9;
+              bool isSelected = row == selectedRow && col == selectedCol;
+              bool isValidMove = false;
+              bool isHoheiLineUpVertically = false;
 
-                // 選択中の駒が移動可能な座標かどうか
-                for (var position in validMoves) {
-                  if (position[0] == row && position[1] == col) {
-                    isValidMove = true;
+              // 選択中の駒が移動可能な座標かどうか
+              for (var position in validMoves) {
+                if (position[0] == row && position[1] == col) {
+                  isValidMove = true;
+                }
+              }
+
+              // 二歩が起きうる座標かどうか
+              if (selectedPiece != null && selectedPiece!.type == ShogiPieceType.hohei) {
+                for (int i = 0; i < 9; i++) {
+                  if (board[i][col] != null && board[i][col]!.type == ShogiPieceType.hohei && board[i][col]!.isally == selectedPiece!.isally) {
+                    isHoheiLineUpVertically = true;
                   }
                 }
+              }
 
-                // 二歩が起きうる座標かどうか
-                if (selectedPiece != null && selectedPiece!.type == ShogiPieceType.hohei) {
-                  for (int i = 0; i < 9; i++) {
-                    if (board[i][col] != null && board[i][col]!.type == ShogiPieceType.hohei && board[i][col]!.isally == selectedPiece!.isally) {
-                      isHoheiLineUpVertically = true;
-                    }
-                  }
-                }
-
-                return Square(
-                  piece: board[row][col],
-                  isSelected: isSelected,
-                  isValidMove: isValidMove,
-                  onTap: () => selectPiece(row, col),
-                  isSelectingDropPosition: isSelectingDropPosition,
-                  isHoheiLineUpVertically: isHoheiLineUpVertically,
-                );
-              },
-            ),
+              return Square(
+                piece: board[row][col],
+                isSelected: isSelected,
+                isValidMove: isValidMove,
+                onTap: () => selectPiece(row, col),
+                isSelectingDropPosition: isSelectingDropPosition,
+                isHoheiLineUpVertically: isHoheiLineUpVertically,
+              );
+            },
           ),
-          Expanded(
-            flex: 2,
-            child: GridView.builder(
-              itemCount: piecesTakenByAlly.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => DeadPiece(
-                imagePath: piecesTakenByAlly[index].imagePath,
-                onTap: () => selectDropPosition(piecesTakenByAlly[index]),
-              ),
+          GridView.builder(
+            shrinkWrap: true,
+            itemCount: piecesTakenByAlly.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) => DeadPiece(
+              imagePath: piecesTakenByAlly[index].imagePath,
+              onTap: () => selectDropPosition(piecesTakenByAlly[index]),
             ),
           ),
         ],
