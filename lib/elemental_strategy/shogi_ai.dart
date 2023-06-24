@@ -21,7 +21,7 @@ List<List<Map<String, dynamic>>> enumerateAvailableActions(board) {
     for (int j = 0; j < 8; j++) {
       if (board[i][j] == null) {
         continue;
-      } else if (board[i][j].isally) {
+      } else if (board[i][j].isAlly) {
         theirPieces.add(
           [
             {

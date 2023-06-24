@@ -2,14 +2,14 @@ import 'package:horizontal_scrolling_game/elemental_strategy/components/piece.da
 
 // 駒を自分のものにする
 ShogiPiece turnOverPiece(ShogiPiece piece) {
-  String currentKeyString = piece.isally ? "up" : "down"; // 画像パスから検索する文字列
-  String newKeyString = piece.isally ? "down" : "up"; // 置き換える文字列
+  String currentKeyString = piece.isAlly ? "up" : "down"; // 画像パスから検索する文字列
+  String newKeyString = piece.isAlly ? "down" : "up"; // 置き換える文字列
   String newImagePath = piece.imagePath.replaceFirst(currentKeyString, newKeyString); // 画像パスの置き換え
   newImagePath = newImagePath.replaceFirst("promoted_", ""); // 成り駒を取った場合、画像パスを変更
 
   return ShogiPiece(
     type: piece.type,
-    isally: !piece.isally,
+    isAlly: !piece.isAlly,
     imagePath: newImagePath,
     isPromoted: false,
   );

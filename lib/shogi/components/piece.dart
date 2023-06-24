@@ -18,13 +18,13 @@ enum ShogiPieceType {
 
 class ShogiPiece {
   final ShogiPieceType type;
-  final bool isally;
+  final bool isAlly;
   final String imagePath;
   final bool isPromoted;
 
   ShogiPiece({
     required this.type,
-    required this.isally,
+    required this.isAlly,
     required this.imagePath,
     required this.isPromoted,
   });

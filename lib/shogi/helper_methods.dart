@@ -2,8 +2,8 @@ import 'package:horizontal_scrolling_game/shogi/components/piece.dart';
 
 // 駒を自分のものにする
 ShogiPiece turnOverPiece(ShogiPiece piece) {
-  String currentKeyString = piece.isally ? "up" : "down"; // 画像パスから検索する文字列
-  String newKeyString = piece.isally ? "down" : "up"; // 置き換える文字列
+  String currentKeyString = piece.isAlly ? "up" : "down"; // 画像パスから検索する文字列
+  String newKeyString = piece.isAlly ? "down" : "up"; // 置き換える文字列
   String newImagePath = piece.imagePath.replaceFirst(currentKeyString, newKeyString); // 画像パスの置き換え
   newImagePath = newImagePath.replaceFirst("promoted_", ""); // 成り駒を取った場合、画像パスを変更
   ShogiPieceType newShogiPieceType = piece.type; // 成り駒から通常駒への変換用
@@ -33,7 +33,7 @@ ShogiPiece turnOverPiece(ShogiPiece piece) {
 
   return ShogiPiece(
     type: newShogiPieceType,
-    isally: !piece.isally,
+    isAlly: !piece.isAlly,
     imagePath: newImagePath,
     isPromoted: false,
   );
@@ -41,7 +41,7 @@ ShogiPiece turnOverPiece(ShogiPiece piece) {
 
 // 成り
 ShogiPiece promotePiece(ShogiPiece piece) {
-  String keyString = piece.isally ? "up" : "down"; // 画像パスから検索する文字列
+  String keyString = piece.isAlly ? "up" : "down"; // 画像パスから検索する文字列
   String newImagePath = piece.imagePath.replaceFirst(keyString, "promoted_$keyString"); // 画像パスの置き換え
   ShogiPieceType newShogiPieceType = piece.type; // 成り駒への変換用
 
@@ -70,7 +70,7 @@ ShogiPiece promotePiece(ShogiPiece piece) {
 
   return ShogiPiece(
     type: newShogiPieceType,
-    isally: piece.isally,
+    isAlly: piece.isAlly,
     imagePath: newImagePath,
     isPromoted: true,
   );

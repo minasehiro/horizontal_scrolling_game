@@ -60,73 +60,73 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
       // 敵陣
       newBoard[0][0] = ShogiPiece(
         type: ShogiPieceType.kyousya,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_kyousya.png",
         isPromoted: false,
       );
       newBoard[0][1] = ShogiPiece(
         type: ShogiPieceType.keima,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_keima.png",
         isPromoted: false,
       );
       newBoard[0][2] = ShogiPiece(
         type: ShogiPieceType.ginsho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_ginsho.png",
         isPromoted: false,
       );
       newBoard[0][3] = ShogiPiece(
         type: ShogiPieceType.kinsho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_kinsho.png",
         isPromoted: false,
       );
       newBoard[0][4] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_ousho.png",
         isPromoted: false,
       );
       newBoard[0][5] = ShogiPiece(
         type: ShogiPieceType.kinsho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_kinsho.png",
         isPromoted: false,
       );
       newBoard[0][6] = ShogiPiece(
         type: ShogiPieceType.ginsho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_ginsho.png",
         isPromoted: false,
       );
       newBoard[0][7] = ShogiPiece(
         type: ShogiPieceType.keima,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_keima.png",
         isPromoted: false,
       );
       newBoard[0][8] = ShogiPiece(
         type: ShogiPieceType.kyousya,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_kyousya.png",
         isPromoted: false,
       );
       newBoard[1][1] = ShogiPiece(
         type: ShogiPieceType.hisya,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_hisya.png",
         isPromoted: false,
       );
       newBoard[1][7] = ShogiPiece(
         type: ShogiPieceType.kakugyo,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_kakugyo.png",
         isPromoted: false,
       );
       newBoard[2][i] = ShogiPiece(
         type: ShogiPieceType.hohei,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/shogi/down_hohei.png",
         isPromoted: false,
       );
@@ -134,73 +134,73 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
       // 自陣
       newBoard[6][i] = ShogiPiece(
         type: ShogiPieceType.hohei,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_hohei.png",
         isPromoted: false,
       );
       newBoard[7][1] = ShogiPiece(
         type: ShogiPieceType.kakugyo,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_kakugyo.png",
         isPromoted: false,
       );
       newBoard[7][7] = ShogiPiece(
         type: ShogiPieceType.hisya,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_hisya.png",
         isPromoted: false,
       );
       newBoard[8][0] = ShogiPiece(
         type: ShogiPieceType.kyousya,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_kyousya.png",
         isPromoted: false,
       );
       newBoard[8][1] = ShogiPiece(
         type: ShogiPieceType.keima,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_keima.png",
         isPromoted: false,
       );
       newBoard[8][2] = ShogiPiece(
         type: ShogiPieceType.ginsho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_ginsho.png",
         isPromoted: false,
       );
       newBoard[8][3] = ShogiPiece(
         type: ShogiPieceType.kinsho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_kinsho.png",
         isPromoted: false,
       );
       newBoard[8][4] = ShogiPiece(
         type: ShogiPieceType.gyokusho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_gyokusho.png",
         isPromoted: false,
       );
       newBoard[8][5] = ShogiPiece(
         type: ShogiPieceType.kinsho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_kinsho.png",
         isPromoted: false,
       );
       newBoard[8][6] = ShogiPiece(
         type: ShogiPieceType.ginsho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_ginsho.png",
         isPromoted: false,
       );
       newBoard[8][7] = ShogiPiece(
         type: ShogiPieceType.keima,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_keima.png",
         isPromoted: false,
       );
       newBoard[8][8] = ShogiPiece(
         type: ShogiPieceType.kyousya,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/shogi/up_kyousya.png",
         isPromoted: false,
       );
@@ -225,13 +225,13 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
     setState(() {
       // 駒を選択していない状態から駒を選択した時
       if (selectedPiece == null && board[row][col] != null) {
-        if (board[row][col]!.isally == isAllyTurn) {
+        if (board[row][col]!.isAlly == isAllyTurn) {
           selectedPiece = board[row][col];
           selectedRow = row;
           selectedCol = col;
         }
         // 駒を選択している状態で自陣の他の駒を選択した時
-      } else if (board[row][col] != null && board[row][col]!.isally == selectedPiece!.isally) {
+      } else if (board[row][col] != null && board[row][col]!.isAlly == selectedPiece!.isAlly) {
         selectedPiece = board[row][col];
         selectedRow = row;
         selectedCol = col;
@@ -245,7 +245,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         board[row][col] = selectedPiece;
 
         // 持ち駒から削除
-        if (selectedPiece!.isally) {
+        if (selectedPiece!.isAlly) {
           piecesTakenByAlly.remove(selectedPiece);
         } else {
           piecesTakenByEnemy.remove(selectedPiece);
@@ -387,9 +387,9 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
     List<int>? currentKingPosition;
     if (piece.type == ShogiPieceType.ousho || piece.type == ShogiPieceType.gyokusho) {
-      currentKingPosition = piece.isally ? allyKingPosition : enemyKingPosition;
+      currentKingPosition = piece.isAlly ? allyKingPosition : enemyKingPosition;
 
-      if (piece.isally) {
+      if (piece.isAlly) {
         allyKingPosition = [candidateRow, candidateCol];
       } else {
         enemyKingPosition = [candidateRow, candidateCol];
@@ -399,14 +399,14 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
     board[candidateRow][candidateCol] = piece;
     board[currentRow][currentCol] = null;
 
-    bool isCheck = isKingInCheck(!piece.isally); // 移動先の位置で王手をかけられるかチェック
+    bool isCheck = isKingInCheck(!piece.isAlly); // 移動先の位置で王手をかけられるかチェック
 
     board[currentRow][currentCol] = piece; // 駒の位置をもとに戻す
     board[candidateRow][candidateCol] = originalDestinationPiece; // 移動先の座標に元の駒を戻す
 
     // 王将の位置情報を元に戻す
     if (piece.type == ShogiPieceType.ousho || piece.type == ShogiPieceType.gyokusho) {
-      if (piece.isally) {
+      if (piece.isAlly) {
         allyKingPosition = currentKingPosition!;
       } else {
         enemyKingPosition = currentKingPosition!;
@@ -424,7 +424,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
     }
 
     List<List<int>> candidateMoves = [];
-    int direction = piece.isally ? -1 : 1;
+    int direction = piece.isAlly ? -1 : 1;
 
     switch (piece.type) {
       case ShogiPieceType.hohei: // 歩兵
@@ -433,7 +433,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         // 盤面から出ていない
         if (isInBoard(newRow, col)) {
           // 空の座標か、敵の座標だった場合
-          if (board[newRow][col] == null || board[newRow][col]!.isally != piece.isally) {
+          if (board[newRow][col] == null || board[newRow][col]!.isAlly != piece.isAlly) {
             candidateMoves.add([newRow, col]);
           }
         }
@@ -462,7 +462,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
             // 対象の座標に駒がある
             if (board[newRow][newCol] != null) {
               // 対象の駒が敵
-              if (board[newRow][newCol]!.isally != piece.isally) {
+              if (board[newRow][newCol]!.isAlly != piece.isAlly) {
                 candidateMoves.add([newRow, newCol]);
               }
               break;
@@ -507,7 +507,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
             // 対象の座標に駒がある
             if (board[newRow][newCol] != null) {
               // 対象の駒が敵
-              if (board[newRow][newCol]!.isally != piece.isally) {
+              if (board[newRow][newCol]!.isAlly != piece.isAlly) {
                 candidateMoves.add([newRow, newCol]);
               }
               break;
@@ -531,7 +531,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
           // 対象の座標に駒がある
           if (board[newRow][newCol] != null) {
             // 対象の駒が敵
-            if (board[newRow][newCol]!.isally != piece.isally) {
+            if (board[newRow][newCol]!.isAlly != piece.isAlly) {
               candidateMoves.add([newRow, newCol]);
             }
             continue;
@@ -564,7 +564,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
             // 対象の座標に駒がある
             if (board[newRow][newCol] != null) {
               // 対象の駒が敵
-              if (board[newRow][newCol]!.isally != piece.isally) {
+              if (board[newRow][newCol]!.isAlly != piece.isAlly) {
                 candidateMoves.add([newRow, newCol]);
               }
               break;
@@ -609,7 +609,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
             // 対象の座標に駒がある
             if (board[newRow][newCol] != null) {
               // 対象の駒が敵
-              if (board[newRow][newCol]!.isally != piece.isally) {
+              if (board[newRow][newCol]!.isAlly != piece.isAlly) {
                 candidateMoves.add([newRow, newCol]);
               }
               break;
@@ -633,7 +633,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
           // 対象の座標に駒がある
           if (board[newRow][newCol] != null) {
             // 対象の駒が敵
-            if (board[newRow][newCol]!.isally != piece.isally) {
+            if (board[newRow][newCol]!.isAlly != piece.isAlly) {
               candidateMoves.add([newRow, newCol]);
             }
             continue;
@@ -662,7 +662,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
             // 対象の座標に駒がある
             if (board[newRow][col] != null) {
               // 対象の駒が敵
-              if (board[newRow][col]!.isally != piece.isally) {
+              if (board[newRow][col]!.isAlly != piece.isAlly) {
                 candidateMoves.add([newRow, col]);
               }
               break;
@@ -692,7 +692,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
           // 対象の座標に駒がある
           if (board[newRow][newCol] != null) {
             // 対象の駒が敵
-            if (board[newRow][newCol]!.isally != piece.isally) {
+            if (board[newRow][newCol]!.isAlly != piece.isAlly) {
               candidateMoves.add([newRow, newCol]);
             }
             continue;
@@ -723,7 +723,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
           // 対象の座標に駒がある
           if (board[newRow][newCol] != null) {
             // 対象の駒が敵
-            if (board[newRow][newCol]!.isally != piece.isally) {
+            if (board[newRow][newCol]!.isAlly != piece.isAlly) {
               candidateMoves.add([newRow, newCol]);
             }
             continue;
@@ -759,7 +759,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
           // 対象の座標に駒がある
           if (board[newRow][newCol] != null) {
             // 対象の駒が敵
-            if (board[newRow][newCol]!.isally != piece.isally) {
+            if (board[newRow][newCol]!.isAlly != piece.isAlly) {
               candidateMoves.add([newRow, newCol]);
             }
             continue;
@@ -794,7 +794,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
           // 対象の座標に駒がある
           if (board[newRow][newCol] != null) {
             // 対象の駒が敵
-            if (board[newRow][newCol]!.isally != piece.isally) {
+            if (board[newRow][newCol]!.isAlly != piece.isAlly) {
               candidateMoves.add([newRow, newCol]);
             }
             continue;
@@ -821,7 +821,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
       var capturedPiece = board[newRow][newCol];
 
       // 駒の取得
-      if (capturedPiece!.isally) {
+      if (capturedPiece!.isAlly) {
         piecesTakenByEnemy.add(turnOverPiece(capturedPiece));
       } else {
         piecesTakenByAlly.add(turnOverPiece(capturedPiece));
@@ -847,7 +847,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
       // 成りの対象駒で、まだ成っていない
       if (promotablePieceTypes.contains(currentPiece.type) && !selectedPiece!.isPromoted) {
-        if (selectedPiece!.isally) {
+        if (selectedPiece!.isAlly) {
           // 敵陣に入ったか、出た時
           if (newRow <= 2 && selectedRow >= 3 || newRow >= 3 && selectedRow <= 2) {
             await showDialog(
@@ -1029,7 +1029,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
   // 手持ちの駒を取りどこに打つか決める
   void selectDropPosition(ShogiPiece piece) {
-    if (isAllyTurn == piece.isally) {
+    if (isAllyTurn == piece.isAlly) {
       setState(() {
         isSelectingDropPosition = true;
         selectedPiece = piece;
@@ -1045,7 +1045,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 9; j++) {
-        if (board[i][j] == null || board[i][j]!.isally != isAllyTurn) {
+        if (board[i][j] == null || board[i][j]!.isAlly != isAllyTurn) {
           continue;
         }
 
@@ -1070,7 +1070,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 9; j++) {
         // 対象の王・玉の敵の駒は判定しない
-        if (board[i][j] == null || board[i][j]!.isally == isAllyTurn) {
+        if (board[i][j] == null || board[i][j]!.isAlly == isAllyTurn) {
           continue;
         }
 
@@ -1159,7 +1159,7 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
               // 二歩が起きうる座標かどうか
               if (selectedPiece != null && selectedPiece!.type == ShogiPieceType.hohei) {
                 for (int i = 0; i < 9; i++) {
-                  if (board[i][col] != null && board[i][col]!.type == ShogiPieceType.hohei && board[i][col]!.isally == selectedPiece!.isally) {
+                  if (board[i][col] != null && board[i][col]!.type == ShogiPieceType.hohei && board[i][col]!.isAlly == selectedPiece!.isAlly) {
                     isHoheiLineUpVertically = true;
                   }
                 }

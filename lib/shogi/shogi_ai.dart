@@ -36,7 +36,7 @@ List<List<Map<String, dynamic>>> enumerateAvailableActions(board, turnCount, isC
     for (int j = 0; j < 9; j++) {
       if (board[i][j] == null) {
         continue;
-      } else if (board[i][j].isally) {
+      } else if (board[i][j].isAlly) {
         if (preciousPieceTypes.contains(board[i][j].type)) {
           theirPreciousPieces.add(
             [

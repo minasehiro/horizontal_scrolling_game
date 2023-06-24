@@ -41,25 +41,25 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
       // 敵陣
       newBoard[0][2] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/kazuha.png",
         isPromoted: false,
       );
       newBoard[0][3] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/venti.png",
         isPromoted: false,
       );
       newBoard[0][4] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/yanfei.png",
         isPromoted: false,
       );
       newBoard[0][5] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: false,
+        isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/xiao.png",
         isPromoted: false,
       );
@@ -67,25 +67,25 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
       // 自陣
       newBoard[7][2] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/elemental_strategy/kazuha.png",
         isPromoted: false,
       );
       newBoard[7][3] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/elemental_strategy/venti.png",
         isPromoted: false,
       );
       newBoard[7][4] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/elemental_strategy/yanfei.png",
         isPromoted: false,
       );
       newBoard[7][5] = ShogiPiece(
         type: ShogiPieceType.ousho,
-        isally: true,
+        isAlly: true,
         imagePath: "lib/assets/images/elemental_strategy/xiao.png",
         isPromoted: false,
       );
@@ -110,13 +110,13 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
     setState(() {
       // 駒を選択していない状態から駒を選択した時
       if (selectedPiece == null && board[row][col] != null) {
-        if (board[row][col]!.isally == isAllyTurn) {
+        if (board[row][col]!.isAlly == isAllyTurn) {
           selectedPiece = board[row][col];
           selectedRow = row;
           selectedCol = col;
         }
         // 駒を選択している状態で自陣の他の駒を選択した時
-      } else if (board[row][col] != null && board[row][col]!.isally == selectedPiece!.isally) {
+      } else if (board[row][col] != null && board[row][col]!.isAlly == selectedPiece!.isAlly) {
         selectedPiece = board[row][col];
         selectedRow = row;
         selectedCol = col;
@@ -167,7 +167,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
           // 対象の座標に駒がある
           if (board[newRow][newCol] != null) {
             // 対象の駒が敵
-            if (board[newRow][newCol]!.isally != piece.isally) {
+            if (board[newRow][newCol]!.isAlly != piece.isAlly) {
               candidateMoves.add([newRow, newCol]);
             }
             continue;
