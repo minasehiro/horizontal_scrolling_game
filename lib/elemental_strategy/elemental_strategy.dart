@@ -163,28 +163,40 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
 
   // キャラクターを移動
   void moveCharacter(int newRow, int newCol) async {
+    Map<String, dynamic> toRemove = {};
+    Character? newCharacter;
+
     for (var elementalParticle in elementalParticles) {
       if (elementalParticle["coordinates"][0] == newRow && elementalParticle["coordinates"][1] == newCol) {
+        // 元素拾得時、 elementEnergy を更新した Character を生成
         int givenEnergy = selectedCharacter!.elementType == elementalParticle["element"].type ? 50 : 25;
 
-        setState(() {
-          selectedCharacter!.elementEnergy = selectedCharacter!.elementEnergy + givenEnergy;
-
-          elementalParticles.remove(elementalParticle);
-        });
+        newCharacter = Character(
+          type: selectedCharacter!.type,
+          elementType: selectedCharacter!.elementType,
+          isAlly: selectedCharacter!.isAlly,
+          imagePath: selectedCharacter!.imagePath,
+          elementEnergy: selectedCharacter!.elementEnergy + givenEnergy,
+        );
+        toRemove = elementalParticle;
       }
     }
 
-    field[newRow][newCol] = selectedCharacter; // 新しい座標へ移動
-    field[selectedRow][selectedCol] = null; //元の座標を初期化
-
-    // 現在の選択をリセット
     setState(() {
-      var currentLog = "${isAllyTurn ? "自分" : "相手"}の${selectedCharacter!.characterName()}が [${(newRow + 1).toString()}, ${(newCol + 1).toString()}] に移動";
+      // キャラクターを入れ替え、元素エネルギーを取り除く
+      if (newCharacter != null) {
+        selectedCharacter = newCharacter;
+        elementalParticles.remove(toRemove);
+      }
+
+      field[newRow][newCol] = selectedCharacter; // 新しい座標へ移動
+      field[selectedRow][selectedCol] = null; //元の座標を初期化
 
       // 履歴に記録
+      var currentLog = "${isAllyTurn ? "自分" : "相手"}の${selectedCharacter!.name()}が [${(newRow + 1).toString()}, ${(newCol + 1).toString()}] に移動";
       history.add(currentLog);
 
+      // キャラクター選択をリセット
       selectedCharacter = null;
       selectedRow = -1;
       selectedCol = -1;

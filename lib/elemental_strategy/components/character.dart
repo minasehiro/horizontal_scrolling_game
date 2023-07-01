@@ -5,7 +5,7 @@ class Character {
   final ElementType elementType;
   final bool isAlly;
   final String imagePath;
-  late final int elementEnergy;
+  final int elementEnergy;
 
   Character({
     required this.type,
@@ -15,7 +15,7 @@ class Character {
     required this.elementEnergy,
   });
 
-  String characterName() {
+  String name() {
     String returnStr = "";
     switch (type) {
       case CharacterType.kazuha:

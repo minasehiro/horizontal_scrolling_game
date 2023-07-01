@@ -3,6 +3,7 @@ import 'package:horizontal_scrolling_game/elemental_strategy/components/genshin_
 
 import '../../color_table.dart';
 import 'character.dart';
+import 'character_coin.dart';
 
 class Square extends StatelessWidget {
   final Character? piece;
@@ -23,14 +24,7 @@ class Square extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color? squareColor;
-    String? imagePath;
-
-    // 座標の状態によって表示する画像を変化
-    if (piece != null) {
-      imagePath = piece!.imagePath;
-    } else if (element != null) {
-      imagePath = element!.imagePath;
-    }
+    Widget? displayWidget;
 
     // 座標の状態によって背景色を変化
     if (isSelected) {
@@ -39,6 +33,17 @@ class Square extends StatelessWidget {
       squareColor = Colors.green[200]; // 選択しているキャラクターが移動可能
     } else {
       squareColor = Colors.brown[100];
+    }
+
+    if (piece != null) {
+      displayWidget = CharacterCoin(character: piece, imagePath: piece!.imagePath);
+    } else if (element != null) {
+      displayWidget = Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Image.asset(element!.imagePath),
+      );
+    } else {
+      null;
     }
 
     return GestureDetector(
@@ -51,25 +56,8 @@ class Square extends StatelessWidget {
             color: ColorTable.primaryBlackColor,
           ),
         ),
-        child: imagePath != null ? CharacterCoin(imagePath: imagePath) : null,
+        child: displayWidget,
       ),
-    );
-  }
-}
-
-class CharacterCoin extends StatelessWidget {
-  const CharacterCoin({
-    Key? key,
-    required this.imagePath,
-  }) : super(key: key);
-
-  final String? imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: Image.asset(imagePath!),
     );
   }
 }
