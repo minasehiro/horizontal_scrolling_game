@@ -1,11 +1,11 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:horizontal_scrolling_game/color_table.dart';
-import 'package:horizontal_scrolling_game/elemental_strategy/components/piece.dart';
-import 'package:horizontal_scrolling_game/elemental_strategy/components/square.dart';
-import 'package:horizontal_scrolling_game/elemental_strategy/helper_methods.dart';
-import 'package:horizontal_scrolling_game/elemental_strategy/shogi_ai.dart';
+
+import '../color_table.dart';
+import 'components/character.dart';
+import 'components/square.dart';
+import 'helper_methods.dart';
+import 'cpu_ai.dart';
 
 class ElementalStrategy extends StatefulWidget {
   const ElementalStrategy({super.key});
@@ -15,13 +15,12 @@ class ElementalStrategy extends StatefulWidget {
 }
 
 class _ElementalStrategyState extends State<ElementalStrategy> {
-  late List<List<ShogiPiece?>> board; // 盤面管理用の配列
-  ShogiPiece? selectedPiece; // 選択されている駒
+  late List<List<Character?>> field; // フィールド管理用の配列
+  Character? selectedPiece; // 選択されている駒
   int selectedRow = -1; // 選択されている駒の行番号
   int selectedCol = -1; // 選択されている駒の列番号
   List<List<int>> validMoves = []; // 移動可能な座標の配列
   bool isAllyTurn = true; // 味方のターンかどうか
-  bool isSelectingDropPosition = false; // 手持ちの駒を打とうとしている
   int turnCount = 1; // 経過ターン
   String currentLog = "対戦開始！！";
   List<String> coordinatesHistory = []; // ログ
@@ -35,63 +34,63 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
 
   // 盤面の初期化
   void _initializeBoard() {
-    List<List<ShogiPiece?>> newBoard = List.generate(8, (index) => List.generate(8, (index) => null));
+    List<List<Character?>> newField = List.generate(8, (index) => List.generate(8, (index) => null));
 
     for (int i = 0; i < 8; i++) {
       // 敵陣
-      newBoard[0][2] = ShogiPiece(
-        type: ShogiPieceType.ousho,
+      newField[0][2] = Character(
+        type: CharacterType.yanfei,
         isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/kazuha.png",
-        isPromoted: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_yanfei.png",
+        elementEnergy: 0,
       );
-      newBoard[0][3] = ShogiPiece(
-        type: ShogiPieceType.ousho,
+      newField[0][3] = Character(
+        type: CharacterType.xiao,
         isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/venti.png",
-        isPromoted: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_xiao.png",
+        elementEnergy: 0,
       );
-      newBoard[0][4] = ShogiPiece(
-        type: ShogiPieceType.ousho,
+      newField[0][4] = Character(
+        type: CharacterType.venti,
         isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/yanfei.png",
-        isPromoted: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_venti.png",
+        elementEnergy: 0,
       );
-      newBoard[0][5] = ShogiPiece(
-        type: ShogiPieceType.ousho,
+      newField[0][5] = Character(
+        type: CharacterType.kazuha,
         isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/xiao.png",
-        isPromoted: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_kazuha.png",
+        elementEnergy: 0,
       );
 
       // 自陣
-      newBoard[7][2] = ShogiPiece(
-        type: ShogiPieceType.ousho,
+      newField[7][2] = Character(
+        type: CharacterType.kazuha,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/kazuha.png",
-        isPromoted: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_kazuha.png",
+        elementEnergy: 0,
       );
-      newBoard[7][3] = ShogiPiece(
-        type: ShogiPieceType.ousho,
+      newField[7][3] = Character(
+        type: CharacterType.venti,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/venti.png",
-        isPromoted: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_venti.png",
+        elementEnergy: 0,
       );
-      newBoard[7][4] = ShogiPiece(
-        type: ShogiPieceType.ousho,
+      newField[7][4] = Character(
+        type: CharacterType.xiao,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/yanfei.png",
-        isPromoted: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_yanfei.png",
+        elementEnergy: 0,
       );
-      newBoard[7][5] = ShogiPiece(
-        type: ShogiPieceType.ousho,
+      newField[7][5] = Character(
+        type: CharacterType.yanfei,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/xiao.png",
-        isPromoted: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_xiao.png",
+        elementEnergy: 0,
       );
     }
 
-    board = newBoard;
+    field = newField;
   }
 
   // CPUへターンを渡す
@@ -102,102 +101,43 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
     });
 
     // CPU行動
-    cpuActionWithShogiAi();
+    cpuActionWithCpuAi();
   }
 
   // ピースを選択する
-  void selectPiece(int row, int col) {
+  void selectCharacter(int row, int col) {
     setState(() {
-      // 駒を選択していない状態から駒を選択した時
-      if (selectedPiece == null && board[row][col] != null) {
-        if (board[row][col]!.isAlly == isAllyTurn) {
-          selectedPiece = board[row][col];
+      // キャラクターを選択していない状態からキャラクターを選択した時
+      if (selectedPiece == null && field[row][col] != null) {
+        if (field[row][col]!.isAlly == isAllyTurn) {
+          selectedPiece = field[row][col];
           selectedRow = row;
           selectedCol = col;
         }
-        // 駒を選択している状態で自陣の他の駒を選択した時
-      } else if (board[row][col] != null && board[row][col]!.isAlly == selectedPiece!.isAlly) {
-        selectedPiece = board[row][col];
+        // キャラクターを選択している状態で自分の他のキャラクターを選択した時
+      } else if (field[row][col] != null && field[row][col]!.isAlly == selectedPiece!.isAlly) {
+        selectedPiece = field[row][col];
         selectedRow = row;
         selectedCol = col;
-        isSelectingDropPosition = false;
         // 移動可能な座標を選択した時
       } else if (selectedPiece != null && validMoves.any((coordinate) => coordinate[0] == row && coordinate[1] == col)) {
-        if (board[row][col] != null) {
-          print(coordinatesHistory);
-        }
-
-        movePiece(row, col);
+        moveCharacter(row, col);
       }
 
-      validMoves = calculateRawValidMoves(selectedRow, selectedCol, selectedPiece); // 移動可能な座標を再計算
+      validMoves = calculateRawValidMoves(field, selectedRow, selectedCol, selectedPiece); // 移動可能な座標を再計算
     });
   }
 
-  // 駒が移動可能な座標を配列で返す
-  List<List<int>> calculateRawValidMoves(int row, int col, ShogiPiece? piece) {
-    if (piece == null) {
-      return [];
-    }
-
-    List<List<int>> candidateMoves = [];
-
-    switch (piece.type) {
-      case ShogiPieceType.ousho: // 王将
-        var directions = [
-          [-1, 0], // 上
-          [1, 0], // 下
-          [0, -1], // 左
-          [0, 1], // 右
-          [-1, -1], // 左上
-          [-1, 1], // 右上
-          [1, -1], // 左下
-          [1, 1], // 右下
-        ];
-
-        for (var direction in directions) {
-          var newRow = row + (direction[0]);
-          var newCol = col + (direction[1]);
-
-          // 盤面から出た場合
-          if (!isInBoard(newRow, newCol)) {
-            continue;
-          }
-
-          // 対象の座標に駒がある
-          if (board[newRow][newCol] != null) {
-            // 対象の駒が敵
-            if (board[newRow][newCol]!.isAlly != piece.isAlly) {
-              candidateMoves.add([newRow, newCol]);
-            }
-            continue;
-          }
-
-          candidateMoves.add([newRow, newCol]);
-        }
-
-        break;
-      default:
-    }
-
-    return candidateMoves;
-  }
-
-  // 対象の座標が盤面にあるか
-  bool isInBoard(int row, int col) {
-    return row >= 0 && row < 8 && col >= 0 && col < 8;
-  }
-
-  // 駒を移動
-  void movePiece(int newRow, int newCol) async {
-    board[newRow][newCol] = selectedPiece; // 新しい座標へ移動
-    board[selectedRow][selectedCol] = null; //元の座標を初期化
+  // キャラクターを移動
+  void moveCharacter(int newRow, int newCol) async {
+    field[newRow][newCol] = selectedPiece; // 新しい座標へ移動
+    field[selectedRow][selectedCol] = null; //元の座標を初期化
 
     // 現在の選択をリセット
     setState(() {
-      currentLog = "${isAllyTurn ? "自分" : "相手"}の${selectedPiece!.typeStr()}が${(newRow + 1).toString()}${toKanjiNumeral(newCol + 1)}に移動";
+      currentLog = "${isAllyTurn ? "自分" : "相手"}の${selectedPiece!.characterName()}が [${(newRow + 1).toString()}, ${(newCol + 1).toString()}] に移動";
 
-      // 棋譜に記録
+      // 履歴に記録
       coordinatesHistory.add("ターン$turnCount: $currentLog");
 
       selectedPiece = null;
@@ -273,9 +213,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
                 int col = index % 8;
                 bool isSelected = row == selectedRow && col == selectedCol;
                 bool isValidMove = false;
-                bool isHoheiLineUpVertically = false;
 
-                // 選択中の駒が移動可能な座標かどうか
+                // 選択中のキャラクターが移動可能な座標かどうか
                 for (var position in validMoves) {
                   if (position[0] == row && position[1] == col) {
                     isValidMove = true;
@@ -283,12 +222,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
                 }
 
                 return Square(
-                  piece: board[row][col],
+                  piece: field[row][col],
                   isSelected: isSelected,
                   isValidMove: isValidMove,
-                  onTap: () => selectPiece(row, col),
-                  isSelectingDropPosition: isSelectingDropPosition,
-                  isHoheiLineUpVertically: isHoheiLineUpVertically,
+                  onTap: () => selectCharacter(row, col),
                 );
               },
             ),
@@ -308,24 +245,24 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
   }
 
   // CPUの行動制御
-  void cpuActionWithShogiAi() {
+  void cpuActionWithCpuAi() {
     // 選択できる手を取得
-    List<List<Map<String, dynamic>>> candidatePices = enumerateAvailableActions(board);
+    List<List<Map<String, dynamic>>> candidatePices = enumerateAvailableActions(field);
     List<int> derivedActionPieceCoordinates;
     List<int> candidateMoves;
     var random = Random();
 
-    // 駒群からランダムにひとつ駒を選ぶ
+    // キャラクター群からランダムにひとり選ぶ
     int randomIndex = random.nextInt(candidatePices.length);
-    derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"]; // 導き出された駒の座標
+    derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"]; // 選ばれたキャラクターの座標
 
-    // ピースを選択
-    selectPiece(derivedActionPieceCoordinates[0], derivedActionPieceCoordinates[1]);
+    // キャラクターを選択
+    selectCharacter(derivedActionPieceCoordinates[0], derivedActionPieceCoordinates[1]);
 
-    // 動かせない駒だった場合は再計算
+    // 動かせないキャラクターだった場合は再計算
     while (validMoves.isEmpty) {
       int randomIndex = random.nextInt(candidatePices.length);
-      derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"]; // 再計算された駒の座標
+      derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"]; // 再選択されたキャラクターの座標
     }
 
     // 移動可能な座標からランダムにひとつ選ぶ
@@ -333,7 +270,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
     candidateMoves = validMoves[randomIndex];
 
     // 移動実行
-    movePiece(candidateMoves[0], candidateMoves[1]);
+    moveCharacter(candidateMoves[0], candidateMoves[1]);
 
     // プレイヤーへターンを渡す
     setState(() {

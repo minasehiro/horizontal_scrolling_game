@@ -63,6 +63,7 @@ flutter:
   assets:
     - lib/assets/images/
     - lib/assets/images/elemental_strategy/
+    - lib/assets/images/elemental_strategy/characters/
     - lib/assets/images/paimon_impact/
     - lib/assets/images/paimon_impact/elements/
     - lib/assets/images/shogi/
