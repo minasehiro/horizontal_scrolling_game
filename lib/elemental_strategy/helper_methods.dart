@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'components/character.dart';
 import 'components/genshin_element.dart';
+import 'constants.dart';
 
 // 元素粒子の種類と発生位置を計算
 Map<String, dynamic> buildElementalParticle(elements, rows, cols) {
@@ -76,14 +77,15 @@ bool isInField(int row, int col) {
 }
 
 // キャラクターを自分のものにする
-Character turnOverPiece(Character piece) {
-  String currentDirectionString = piece.isAlly ? "up" : "down"; // 画像パスから検索する文字列
-  String newDirectionString = piece.isAlly ? "down" : "up"; // 置き換える文字列
-  String newImagePath = piece.imagePath.replaceFirst(currentDirectionString, newDirectionString); // 画像パスの置き換え
+Character turnOverPiece(Character character) {
+  String currentDirectionString = character.isAlly ? "up" : "down"; // 画像パスから検索する文字列
+  String newDirectionString = character.isAlly ? "down" : "up"; // 置き換える文字列
+  String newImagePath = character.imagePath.replaceFirst(currentDirectionString, newDirectionString); // 画像パスの置き換え
 
   return Character(
-    type: piece.type,
-    isAlly: !piece.isAlly,
+    type: character.type,
+    elementType: character.elementType,
+    isAlly: !character.isAlly,
     imagePath: newImagePath,
     elementEnergy: 0,
   );

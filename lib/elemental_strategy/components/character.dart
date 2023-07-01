@@ -1,18 +1,15 @@
-enum CharacterType {
-  kazuha,
-  venti,
-  xiao,
-  yanfei,
-}
+import '../constants.dart';
 
 class Character {
   final CharacterType type;
+  final ElementType elementType;
   final bool isAlly;
   final String imagePath;
-  final int elementEnergy;
+  late final int elementEnergy;
 
   Character({
     required this.type,
+    required this.elementType,
     required this.isAlly,
     required this.imagePath,
     required this.elementEnergy,

@@ -51,13 +51,25 @@ class Square extends StatelessWidget {
             color: ColorTable.primaryBlackColor,
           ),
         ),
-        child: imagePath != null
-            ? Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Image.asset(imagePath),
-              )
-            : null,
+        child: imagePath != null ? CharacterCoin(imagePath: imagePath) : null,
       ),
+    );
+  }
+}
+
+class CharacterCoin extends StatelessWidget {
+  const CharacterCoin({
+    Key? key,
+    required this.imagePath,
+  }) : super(key: key);
+
+  final String? imagePath;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Image.asset(imagePath!),
     );
   }
 }

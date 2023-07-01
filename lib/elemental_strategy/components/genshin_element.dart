@@ -1,12 +1,4 @@
-enum ElementType {
-  pyro,
-  hydro,
-  anemo,
-  electro,
-  dendro,
-  cyro,
-  geo,
-}
+import '../constants.dart';
 
 class GenshinElement {
   ElementType type;
