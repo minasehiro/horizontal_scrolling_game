@@ -54,10 +54,6 @@ List<List<int>> calculateRawValidMoves(List<List<Character?>> field, int row, in
 
         // 対象の座標にキャラクターがいる
         if (field[newRow][newCol] != null) {
-          // 対象のキャラクターが敵
-          if (field[newRow][newCol]!.isAlly != piece.isAlly) {
-            candidateMoves.add([newRow, newCol]);
-          }
           continue;
         }
 
