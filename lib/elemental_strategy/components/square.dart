@@ -32,7 +32,7 @@ class Square extends StatelessWidget {
     } else if (isValidMove) {
       squareColor = Colors.green[200]; // 選択しているキャラクターが移動可能
     } else {
-      squareColor = Colors.brown[100];
+      squareColor = Colors.grey[300];
     }
 
     if (piece != null) {
