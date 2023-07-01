@@ -99,7 +99,7 @@ class _Painter extends CustomPainter {
   }
 
   static const _percentInRadians = 0.062831853071796;
-  static const _padding = 4;
+  static const _padding = 0;
   static const _paddingInRadians = _percentInRadians * _padding;
   // 0 radians is to the right, but since we want to start from the top
   // we'll use -90 degrees in radians
