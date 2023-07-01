@@ -169,14 +169,14 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
     for (var elementalParticle in elementalParticles) {
       if (elementalParticle["coordinates"][0] == newRow && elementalParticle["coordinates"][1] == newCol) {
         // 元素拾得時、 elementEnergy を更新した Character を生成
-        int givenEnergy = selectedCharacter!.elementType == elementalParticle["element"].type ? 50 : 25;
+        double totalEnergy = selectedCharacter!.elementEnergy + (selectedCharacter!.elementType == elementalParticle["element"].type ? 50 : 25);
 
         newCharacter = Character(
           type: selectedCharacter!.type,
           elementType: selectedCharacter!.elementType,
           isAlly: selectedCharacter!.isAlly,
           imagePath: selectedCharacter!.imagePath,
-          elementEnergy: selectedCharacter!.elementEnergy + givenEnergy,
+          elementEnergy: totalEnergy > 100.0 ? 100.0 : totalEnergy,
         );
         toRemove = elementalParticle;
       }

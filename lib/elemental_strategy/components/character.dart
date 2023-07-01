@@ -5,7 +5,7 @@ class Character {
   final ElementType elementType;
   final bool isAlly;
   final String imagePath;
-  final int elementEnergy;
+  final double elementEnergy;
 
   Character({
     required this.type,
