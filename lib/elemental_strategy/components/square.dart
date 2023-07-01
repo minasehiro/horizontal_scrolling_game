@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:horizontal_scrolling_game/elemental_strategy/components/genshin_element.dart';
 
 import '../../color_table.dart';
 import 'character.dart';
@@ -8,6 +9,7 @@ class Square extends StatelessWidget {
   final bool isSelected;
   final bool isValidMove;
   final void Function()? onTap;
+  final GenshinElement? element;
 
   const Square({
     super.key,
@@ -15,11 +17,20 @@ class Square extends StatelessWidget {
     required this.isSelected,
     required this.isValidMove,
     required this.onTap,
+    required this.element,
   });
 
   @override
   Widget build(BuildContext context) {
     Color? squareColor;
+    String? imagePath;
+
+    // 座標の状態によって表示する画像を変化
+    if (piece != null) {
+      imagePath = piece!.imagePath;
+    } else if (element != null) {
+      imagePath = element!.imagePath;
+    }
 
     // 座標の状態によって背景色を変化
     if (isSelected) {
@@ -40,10 +51,10 @@ class Square extends StatelessWidget {
             color: ColorTable.primaryBlackColor,
           ),
         ),
-        child: piece != null
+        child: imagePath != null
             ? Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: Image.asset(piece!.imagePath),
+                child: Image.asset(imagePath),
               )
             : null,
       ),

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:horizontal_scrolling_game/elemental_strategy/components/genshin_element.dart';
 
 import '../color_table.dart';
 import 'components/character.dart';
@@ -24,6 +25,15 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
   int turnCount = 1; // 経過ターン
   String currentLog = "対戦開始！！";
   List<String> coordinatesHistory = []; // ログ
+  List<Map<String, dynamic>> elementalParticles = []; // 元素粒子の種類と発生座標
+  List<GenshinElement> allyElements = [
+    GenshinElement(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png"),
+    GenshinElement(type: ElementType.pyro, imagePath: "lib/assets/images/elements/pyro.png"),
+  ];
+  List<GenshinElement> enemyElements = [
+    GenshinElement(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png"),
+    GenshinElement(type: ElementType.pyro, imagePath: "lib/assets/images/elements/pyro.png"),
+  ];
 
   @override
   void initState() {
@@ -35,6 +45,21 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
   // 盤面の初期化
   void _initializeBoard() {
     List<List<Character?>> newField = List.generate(8, (index) => List.generate(8, (index) => null));
+
+    // 元素粒子をランダムに発生させる
+    // 敵の近くに2つ
+    elementalParticles.add(buildElementalParticle(enemyElements, [1], [1, 2, 3, 4, 5, 6]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [1], [1, 2, 3, 4, 5, 6]));
+
+    // 味方の近くに2つ
+    elementalParticles.add(buildElementalParticle(allyElements, [6], [1, 2, 3, 4, 5, 6]));
+    elementalParticles.add(buildElementalParticle(allyElements, [6], [1, 2, 3, 4, 5, 6]));
+
+    // 中心付近に4つ
+    elementalParticles.add(buildElementalParticle(enemyElements, [2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(allyElements, [2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(allyElements, [2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
 
     for (int i = 0; i < 8; i++) {
       // 敵陣
@@ -213,6 +238,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
                 int col = index % 8;
                 bool isSelected = row == selectedRow && col == selectedCol;
                 bool isValidMove = false;
+                GenshinElement? element;
 
                 // 選択中のキャラクターが移動可能な座標かどうか
                 for (var position in validMoves) {
@@ -221,11 +247,19 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
                   }
                 }
 
+                // 元素粒子が発生しているかどうか
+                for (var elementalParticle in elementalParticles) {
+                  if (elementalParticle["coordinates"][0] == row && elementalParticle["coordinates"][1] == col) {
+                    element = elementalParticle["element"];
+                  }
+                }
+
                 return Square(
                   piece: field[row][col],
                   isSelected: isSelected,
                   isValidMove: isValidMove,
                   onTap: () => selectCharacter(row, col),
+                  element: element,
                 );
               },
             ),

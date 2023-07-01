@@ -1,4 +1,22 @@
+import 'dart:math';
+
 import 'components/character.dart';
+import 'components/genshin_element.dart';
+
+// 元素粒子の種類と発生位置を計算
+Map<String, dynamic> buildElementalParticle(elements, rows, cols) {
+  Random random = Random();
+  GenshinElement derivedElement;
+  List<int> derivedCoordinates;
+
+  derivedElement = elements[random.nextInt(elements.length)];
+  derivedCoordinates = [rows[random.nextInt(rows.length)], cols[random.nextInt(cols.length)]];
+
+  return {
+    "element": derivedElement,
+    "coordinates": derivedCoordinates,
+  };
+}
 
 // キャラクターが移動可能な座標を配列で返す
 List<List<int>> calculateRawValidMoves(List<List<Character?>> field, int row, int col, Character? piece) {
