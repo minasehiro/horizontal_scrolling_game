@@ -60,10 +60,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
     elementalParticles.add(buildElementalParticle(allyElements, [6], [4, 5, 6]));
 
     // 中心付近に4つ
-    elementalParticles.add(buildElementalParticle(enemyElements, [2, 3], [0, 1, 2, 3]));
-    elementalParticles.add(buildElementalParticle(enemyElements, [4, 5], [4, 5, 6, 7]));
-    elementalParticles.add(buildElementalParticle(allyElements, [2, 3], [0, 1, 2, 3]));
-    elementalParticles.add(buildElementalParticle(allyElements, [4, 5], [4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [2], [0, 1, 2, 3, 4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [3], [0, 1, 2, 3, 4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(allyElements, [4], [0, 1, 2, 3, 4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(allyElements, [5], [0, 1, 2, 3, 4, 5, 6, 7]));
 
     for (int i = 0; i < 8; i++) {
       // 敵陣
