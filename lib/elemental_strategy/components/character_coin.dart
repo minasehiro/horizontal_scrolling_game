@@ -13,18 +13,64 @@ class CharacterCoin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double percent = character!.elementEnergy.toDouble();
+    double elementEnergyPercent = character!.elementEnergy.toDouble();
+    double remainingHitPointPercentage = character!.hitPoint / 100;
 
     return Center(
-      child: PieChart(
-        data: [
-          PieChartData(Colors.yellow, percent),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (!character!.isAlly)
+            Row(
+              children: [
+                Container(
+                  width: 40 * remainingHitPointPercentage,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: remainingHitPointPercentage < 0.25 ? Colors.red : Colors.lightGreenAccent,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                Container(
+                  width: 40 * (1 - remainingHitPointPercentage),
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+              ],
+            ),
+          PieChart(
+            data: [
+              PieChartData(elementEnergyPercent >= 100 ? Colors.yellow : Colors.yellow.shade100, elementEnergyPercent),
+            ],
+            radius: 18,
+            child: Image.asset(imagePath!),
+          ),
+          if (character!.isAlly)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 40 * (1 - remainingHitPointPercentage),
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                Container(
+                  width: 40 * remainingHitPointPercentage,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: remainingHitPointPercentage < 0.25 ? Colors.red : Colors.lightGreenAccent,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+              ],
+            ),
         ],
-        radius: 20,
-        child: Padding(
-          padding: const EdgeInsets.all(1.0),
-          child: Image.asset(imagePath!),
-        ),
       ),
     );
   }

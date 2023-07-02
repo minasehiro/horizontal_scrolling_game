@@ -168,7 +168,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_yanfei.png",
         elementEnergy: 0,
-        hitPoint: 100,
+        hitPoint: 10,
       );
       newField[0][3] = Character(
         type: CharacterType.xiao,
@@ -184,7 +184,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_nahida.png",
         elementEnergy: 0,
-        hitPoint: 100,
+        hitPoint: 45,
       );
       newField[0][5] = Character(
         type: CharacterType.zhongli,
@@ -192,7 +192,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_zhongli.png",
         elementEnergy: 0,
-        hitPoint: 100,
+        hitPoint: 70,
       );
 
       // 自陣
@@ -213,10 +213,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         hitPoint: 100,
       );
       newField[7][4] = Character(
-        type: CharacterType.raidenShougun,
+        type: CharacterType.yaeMiko,
         elementType: ElementType.electro,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_raidenShougun.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_yaeMiko.png",
         elementEnergy: 0,
         hitPoint: 100,
       );
@@ -303,7 +303,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       field[selectedRow][selectedCol] = null; //元の座標を初期化
 
       // 履歴に記録
-      var currentLog = "${selectedCharacter!.name()}が [${(newRow + 1).toString()}, ${(newCol + 1).toString()}] に移動";
+      var currentLog = "${selectedCharacter!.isAlly ? "自分" : "相手"}の${selectedCharacter!.name()}が移動";
       history.add(currentLog);
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
@@ -403,7 +403,11 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                         padding: const EdgeInsets.all(3.0),
                         child: Text(
                           history[i],
-                          style: const TextStyle(fontSize: 14, letterSpacing: 1.0),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            letterSpacing: 1.0,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     );
@@ -465,7 +469,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: canLaunchElementalSkill(selectedCharacter) ? Colors.yellow[400] : Colors.grey[300],
+                          color: canLaunchElementalSkill(selectedCharacter) ? Colors.red[400] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -485,7 +489,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: canLaunchElementalBurst(selectedCharacter) ? Colors.red[400] : Colors.grey[300],
+                          color: canLaunchElementalBurst(selectedCharacter) ? Colors.yellow[400] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(

@@ -28,9 +28,9 @@ class Square extends StatelessWidget {
 
     // 座標の状態によって背景色を変化
     if (isSelected) {
-      squareColor = ColorTable.primaryGreenColor; // キャラクターを選択中
+      squareColor = Colors.blue; // キャラクターを選択中
     } else if (isValidMove) {
-      squareColor = Colors.green[200]; // 選択しているキャラクターが移動可能
+      squareColor = Colors.blue[200]; // 選択しているキャラクターが移動可能
     } else {
       squareColor = Colors.blueGrey[300];
     }
