@@ -70,6 +70,14 @@ bool canLaunchElementalBurst(character) {
   return false;
 }
 
+// 元素爆発を発動可能か
+bool canLaunchElementalSkill(character) {
+  if (character != null && !character.isSkillCoolTime()) {
+    return true;
+  }
+  return false;
+}
+
 // キャラクターを自分のものにする
 Character turnOverPiece(Character character) {
   String currentDirectionString = character.isAlly ? "up" : "down"; // 画像パスから検索する文字列

@@ -39,6 +39,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     GenshinElement(type: ElementType.geo, imagePath: "lib/assets/images/elements/geo.png"),
   ];
   bool isLaunchElementalBurst = false; // 元素爆発を発動
+  bool isLaunchElementalSkill = false; // 元素スキルを発動
   late AnimationController animationController;
   late ScrollController scrollController;
   late Animation<Offset> offsetAnimation;
@@ -61,28 +62,40 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         // 繰り返し実行できるようにアニメーション終了後にリセット
         animationController.reset();
 
-        // 元素エネルギーを消費
-        double totalEnergy = selectedCharacter!.elementEnergy - 100;
+        if (isLaunchElementalBurst) {
+          // 元素エネルギーを消費
+          double totalEnergy = selectedCharacter!.elementEnergy - 100;
 
-        var newCharacter = Character(
-          type: selectedCharacter!.type,
-          elementType: selectedCharacter!.elementType,
-          isAlly: selectedCharacter!.isAlly,
-          imagePath: selectedCharacter!.imagePath,
-          elementEnergy: totalEnergy < 0 ? 0 : totalEnergy,
-          hitPoint: selectedCharacter!.hitPoint,
-        );
+          var newCharacter = Character(
+            type: selectedCharacter!.type,
+            elementType: selectedCharacter!.elementType,
+            isAlly: selectedCharacter!.isAlly,
+            imagePath: selectedCharacter!.imagePath,
+            elementEnergy: totalEnergy < 0 ? 0 : totalEnergy,
+            hitPoint: selectedCharacter!.hitPoint,
+          );
 
-        setState(() {
-          isLaunchElementalBurst = false;
-          field[selectedRow][selectedCol] = newCharacter;
+          setState(() {
+            isLaunchElementalBurst = false;
+            field[selectedRow][selectedCol] = newCharacter;
 
-          // キャラクター選択をリセット
-          selectedCharacter = null;
-          selectedRow = -1;
-          selectedCol = -1;
-          validMoves = [];
-        });
+            // キャラクター選択をリセット
+            selectedCharacter = null;
+            selectedRow = -1;
+            selectedCol = -1;
+            validMoves = [];
+          });
+        } else if (isLaunchElementalSkill) {
+          setState(() {
+            isLaunchElementalSkill = false;
+
+            // キャラクター選択をリセット
+            selectedCharacter = null;
+            selectedRow = -1;
+            selectedCol = -1;
+            validMoves = [];
+          });
+        }
 
         // ターンチェンジ
         turnChange();
@@ -331,6 +344,26 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     animationController.forward();
   }
 
+  // 元素スキルの発動
+  void launchElementalSkill(character) {
+    if (character == null || character.isSkillCoolTime()) {
+      return;
+    }
+
+    setState(() {
+      isLaunchElementalSkill = true;
+
+      history.add("${character.name()}が元素スキル ${character.elementalSkillName()} を発動");
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+
+    animationController.forward();
+  }
+
   // 初期化
   void resetGame() {
     Navigator.pop(context);
@@ -424,11 +457,15 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        if (canLaunchElementalSkill(selectedCharacter)) {
+                          launchElementalSkill(selectedCharacter);
+                        }
+                      },
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.yellow[400],
+                          color: canLaunchElementalSkill(selectedCharacter) ? Colors.yellow[400] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -441,7 +478,9 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                     ),
                     GestureDetector(
                       onTap: () {
-                        launchElementalBurst(selectedCharacter);
+                        if (canLaunchElementalBurst(selectedCharacter)) {
+                          launchElementalBurst(selectedCharacter);
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(20),
@@ -491,6 +530,47 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                           ),
                           Text(
                             "~ ${selectedCharacter!.elementalBurstVoice().toString()} ~",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          if (selectedCharacter != null && isLaunchElementalSkill)
+            Center(
+              child: SlideTransition(
+                position: offsetAnimation,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 80,
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Image.asset(selectedCharacter!.imagePath),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text(
+                              selectedCharacter!.elementalSkillName().toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            "~ ${selectedCharacter!.elementalSkillVoice().toString()} ~",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,

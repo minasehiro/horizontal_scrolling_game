@@ -22,7 +22,7 @@ class CharacterCoin extends StatelessWidget {
         ],
         radius: 20,
         child: Padding(
-          padding: const EdgeInsets.all(3.0),
+          padding: const EdgeInsets.all(1.0),
           child: Image.asset(imagePath!),
         ),
       ),

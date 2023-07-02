@@ -32,16 +32,25 @@ class Square extends StatelessWidget {
     } else if (isValidMove) {
       squareColor = Colors.green[200]; // 選択しているキャラクターが移動可能
     } else {
-      squareColor = Colors.grey[300];
+      squareColor = Colors.blueGrey[300];
     }
 
     if (piece != null) {
       displayWidget = CharacterCoin(character: piece, imagePath: piece!.imagePath);
     } else if (element != null) {
-      displayWidget = Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: Image.asset(element!.imagePath),
-      );
+      displayWidget = Stack(alignment: AlignmentDirectional.center, children: [
+        Container(
+          margin: const EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.8),
+            shape: BoxShape.circle,
+          ),
+        ),
+        Image.asset(
+          element!.imagePath,
+          width: 20.0,
+        ),
+      ]);
     } else {
       null;
     }
