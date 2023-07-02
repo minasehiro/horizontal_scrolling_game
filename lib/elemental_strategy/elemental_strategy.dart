@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:horizontal_scrolling_game/elemental_strategy/components/genshin_element.dart';
 
 import '../color_table.dart';
 import 'components/character.dart';
+import 'components/genshin_element.dart';
 import 'components/square.dart';
 import 'constants.dart';
 import 'helper_methods.dart';
@@ -39,7 +39,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     GenshinElement(type: ElementType.geo, imagePath: "lib/assets/images/elements/geo.png"),
   ];
   bool isLaunchElementalBurst = false; // 元素爆発を発動
-  late AnimationController controller;
+  late AnimationController animationController;
+  late ScrollController scrollController;
   late Animation<Offset> offsetAnimation;
   late TweenSequence<Offset> tweenSequence;
 
@@ -49,16 +50,16 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
     // 全部で1秒のアニメーション
     // TweenSequenceItem.weight によって分割される
-    controller = AnimationController(
+    animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
 
     // アニメーション終了時に発火
-    controller.addStatusListener((status) {
+    animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         // 繰り返し実行できるようにアニメーション終了後にリセット
-        controller.reset();
+        animationController.reset();
 
         // 元素エネルギーを消費
         double totalEnergy = selectedCharacter!.elementEnergy - 100;
@@ -110,7 +111,9 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       ),
     ]);
 
-    offsetAnimation = controller.drive(tweenSequence);
+    offsetAnimation = animationController.drive(tweenSequence);
+
+    scrollController = ScrollController();
 
     _initializeBoard();
   }
@@ -119,7 +122,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   void dispose() {
     super.dispose();
 
-    controller.dispose();
+    animationController.dispose();
   }
 
   // 盤面の初期化
@@ -277,6 +280,11 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       // 履歴に記録
       var currentLog = "${selectedCharacter!.name()}が [${(newRow + 1).toString()}, ${(newCol + 1).toString()}] に移動";
       history.add(currentLog);
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
 
       // キャラクター選択をリセット
       selectedCharacter = null;
@@ -299,9 +307,16 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
     setState(() {
       isLaunchElementalBurst = true;
+
+      history.add("${character.name()}が元素爆発 ${character.elementalBurstName()} を発動");
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     });
 
-    controller.forward();
+    animationController.forward();
   }
 
   // 初期化
@@ -324,6 +339,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // 行動履歴
               Container(
                 width: MediaQuery.of(context).size.width * 0.95,
                 height: MediaQuery.of(context).size.width * 0.3,
@@ -333,9 +349,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   border: Border.all(color: ColorTable.primaryBlackColor, width: 1.0),
                 ),
                 child: ListView.builder(
+                  controller: scrollController,
                   scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  reverse: true,
                   itemCount: history.length,
                   itemBuilder: (BuildContext context, int i) {
                     return Center(
@@ -343,13 +358,14 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                         padding: const EdgeInsets.all(5.0),
                         child: Text(
                           history[i],
-                          style: const TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 14, letterSpacing: 1.0),
                         ),
                       ),
                     );
                   },
                 ),
               ),
+              // フィールド
               Expanded(
                 child: GridView.builder(
                   itemCount: 8 * 8,
@@ -386,6 +402,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   },
                 ),
               ),
+              // ボタン
               Container(
                 padding: const EdgeInsets.all(8.0),
                 width: MediaQuery.of(context).size.width * 0.95,
