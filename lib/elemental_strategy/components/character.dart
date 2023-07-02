@@ -17,6 +17,7 @@ class Character {
     required this.hitPoint,
   });
 
+  // キャラクター名
   String name() {
     String returnStr = "";
     switch (type) {
@@ -58,6 +59,7 @@ class Character {
     return returnStr;
   }
 
+  // 元素爆発名
   String elementalBurstName() {
     switch (type) {
       case CharacterType.kaedeharaKazuha:
@@ -87,6 +89,7 @@ class Character {
     }
   }
 
+  // 元素爆発のセリフ
   String elementalBurstVoice() {
     switch (type) {
       case CharacterType.kaedeharaKazuha:

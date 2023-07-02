@@ -89,7 +89,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       }
     });
 
-    // 0.2秒で右から中央へ、中央に0.6秒留まり、0.1秒で中央から左へ
+    // 0.1秒で右から中央へ、中央に0.8秒留まり、0.1秒で中央から左へ
     tweenSequence = TweenSequence<Offset>([
       TweenSequenceItem(
         tween: Tween(
