@@ -6,6 +6,7 @@ class Character {
   final bool isAlly;
   final String imagePath;
   final double elementEnergy;
+  final int hitPoint;
 
   Character({
     required this.type,
@@ -13,6 +14,7 @@ class Character {
     required this.isAlly,
     required this.imagePath,
     required this.elementEnergy,
+    required this.hitPoint,
   });
 
   String name() {

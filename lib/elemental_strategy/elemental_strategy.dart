@@ -70,11 +70,11 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           isAlly: selectedCharacter!.isAlly,
           imagePath: selectedCharacter!.imagePath,
           elementEnergy: totalEnergy < 0 ? 0 : totalEnergy,
+          hitPoint: selectedCharacter!.hitPoint,
         );
 
         setState(() {
           isLaunchElementalBurst = false;
-
           field[selectedRow][selectedCol] = newCharacter;
 
           // キャラクター選択をリセット
@@ -83,6 +83,9 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           selectedCol = -1;
           validMoves = [];
         });
+
+        // ターンチェンジ
+        turnChange();
       }
     });
 
@@ -100,7 +103,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           begin: const Offset(0.0, 0.0),
           end: const Offset(0.0, 0.0),
         ),
-        weight: 7,
+        weight: 8,
       ),
       TweenSequenceItem(
         tween: Tween(
@@ -152,6 +155,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_yanfei.png",
         elementEnergy: 0,
+        hitPoint: 100,
       );
       newField[0][3] = Character(
         type: CharacterType.xiao,
@@ -159,6 +163,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_xiao.png",
         elementEnergy: 0,
+        hitPoint: 100,
       );
       newField[0][4] = Character(
         type: CharacterType.nahida,
@@ -166,6 +171,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_nahida.png",
         elementEnergy: 0,
+        hitPoint: 100,
       );
       newField[0][5] = Character(
         type: CharacterType.zhongli,
@@ -173,6 +179,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_zhongli.png",
         elementEnergy: 0,
+        hitPoint: 100,
       );
 
       // 自陣
@@ -182,6 +189,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: true,
         imagePath: "lib/assets/images/elemental_strategy/characters/up_kaedeharaKazuha.png",
         elementEnergy: 0,
+        hitPoint: 100,
       );
       newField[7][3] = Character(
         type: CharacterType.kamisatoAyaka,
@@ -189,6 +197,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: true,
         imagePath: "lib/assets/images/elemental_strategy/characters/up_kamisatoAyaka.png",
         elementEnergy: 0,
+        hitPoint: 100,
       );
       newField[7][4] = Character(
         type: CharacterType.raidenShougun,
@@ -196,6 +205,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: true,
         imagePath: "lib/assets/images/elemental_strategy/characters/up_raidenShougun.png",
         elementEnergy: 0,
+        hitPoint: 100,
       );
       newField[7][5] = Character(
         type: CharacterType.xingqiu,
@@ -203,6 +213,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: true,
         imagePath: "lib/assets/images/elemental_strategy/characters/up_xingqiu.png",
         elementEnergy: 0,
+        hitPoint: 100,
       );
     }
 
@@ -262,6 +273,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           isAlly: selectedCharacter!.isAlly,
           imagePath: selectedCharacter!.imagePath,
           elementEnergy: totalEnergy > 100.0 ? 100.0 : totalEnergy,
+          hitPoint: selectedCharacter!.hitPoint,
         );
         toRemove = elementalParticle;
       }
@@ -355,7 +367,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   itemBuilder: (BuildContext context, int i) {
                     return Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(5.0),
+                        padding: const EdgeInsets.all(3.0),
                         child: Text(
                           history[i],
                           style: const TextStyle(fontSize: 14, letterSpacing: 1.0),
@@ -458,15 +470,11 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   width: MediaQuery.of(context).size.width,
                   height: 80,
                   padding: const EdgeInsets.symmetric(vertical: 5.0),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.9),
-                  ),
+                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Image.asset(
-                        selectedCharacter!.imagePath,
-                      ),
+                      Image.asset(selectedCharacter!.imagePath),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

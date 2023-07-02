@@ -82,5 +82,6 @@ Character turnOverPiece(Character character) {
     isAlly: !character.isAlly,
     imagePath: newImagePath,
     elementEnergy: 0,
+    hitPoint: character.hitPoint,
   );
 }
