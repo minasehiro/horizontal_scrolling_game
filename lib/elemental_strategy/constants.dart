@@ -4,13 +4,20 @@ enum ElementType {
   anemo,
   electro,
   dendro,
-  cyro,
+  cryo,
   geo,
 }
 
 enum CharacterType {
-  kazuha,
+  kaedeharaKazuha,
+  kamisatoAyaka,
+  raidenShougun,
+  xingqiu,
   venti,
   xiao,
   yanfei,
+  nahida,
+  zhongli,
+  yaeMiko,
+  cyno,
 }

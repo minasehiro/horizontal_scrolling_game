@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'components/character.dart';
 import 'components/genshin_element.dart';
-import 'constants.dart';
 
 // 元素粒子の種類と発生位置を計算
 Map<String, dynamic> buildElementalParticle(elements, rows, cols) {
@@ -20,48 +19,39 @@ Map<String, dynamic> buildElementalParticle(elements, rows, cols) {
 }
 
 // キャラクターが移動可能な座標を配列で返す
-List<List<int>> calculateRawValidMoves(List<List<Character?>> field, int row, int col, Character? piece) {
-  if (piece == null) {
+List<List<int>> calculateRawValidMoves(List<List<Character?>> field, int row, int col, Character? character) {
+  if (character == null) {
     return [];
   }
 
   List<List<int>> candidateMoves = [];
 
-  switch (piece.type) {
-    case CharacterType.kazuha:
-    case CharacterType.venti:
-    case CharacterType.xiao:
-    case CharacterType.yanfei:
-      var directions = [
-        [-1, 0], // 上
-        [1, 0], // 下
-        [0, -1], // 左
-        [0, 1], // 右
-        [-1, -1], // 左上
-        [-1, 1], // 右上
-        [1, -1], // 左下
-        [1, 1], // 右下
-      ];
+  var directions = [
+    [-1, 0], // 上
+    [1, 0], // 下
+    [0, -1], // 左
+    [0, 1], // 右
+    [-1, -1], // 左上
+    [-1, 1], // 右上
+    [1, -1], // 左下
+    [1, 1], // 右下
+  ];
 
-      for (var direction in directions) {
-        var newRow = row + (direction[0]);
-        var newCol = col + (direction[1]);
+  for (var direction in directions) {
+    var newRow = row + (direction[0]);
+    var newCol = col + (direction[1]);
 
-        // フィールドから出た場合
-        if (!isInField(newRow, newCol)) {
-          continue;
-        }
+    // フィールドから出た場合
+    if (!isInField(newRow, newCol)) {
+      continue;
+    }
 
-        // 対象の座標にキャラクターがいる
-        if (field[newRow][newCol] != null) {
-          continue;
-        }
+    // 対象の座標にキャラクターがいる
+    if (field[newRow][newCol] != null) {
+      continue;
+    }
 
-        candidateMoves.add([newRow, newCol]);
-      }
-
-      break;
-    default:
+    candidateMoves.add([newRow, newCol]);
   }
 
   return candidateMoves;

@@ -28,11 +28,15 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
   List<Map<String, dynamic>> elementalParticles = []; // 元素粒子の種類と発生座標
   List<GenshinElement> allyElements = [
     GenshinElement(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png"),
-    GenshinElement(type: ElementType.pyro, imagePath: "lib/assets/images/elements/pyro.png"),
+    GenshinElement(type: ElementType.cryo, imagePath: "lib/assets/images/elements/cryo.png"),
+    GenshinElement(type: ElementType.electro, imagePath: "lib/assets/images/elements/electro.png"),
+    GenshinElement(type: ElementType.hydro, imagePath: "lib/assets/images/elements/hydro.png"),
   ];
   List<GenshinElement> enemyElements = [
-    GenshinElement(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png"),
     GenshinElement(type: ElementType.pyro, imagePath: "lib/assets/images/elements/pyro.png"),
+    GenshinElement(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png"),
+    GenshinElement(type: ElementType.dendro, imagePath: "lib/assets/images/elements/dendro.png"),
+    GenshinElement(type: ElementType.geo, imagePath: "lib/assets/images/elements/geo.png"),
   ];
 
   @override
@@ -48,18 +52,18 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
 
     // 元素粒子をランダムに発生させる
     // 敵の近くに2つ
-    elementalParticles.add(buildElementalParticle(enemyElements, [1], [1, 2, 3, 4, 5, 6]));
-    elementalParticles.add(buildElementalParticle(enemyElements, [1], [1, 2, 3, 4, 5, 6]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [1], [1, 2, 3]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [1], [4, 5, 6]));
 
     // 味方の近くに2つ
-    elementalParticles.add(buildElementalParticle(allyElements, [6], [1, 2, 3, 4, 5, 6]));
-    elementalParticles.add(buildElementalParticle(allyElements, [6], [1, 2, 3, 4, 5, 6]));
+    elementalParticles.add(buildElementalParticle(allyElements, [6], [1, 2, 3]));
+    elementalParticles.add(buildElementalParticle(allyElements, [6], [4, 5, 6]));
 
     // 中心付近に4つ
-    elementalParticles.add(buildElementalParticle(enemyElements, [2, 3], [0, 1, 2, 3, 4, 5, 6, 7]));
-    elementalParticles.add(buildElementalParticle(enemyElements, [4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
-    elementalParticles.add(buildElementalParticle(allyElements, [2, 3], [0, 1, 2, 3, 4, 5, 6, 7]));
-    elementalParticles.add(buildElementalParticle(allyElements, [4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [2, 3], [0, 1, 2, 3]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [4, 5], [4, 5, 6, 7]));
+    elementalParticles.add(buildElementalParticle(allyElements, [2, 3], [0, 1, 2, 3]));
+    elementalParticles.add(buildElementalParticle(allyElements, [4, 5], [4, 5, 6, 7]));
 
     for (int i = 0; i < 8; i++) {
       // 敵陣
@@ -78,47 +82,47 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
         elementEnergy: 0,
       );
       newField[0][4] = Character(
-        type: CharacterType.venti,
-        elementType: ElementType.anemo,
+        type: CharacterType.nahida,
+        elementType: ElementType.dendro,
         isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/characters/down_venti.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_nahida.png",
         elementEnergy: 0,
       );
       newField[0][5] = Character(
-        type: CharacterType.kazuha,
-        elementType: ElementType.anemo,
+        type: CharacterType.zhongli,
+        elementType: ElementType.geo,
         isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/characters/down_kazuha.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_zhongli.png",
         elementEnergy: 0,
       );
 
       // 自陣
       newField[7][2] = Character(
-        type: CharacterType.kazuha,
+        type: CharacterType.kaedeharaKazuha,
         elementType: ElementType.anemo,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_kazuha.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_kaedehara_kazuha.png",
         elementEnergy: 0,
       );
       newField[7][3] = Character(
-        type: CharacterType.venti,
-        elementType: ElementType.anemo,
+        type: CharacterType.kamisatoAyaka,
+        elementType: ElementType.cryo,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_venti.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_kamisato_ayaka.png",
         elementEnergy: 0,
       );
       newField[7][4] = Character(
-        type: CharacterType.xiao,
-        elementType: ElementType.anemo,
+        type: CharacterType.raidenShougun,
+        elementType: ElementType.electro,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_xiao.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_raiden_shougun.png",
         elementEnergy: 0,
       );
       newField[7][5] = Character(
-        type: CharacterType.yanfei,
-        elementType: ElementType.pyro,
+        type: CharacterType.xingqiu,
+        elementType: ElementType.hydro,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_yanfei.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_xingqiu.png",
         elementEnergy: 0,
       );
     }
