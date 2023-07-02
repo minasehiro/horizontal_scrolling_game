@@ -61,7 +61,7 @@ class Character {
       case CharacterType.kaedeharaKazuha:
         return "万葉の一刀";
       case CharacterType.kamisatoAyaka:
-        return "櫻吹雪！";
+        return "神里流・霜滅";
       case CharacterType.raidenShougun:
         return "奥義・夢想真説";
       case CharacterType.xingqiu:
