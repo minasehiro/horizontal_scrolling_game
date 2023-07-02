@@ -75,8 +75,72 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             hitPoint: selectedCharacter!.hitPoint,
           );
 
+          // 付近のキャラにダメージ
+          List<List<int>> targetCoordinates = [];
+
+          var directions = [
+            [-1, 0], // 上
+            [1, 0], // 下
+            [0, -1], // 左
+            [0, 1], // 右
+            [-1, -1], // 左上
+            [-1, 1], // 右上
+            [1, -1], // 左下
+            [1, 1], // 右下
+          ];
+
+          for (var direction in directions) {
+            var newRow = selectedRow + (direction[0]);
+            var newCol = selectedCol + (direction[1]);
+
+            // フィールドから出た場合
+            if (!isInField(newRow, newCol)) {
+              continue;
+            }
+
+            // 対象の座標が空
+            if (field[newRow][newCol] == null) {
+              continue;
+            }
+
+            // 対象の座標が味方のキャラ
+            if (field[newRow][newCol] != null && field[newRow][newCol]!.isAlly) {
+              continue;
+            }
+
+            targetCoordinates.add([newRow, newCol]);
+          }
+
           setState(() {
+            // 付近にいたキャラにダメージを与え、フィールドに展開
+            for (var targetCoordinate in targetCoordinates) {
+              var character = field[targetCoordinate[0]][targetCoordinate[1]];
+              var remainingHitPoint = character!.hitPoint - 50;
+
+              var newCharacter = Character(
+                type: character.type,
+                elementType: character.elementType,
+                isAlly: character.isAlly,
+                imagePath: character.imagePath,
+                elementEnergy: character.elementEnergy,
+                hitPoint: remainingHitPoint > 0 ? remainingHitPoint : 100,
+              );
+
+              field[targetCoordinate[0]][targetCoordinate[1]] = newCharacter;
+
+              history.add("${newCharacter.name()}に50ダメージ");
+              history.add("${newCharacter.name()}の残りHP${newCharacter.hitPoint}");
+              scrollController.animateTo(
+                scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            }
+
+            // 元素爆発を終了
             isLaunchElementalBurst = false;
+
+            // 元素エネルギーを減らしたキャラをフィールドに展開
             field[selectedRow][selectedCol] = newCharacter;
 
             // キャラクター選択をリセット
@@ -86,7 +150,69 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             validMoves = [];
           });
         } else if (isLaunchElementalSkill) {
+          // 付近のキャラにダメージ
+          List<List<int>> targetCoordinates = [];
+
+          var directions = [
+            [-1, 0], // 上
+            [1, 0], // 下
+            [0, -1], // 左
+            [0, 1], // 右
+            [-1, -1], // 左上
+            [-1, 1], // 右上
+            [1, -1], // 左下
+            [1, 1], // 右下
+          ];
+
+          for (var direction in directions) {
+            var newRow = selectedRow + (direction[0]);
+            var newCol = selectedCol + (direction[1]);
+
+            // フィールドから出た場合
+            if (!isInField(newRow, newCol)) {
+              continue;
+            }
+
+            // 対象の座標が空
+            if (field[newRow][newCol] == null) {
+              continue;
+            }
+
+            // 対象の座標が味方のキャラ
+            if (field[newRow][newCol] != null && field[newRow][newCol]!.isAlly) {
+              continue;
+            }
+
+            targetCoordinates.add([newRow, newCol]);
+          }
+
           setState(() {
+            // 付近にいたキャラにダメージを与え、フィールドに展開
+            for (var targetCoordinate in targetCoordinates) {
+              var character = field[targetCoordinate[0]][targetCoordinate[1]];
+              var remainingHitPoint = character!.hitPoint - 25;
+
+              var newCharacter = Character(
+                type: character.type,
+                elementType: character.elementType,
+                isAlly: character.isAlly,
+                imagePath: character.imagePath,
+                elementEnergy: character.elementEnergy,
+                hitPoint: remainingHitPoint > 0 ? remainingHitPoint : 100,
+              );
+
+              field[targetCoordinate[0]][targetCoordinate[1]] = newCharacter;
+
+              history.add("${newCharacter.name()}に25ダメージ");
+              history.add("${newCharacter.name()}の残りHP${newCharacter.hitPoint}");
+              scrollController.animateTo(
+                scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            }
+
+            // 元素スキル処理を終了
             isLaunchElementalSkill = false;
 
             // キャラクター選択をリセット
@@ -324,26 +450,6 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     }
   }
 
-  // 元素爆発の発動
-  void launchElementalBurst(character) {
-    if (character == null || character.elementEnergy < 100) {
-      return;
-    }
-
-    setState(() {
-      isLaunchElementalBurst = true;
-
-      history.add("${character.name()}が元素爆発 ${character.elementalBurstName()} を発動");
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
-
-    animationController.forward();
-  }
-
   // 元素スキルの発動
   void launchElementalSkill(character) {
     if (character == null || character.isSkillCoolTime()) {
@@ -354,6 +460,26 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       isLaunchElementalSkill = true;
 
       history.add("${character.name()}が元素スキル ${character.elementalSkillName()} を発動");
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+
+    animationController.forward();
+  }
+
+  // 元素爆発の発動
+  void launchElementalBurst(character) {
+    if (character == null || character.elementEnergy < 100) {
+      return;
+    }
+
+    setState(() {
+      isLaunchElementalBurst = true;
+
+      history.add("${character.name()}が元素爆発 ${character.elementalBurstName()} を発動");
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),

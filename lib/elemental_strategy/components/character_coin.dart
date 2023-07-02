@@ -27,7 +27,7 @@ class CharacterCoin extends StatelessWidget {
                   width: 40 * remainingHitPointPercentage,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: remainingHitPointPercentage < 0.25 ? Colors.red : Colors.lightGreenAccent,
+                    color: remainingHitPointPercentage <= 0.25 ? Colors.red : Colors.lightGreenAccent,
                     borderRadius: BorderRadius.circular(25),
                   ),
                 ),
@@ -64,7 +64,7 @@ class CharacterCoin extends StatelessWidget {
                   width: 40 * remainingHitPointPercentage,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: remainingHitPointPercentage < 0.25 ? Colors.red : Colors.lightGreenAccent,
+                    color: remainingHitPointPercentage <= 0.25 ? Colors.red : Colors.lightGreenAccent,
                     borderRadius: BorderRadius.circular(25),
                   ),
                 ),
