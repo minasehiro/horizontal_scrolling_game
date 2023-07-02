@@ -16,7 +16,7 @@ class ElementalStrategy extends StatefulWidget {
   State<ElementalStrategy> createState() => _ElementalStrategyState();
 }
 
-class _ElementalStrategyState extends State<ElementalStrategy> {
+class _ElementalStrategyState extends State<ElementalStrategy> with SingleTickerProviderStateMixin {
   late List<List<Character?>> field; // フィールド管理用の配列
   Character? selectedCharacter; // 選択されている駒
   int selectedRow = -1; // 選択されている駒の行番号
@@ -38,12 +38,87 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
     GenshinElement(type: ElementType.dendro, imagePath: "lib/assets/images/elements/dendro.png"),
     GenshinElement(type: ElementType.geo, imagePath: "lib/assets/images/elements/geo.png"),
   ];
+  bool isLaunchElementalBurst = false; // 元素爆発を発動
+  late AnimationController controller;
+  late Animation<Offset> offsetAnimation;
+  late TweenSequence<Offset> tweenSequence;
 
   @override
   void initState() {
     super.initState();
 
+    // 全部で1秒のアニメーション
+    // TweenSequenceItem.weight によって分割される
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        // 繰り返し実行できるようにアニメーション終了後にリセット
+        controller.reset();
+
+        // 元素エネルギーを消費
+        double totalEnergy = selectedCharacter!.elementEnergy - 100;
+
+        var newCharacter = Character(
+          type: selectedCharacter!.type,
+          elementType: selectedCharacter!.elementType,
+          isAlly: selectedCharacter!.isAlly,
+          imagePath: selectedCharacter!.imagePath,
+          elementEnergy: totalEnergy < 0 ? 0 : totalEnergy,
+        );
+
+        setState(() {
+          isLaunchElementalBurst = false;
+
+          field[selectedRow][selectedCol] = newCharacter;
+
+          // キャラクター選択をリセット
+          selectedCharacter = null;
+          selectedRow = -1;
+          selectedCol = -1;
+          validMoves = [];
+        });
+      }
+    });
+
+    // 0.2秒で右から中央へ、中央に0.6秒留まり、0.2秒で中央から左へ
+    tweenSequence = TweenSequence<Offset>([
+      TweenSequenceItem(
+        tween: Tween(
+          begin: const Offset(1.0, 0.0),
+          end: const Offset(0.0, 0.0),
+        ),
+        weight: 2,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: const Offset(0.0, 0.0),
+          end: const Offset(0.0, 0.0),
+        ),
+        weight: 6,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: const Offset(0.0, 0.0),
+          end: const Offset(-1.0, 0.0),
+        ),
+        weight: 2,
+      ),
+    ]);
+
+    offsetAnimation = controller.drive(tweenSequence);
+
     _initializeBoard();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    controller.dispose();
   }
 
   // 盤面の初期化
@@ -101,21 +176,21 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
         type: CharacterType.kaedeharaKazuha,
         elementType: ElementType.anemo,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_kaedehara_kazuha.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_kaedeharaKazuha.png",
         elementEnergy: 0,
       );
       newField[7][3] = Character(
         type: CharacterType.kamisatoAyaka,
         elementType: ElementType.cryo,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_kamisato_ayaka.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_kamisatoAyaka.png",
         elementEnergy: 0,
       );
       newField[7][4] = Character(
         type: CharacterType.raidenShougun,
         elementType: ElementType.electro,
         isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_raiden_shougun.png",
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_raidenShougun.png",
         elementEnergy: 0,
       );
       newField[7][5] = Character(
@@ -213,6 +288,19 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
     }
   }
 
+  // 元素爆発の発動
+  void launchElementalBurst(character) {
+    if (character == null || character.elementEnergy < 100) {
+      return;
+    }
+
+    setState(() {
+      isLaunchElementalBurst = true;
+    });
+
+    controller.forward();
+  }
+
   // 初期化
   void resetGame() {
     Navigator.pop(context);
@@ -228,107 +316,158 @@ class _ElementalStrategyState extends State<ElementalStrategy> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
         children: [
-          Container(
-            width: MediaQuery.of(context).size.width * 0.95,
-            height: MediaQuery.of(context).size.width * 0.3,
-            margin: const EdgeInsets.only(top: 50),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(3),
-              border: Border.all(color: ColorTable.primaryBlackColor, width: 1.0),
-            ),
-            child: Center(
-              child: Text(
-                history.length > 3 ? history.skip(history.length - 3).join("\n") : history.join("\n"),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  height: 2.0,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.95,
+                height: MediaQuery.of(context).size.width * 0.3,
+                margin: const EdgeInsets.only(top: 50),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(3),
+                  border: Border.all(color: ColorTable.primaryBlackColor, width: 1.0),
+                ),
+                child: Center(
+                  child: Text(
+                    history.length > 3 ? history.skip(history.length - 3).join("\n") : history.join("\n"),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      height: 2.0,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GridView.builder(
+                  itemCount: 8 * 8,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+                  itemBuilder: (context, index) {
+                    int row = index ~/ 8;
+                    int col = index % 8;
+                    bool isSelected = row == selectedRow && col == selectedCol;
+                    bool isValidMove = false;
+                    GenshinElement? element;
+
+                    // 選択中のキャラクターが移動可能な座標かどうか
+                    for (var position in validMoves) {
+                      if (position[0] == row && position[1] == col) {
+                        isValidMove = true;
+                      }
+                    }
+
+                    // 元素粒子が発生しているかどうか
+                    for (var elementalParticle in elementalParticles) {
+                      if (elementalParticle["coordinates"][0] == row && elementalParticle["coordinates"][1] == col) {
+                        element = elementalParticle["element"];
+                      }
+                    }
+
+                    return Square(
+                      piece: field[row][col],
+                      isSelected: isSelected,
+                      isValidMove: isValidMove,
+                      onTap: () => selectCharacter(row, col),
+                      element: element,
+                    );
+                  },
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                width: MediaQuery.of(context).size.width * 0.95,
+                height: MediaQuery.of(context).size.width * 0.3,
+                margin: const EdgeInsets.only(bottom: 50),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.yellow[400],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          "元素スキル",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        launchElementalBurst(selectedCharacter);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.red[400],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          "元素爆発",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (selectedCharacter != null && isLaunchElementalBurst)
+            Center(
+              child: SlideTransition(
+                position: offsetAnimation,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 80,
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.9),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Image.asset(
+                        selectedCharacter!.imagePath,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text(
+                              selectedCharacter!.elementalBurstName().toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            "~ ${selectedCharacter!.elementalBurstVoice().toString()} ~",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              itemCount: 8 * 8,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
-              itemBuilder: (context, index) {
-                int row = index ~/ 8;
-                int col = index % 8;
-                bool isSelected = row == selectedRow && col == selectedCol;
-                bool isValidMove = false;
-                GenshinElement? element;
-
-                // 選択中のキャラクターが移動可能な座標かどうか
-                for (var position in validMoves) {
-                  if (position[0] == row && position[1] == col) {
-                    isValidMove = true;
-                  }
-                }
-
-                // 元素粒子が発生しているかどうか
-                for (var elementalParticle in elementalParticles) {
-                  if (elementalParticle["coordinates"][0] == row && elementalParticle["coordinates"][1] == col) {
-                    element = elementalParticle["element"];
-                  }
-                }
-
-                return Square(
-                  piece: field[row][col],
-                  isSelected: isSelected,
-                  isValidMove: isValidMove,
-                  onTap: () => selectCharacter(row, col),
-                  element: element,
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            width: MediaQuery.of(context).size.width * 0.95,
-            height: MediaQuery.of(context).size.width * 0.3,
-            margin: const EdgeInsets.only(bottom: 50),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.yellow[400],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      "元素スキル",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.red[400],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      "元素爆発",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
