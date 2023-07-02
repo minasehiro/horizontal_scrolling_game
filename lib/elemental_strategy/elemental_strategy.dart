@@ -85,28 +85,28 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       }
     });
 
-    // 0.2秒で右から中央へ、中央に0.6秒留まり、0.2秒で中央から左へ
+    // 0.2秒で右から中央へ、中央に0.6秒留まり、0.1秒で中央から左へ
     tweenSequence = TweenSequence<Offset>([
       TweenSequenceItem(
         tween: Tween(
           begin: const Offset(1.0, 0.0),
           end: const Offset(0.0, 0.0),
         ),
-        weight: 2,
+        weight: 1,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: const Offset(0.0, 0.0),
           end: const Offset(0.0, 0.0),
         ),
-        weight: 6,
+        weight: 7,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: const Offset(0.0, 0.0),
           end: const Offset(-1.0, 0.0),
         ),
-        weight: 2,
+        weight: 1,
       ),
     ]);
 
@@ -275,7 +275,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       field[selectedRow][selectedCol] = null; //元の座標を初期化
 
       // 履歴に記録
-      var currentLog = "${isAllyTurn ? "自分" : "相手"}の${selectedCharacter!.name()}が [${(newRow + 1).toString()}, ${(newCol + 1).toString()}] に移動";
+      var currentLog = "${selectedCharacter!.name()}が [${(newRow + 1).toString()}, ${(newCol + 1).toString()}] に移動";
       history.add(currentLog);
 
       // キャラクター選択をリセット
@@ -332,15 +332,22 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   borderRadius: BorderRadius.circular(3),
                   border: Border.all(color: ColorTable.primaryBlackColor, width: 1.0),
                 ),
-                child: Center(
-                  child: Text(
-                    history.length > 3 ? history.skip(history.length - 3).join("\n") : history.join("\n"),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      height: 2.0,
-                    ),
-                  ),
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  reverse: true,
+                  itemCount: history.length,
+                  itemBuilder: (BuildContext context, int i) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          history[i],
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               Expanded(
