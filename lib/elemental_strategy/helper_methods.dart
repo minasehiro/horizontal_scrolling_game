@@ -62,6 +62,14 @@ bool isInField(int row, int col) {
   return row >= 0 && row < 8 && col >= 0 && col < 8;
 }
 
+// 元素爆発を発動可能か
+bool canLaunchElementalBurst(character) {
+  if (character != null && character.elementEnergy == 100) {
+    return true;
+  }
+  return false;
+}
+
 // キャラクターを自分のものにする
 Character turnOverPiece(Character character) {
   String currentDirectionString = character.isAlly ? "up" : "down"; // 画像パスから検索する文字列

@@ -54,6 +54,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       duration: const Duration(milliseconds: 1000),
     );
 
+    // アニメーション終了時に発火
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         // 繰り返し実行できるようにアニメーション終了後にリセット
@@ -210,6 +211,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     setState(() {
       isAllyTurn = !isAllyTurn;
       turnCount++;
+
+      elementalParticles.add(buildElementalParticle(enemyElements, [2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
     });
 
     // CPU行動
@@ -407,7 +410,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.red[400],
+                          color: canLaunchElementalBurst(selectedCharacter) ? Colors.red[400] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -505,6 +508,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     setState(() {
       isAllyTurn = !isAllyTurn;
       turnCount++;
+
+      elementalParticles.add(buildElementalParticle(allyElements, [2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
     });
   }
 }
