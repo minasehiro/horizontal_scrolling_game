@@ -8,7 +8,7 @@
 
 // 選択できる手を列挙する
 // [{ "piece": ShogiPiece1, "coordinates": [0, 3] }, { "piece": ShogiPiece2, "coordinates": [1, 1] }]
-List<List<Map<String, dynamic>>> enumerateAvailableActions(board) {
+List<List<Map<String, dynamic>>> enumerateAvailableActions(selectedCharacter, field) {
   List<List<Map<String, dynamic>>> ourPieces = []; // 自分たちの重要な駒と座標
   List<List<Map<String, dynamic>>> theirPieces = []; // 相手の重要な駒と座標
 
@@ -17,13 +17,13 @@ List<List<Map<String, dynamic>>> enumerateAvailableActions(board) {
   // { "piece": ShogiPiece2, "coordinates": [1, 1], "type": ShogiPieceType.hisya }]
   for (int i = 0; i < 6; i++) {
     for (int j = 0; j < 6; j++) {
-      if (board[i][j] == null) {
+      if (field[i][j] == null) {
         continue;
-      } else if (board[i][j].isAlly) {
+      } else if (field[i][j].isAlly) {
         theirPieces.add(
           [
             {
-              "piece": board[i][j],
+              "piece": field[i][j],
             },
             {
               "coordinates": [i, j],
@@ -34,7 +34,7 @@ List<List<Map<String, dynamic>>> enumerateAvailableActions(board) {
         ourPieces.add(
           [
             {
-              "piece": board[i][j],
+              "piece": field[i][j],
             },
             {
               "coordinates": [i, j],

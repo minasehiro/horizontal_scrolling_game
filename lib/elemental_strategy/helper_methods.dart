@@ -77,19 +77,3 @@ bool canLaunchElementalSkill(character) {
   }
   return false;
 }
-
-// キャラクターを自分のものにする
-Character turnOverPiece(Character character) {
-  String currentDirectionString = character.isAlly ? "up" : "down"; // 画像パスから検索する文字列
-  String newDirectionString = character.isAlly ? "down" : "up"; // 置き換える文字列
-  String newImagePath = character.imagePath.replaceFirst(currentDirectionString, newDirectionString); // 画像パスの置き換え
-
-  return Character(
-    type: character.type,
-    elementType: character.elementType,
-    isAlly: !character.isAlly,
-    imagePath: newImagePath,
-    elementEnergy: 0,
-    hitPoint: character.hitPoint,
-  );
-}

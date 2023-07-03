@@ -7,6 +7,8 @@ class Character {
   final String imagePath;
   final double elementEnergy;
   final int hitPoint;
+  final int currentRow;
+  final int currentCol;
 
   Character({
     required this.type,
@@ -15,6 +17,8 @@ class Character {
     required this.imagePath,
     required this.elementEnergy,
     required this.hitPoint,
+    required this.currentRow,
+    required this.currentCol,
   });
 
   // キャラクター名

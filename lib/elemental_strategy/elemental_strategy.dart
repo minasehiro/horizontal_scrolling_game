@@ -7,7 +7,6 @@ import 'components/genshin_element.dart';
 import 'components/square.dart';
 import 'constants.dart';
 import 'helper_methods.dart';
-import 'cpu_ai.dart';
 
 class ElementalStrategy extends StatefulWidget {
   const ElementalStrategy({super.key});
@@ -45,9 +44,96 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   late TweenSequence<Offset> tweenSequence; // カットイン
   late ScrollController scrollController; // 行動履歴
 
+  late List<Character> fieldCharacters; // 選択されたキャラクター一覧
+  int currentCharacterIndex = 0; // 行動するキャラクター
+
   @override
   void initState() {
     super.initState();
+
+    // 敵陣
+    fieldCharacters = [
+      Character(
+        type: CharacterType.kaedeharaKazuha,
+        elementType: ElementType.anemo,
+        isAlly: true,
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_kaedeharaKazuha.png",
+        elementEnergy: 0,
+        hitPoint: 100,
+        currentRow: 5,
+        currentCol: 1,
+      ),
+      Character(
+        type: CharacterType.zhongli,
+        elementType: ElementType.geo,
+        isAlly: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_zhongli.png",
+        elementEnergy: 0,
+        hitPoint: 70,
+        currentRow: 0,
+        currentCol: 4,
+      ),
+      Character(
+        type: CharacterType.kamisatoAyaka,
+        elementType: ElementType.cryo,
+        isAlly: true,
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_kamisatoAyaka.png",
+        elementEnergy: 0,
+        hitPoint: 100,
+        currentRow: 5,
+        currentCol: 2,
+      ),
+      Character(
+        type: CharacterType.nahida,
+        elementType: ElementType.dendro,
+        isAlly: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_nahida.png",
+        elementEnergy: 0,
+        hitPoint: 45,
+        currentRow: 0,
+        currentCol: 3,
+      ),
+      Character(
+        type: CharacterType.yaeMiko,
+        elementType: ElementType.electro,
+        isAlly: true,
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_yaeMiko.png",
+        elementEnergy: 0,
+        hitPoint: 100,
+        currentRow: 5,
+        currentCol: 3,
+      ),
+      Character(
+        type: CharacterType.xiao,
+        elementType: ElementType.anemo,
+        isAlly: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_xiao.png",
+        elementEnergy: 0,
+        hitPoint: 100,
+        currentRow: 0,
+        currentCol: 2,
+      ),
+      Character(
+        type: CharacterType.xingqiu,
+        elementType: ElementType.hydro,
+        isAlly: true,
+        imagePath: "lib/assets/images/elemental_strategy/characters/up_xingqiu.png",
+        elementEnergy: 0,
+        hitPoint: 100,
+        currentRow: 5,
+        currentCol: 4,
+      ),
+      Character(
+        type: CharacterType.yanfei,
+        elementType: ElementType.pyro,
+        isAlly: false,
+        imagePath: "lib/assets/images/elemental_strategy/characters/down_yanfei.png",
+        elementEnergy: 0,
+        hitPoint: 10,
+        currentRow: 0,
+        currentCol: 1,
+      ),
+    ];
 
     // 全部で1秒のアニメーション
     // TweenSequenceItem.weight によって分割される
@@ -73,6 +159,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             imagePath: selectedCharacter!.imagePath,
             elementEnergy: totalEnergy < 0 ? 0 : totalEnergy,
             hitPoint: selectedCharacter!.hitPoint,
+            currentRow: selectedCharacter!.currentRow,
+            currentCol: selectedCharacter!.currentCol,
           );
 
           // 付近のキャラにダメージ
@@ -124,6 +212,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                 imagePath: character.imagePath,
                 elementEnergy: character.elementEnergy,
                 hitPoint: remainingHitPoint > 0 ? remainingHitPoint : 100,
+                currentRow: character.currentRow,
+                currentCol: character.currentCol,
               );
 
               field[targetCoordinate[0]][targetCoordinate[1]] = newCharacter;
@@ -143,11 +233,14 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             // 元素エネルギーを減らしたキャラをフィールドに展開
             field[selectedRow][selectedCol] = newCharacter;
 
-            // キャラクター選択をリセット
-            selectedCharacter = null;
-            selectedRow = -1;
-            selectedCol = -1;
-            validMoves = [];
+            // 一番古い元素粒子を消す
+            if (elementalParticles.isNotEmpty && elementalParticles.length > 6) {
+              elementalParticles.removeAt(0);
+            }
+            // 新たに元素粒子を生成
+            if (elementalParticles.length < 6) {
+              elementalParticles.add(buildElementalParticle(allyElements, [1, 2, 3, 4], [0, 1, 2, 3, 4, 5]));
+            }
           });
         } else if (isLaunchElementalSkill) {
           // 付近のキャラにダメージ
@@ -199,6 +292,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                 imagePath: character.imagePath,
                 elementEnergy: character.elementEnergy,
                 hitPoint: remainingHitPoint > 0 ? remainingHitPoint : 100,
+                currentRow: character.currentRow,
+                currentCol: character.currentCol,
               );
 
               field[targetCoordinate[0]][targetCoordinate[1]] = newCharacter;
@@ -215,11 +310,14 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             // 元素スキル処理を終了
             isLaunchElementalSkill = false;
 
-            // キャラクター選択をリセット
-            selectedCharacter = null;
-            selectedRow = -1;
-            selectedCol = -1;
-            validMoves = [];
+            // 一番古い元素粒子を消す
+            if (elementalParticles.isNotEmpty && elementalParticles.length > 6) {
+              elementalParticles.removeAt(0);
+            }
+            // 新たに元素粒子を生成
+            if (elementalParticles.length < 6) {
+              elementalParticles.add(buildElementalParticle(allyElements, [1, 2, 3, 4], [0, 1, 2, 3, 4, 5]));
+            }
           });
         }
 
@@ -258,6 +356,12 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     scrollController = ScrollController();
 
     _initializeBoard();
+
+    // 初期行動キャラを選択
+    selectedCharacter = fieldCharacters[currentCharacterIndex];
+    selectedRow = fieldCharacters[currentCharacterIndex].currentRow;
+    selectedCol = fieldCharacters[currentCharacterIndex].currentCol;
+    validMoves = calculateRawValidMoves(field, selectedRow, selectedCol, selectedCharacter); // 移動可能な座標を計算
   }
 
   @override
@@ -284,74 +388,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     elementalParticles.add(buildElementalParticle(enemyElements, [2], [0, 1, 2, 3, 4, 5]));
     elementalParticles.add(buildElementalParticle(allyElements, [3], [0, 1, 2, 3, 4, 5]));
 
-    for (int i = 0; i < 6; i++) {
-      // 敵陣
-      newField[0][1] = Character(
-        type: CharacterType.yanfei,
-        elementType: ElementType.pyro,
-        isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/characters/down_yanfei.png",
-        elementEnergy: 0,
-        hitPoint: 10,
-      );
-      newField[0][2] = Character(
-        type: CharacterType.xiao,
-        elementType: ElementType.anemo,
-        isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/characters/down_xiao.png",
-        elementEnergy: 0,
-        hitPoint: 100,
-      );
-      newField[0][3] = Character(
-        type: CharacterType.nahida,
-        elementType: ElementType.dendro,
-        isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/characters/down_nahida.png",
-        elementEnergy: 0,
-        hitPoint: 45,
-      );
-      newField[0][4] = Character(
-        type: CharacterType.zhongli,
-        elementType: ElementType.geo,
-        isAlly: false,
-        imagePath: "lib/assets/images/elemental_strategy/characters/down_zhongli.png",
-        elementEnergy: 0,
-        hitPoint: 70,
-      );
-
-      // 自陣
-      newField[5][1] = Character(
-        type: CharacterType.kaedeharaKazuha,
-        elementType: ElementType.anemo,
-        isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_kaedeharaKazuha.png",
-        elementEnergy: 0,
-        hitPoint: 100,
-      );
-      newField[5][2] = Character(
-        type: CharacterType.kamisatoAyaka,
-        elementType: ElementType.cryo,
-        isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_kamisatoAyaka.png",
-        elementEnergy: 0,
-        hitPoint: 100,
-      );
-      newField[5][3] = Character(
-        type: CharacterType.yaeMiko,
-        elementType: ElementType.electro,
-        isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_yaeMiko.png",
-        elementEnergy: 0,
-        hitPoint: 100,
-      );
-      newField[5][4] = Character(
-        type: CharacterType.xingqiu,
-        elementType: ElementType.hydro,
-        isAlly: true,
-        imagePath: "lib/assets/images/elemental_strategy/characters/up_xingqiu.png",
-        elementEnergy: 0,
-        hitPoint: 100,
-      );
+    for (var character in fieldCharacters) {
+      newField[character.currentRow][character.currentCol] = character;
     }
 
     field = newField;
@@ -359,13 +397,42 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
   // CPUへターンを渡す
   void turnChange() {
-    setState(() {
-      isAllyTurn = !isAllyTurn;
-      turnCount++;
-    });
+    if (isAllyTurn) {
+      setState(() {
+        isAllyTurn = !isAllyTurn;
+        turnCount++;
 
-    // CPU行動
-    cpuActionWithCpuAi();
+        if (currentCharacterIndex == 7) {
+          currentCharacterIndex = 0;
+        } else {
+          currentCharacterIndex++;
+        }
+
+        selectedCharacter = fieldCharacters[currentCharacterIndex];
+        selectedRow = selectedCharacter!.currentRow;
+        selectedCol = selectedCharacter!.currentCol;
+        validMoves = calculateRawValidMoves(field, selectedRow, selectedCol, selectedCharacter); // 移動可能な座標を計算
+      });
+
+      // CPU行動
+      cpuActionWithCpuAi();
+    } else {
+      setState(() {
+        isAllyTurn = !isAllyTurn;
+        turnCount++;
+
+        if (currentCharacterIndex == 7) {
+          currentCharacterIndex = 0;
+        } else {
+          currentCharacterIndex++;
+        }
+
+        selectedCharacter = fieldCharacters[currentCharacterIndex];
+        selectedRow = fieldCharacters[currentCharacterIndex].currentRow;
+        selectedCol = fieldCharacters[currentCharacterIndex].currentCol;
+        validMoves = calculateRawValidMoves(field, selectedRow, selectedCol, selectedCharacter); // 移動可能な座標を計算
+      });
+    }
   }
 
   // ピースを選択する
@@ -394,59 +461,60 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
   // キャラクターを移動
   void moveCharacter(int newRow, int newCol) async {
-    Map<String, dynamic> toRemove = {};
+    late Map<String, dynamic> toRemove = {};
     Character? newCharacter;
+    double totalEnergy = selectedCharacter!.elementEnergy;
 
     for (var elementalParticle in elementalParticles) {
       if (elementalParticle["coordinates"][0] == newRow && elementalParticle["coordinates"][1] == newCol) {
-        // 元素拾得時、 elementEnergy を更新した Character を生成
-        double totalEnergy = selectedCharacter!.elementEnergy + (selectedCharacter!.elementType == elementalParticle["element"].type ? 50 : 25);
+        totalEnergy = selectedCharacter!.elementEnergy + (selectedCharacter!.elementType == elementalParticle["element"].type ? 50 : 25);
 
-        newCharacter = Character(
-          type: selectedCharacter!.type,
-          elementType: selectedCharacter!.elementType,
-          isAlly: selectedCharacter!.isAlly,
-          imagePath: selectedCharacter!.imagePath,
-          elementEnergy: totalEnergy > 100.0 ? 100.0 : totalEnergy,
-          hitPoint: selectedCharacter!.hitPoint,
-        );
         toRemove = elementalParticle;
       }
     }
 
+    newCharacter = Character(
+      type: selectedCharacter!.type,
+      elementType: selectedCharacter!.elementType,
+      isAlly: selectedCharacter!.isAlly,
+      imagePath: selectedCharacter!.imagePath,
+      elementEnergy: totalEnergy,
+      hitPoint: selectedCharacter!.hitPoint,
+      currentRow: newRow,
+      currentCol: newCol,
+    );
+
     setState(() {
       // キャラクターを入れ替え、元素エネルギーを取り除く
-      if (newCharacter != null) {
-        selectedCharacter = newCharacter;
+      if (toRemove != {}) {
         elementalParticles.remove(toRemove);
       }
 
-      field[newRow][newCol] = selectedCharacter; // 新しい座標へ移動
+      field[newRow][newCol] = newCharacter; // 新しい座標へ移動
+      fieldCharacters[currentCharacterIndex] = newCharacter!;
       field[selectedRow][selectedCol] = null; //元の座標を初期化
 
       // 履歴に記録
-      var currentLog = "${selectedCharacter!.isAlly ? "自分" : "相手"}の${selectedCharacter!.name()}が移動";
+      var currentLog = "${newCharacter.isAlly ? "自分" : "相手"}の${newCharacter.name()}が移動";
       history.add(currentLog);
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
-
-      // キャラクター選択をリセット
-      selectedCharacter = null;
-      selectedRow = -1;
-      selectedCol = -1;
-      validMoves = [];
     });
 
-    elementalParticles.removeAt(0); // 一番古い元素粒子を消す
-    elementalParticles.add(buildElementalParticle(allyElements, [1, 2, 3, 4], [0, 1, 2, 3, 4, 5])); // 新たに元素粒子を生成
+    // 一番古い元素粒子を消す
+    if (elementalParticles.isNotEmpty && elementalParticles.length > 6) {
+      elementalParticles.removeAt(0);
+    }
+    // 新たに元素粒子を生成
+    if (elementalParticles.length < 6) {
+      elementalParticles.add(buildElementalParticle(allyElements, [1, 2, 3, 4], [0, 1, 2, 3, 4, 5]));
+    }
 
     // ターンチェンジ
-    if (isAllyTurn) {
-      turnChange();
-    }
+    turnChange();
   }
 
   // 元素スキルの発動
@@ -719,36 +787,13 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
   // CPUの行動制御
   void cpuActionWithCpuAi() {
-    // 選択できる手を取得
-    List<List<Map<String, dynamic>>> candidatePices = enumerateAvailableActions(field);
-    List<int> derivedActionPieceCoordinates;
-    List<int> candidateMoves;
     var random = Random();
 
-    // キャラクター群からランダムにひとり選ぶ
-    int randomIndex = random.nextInt(candidatePices.length);
-    derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"]; // 選ばれたキャラクターの座標
-
-    // キャラクターを選択
-    selectCharacter(derivedActionPieceCoordinates[0], derivedActionPieceCoordinates[1]);
-
-    // 動かせないキャラクターだった場合は再計算
-    while (validMoves.isEmpty) {
-      int randomIndex = random.nextInt(candidatePices.length);
-      derivedActionPieceCoordinates = candidatePices[randomIndex][1]["coordinates"]; // 再選択されたキャラクターの座標
-    }
-
     // 移動可能な座標からランダムにひとつ選ぶ
-    randomIndex = random.nextInt(validMoves.length);
-    candidateMoves = validMoves[randomIndex];
+    int randomIndex = random.nextInt(validMoves.length);
+    List<int> candidateMoves = validMoves[randomIndex];
 
     // 移動実行
     moveCharacter(candidateMoves[0], candidateMoves[1]);
-
-    // プレイヤーへターンを渡す
-    setState(() {
-      isAllyTurn = !isAllyTurn;
-      turnCount++;
-    });
   }
 }

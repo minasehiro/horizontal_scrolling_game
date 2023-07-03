@@ -13,7 +13,7 @@ class CharacterCoin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double elementEnergyPercent = character!.elementEnergy.toDouble();
+    double elementEnergyPercent = character!.elementEnergy > 100 ? 100.0 : character!.elementEnergy;
     double remainingHitPointPercentage = character!.hitPoint / 100;
 
     return Center(
