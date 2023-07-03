@@ -24,7 +24,7 @@ class CharacterCoin extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  width: 40 * remainingHitPointPercentage,
+                  width: 50 * remainingHitPointPercentage,
                   height: 3,
                   decoration: BoxDecoration(
                     color: remainingHitPointPercentage <= 0.25 ? Colors.red : Colors.lightGreenAccent,
@@ -32,7 +32,7 @@ class CharacterCoin extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  width: 40 * (1 - remainingHitPointPercentage),
+                  width: 50 * (1 - remainingHitPointPercentage),
                   height: 3,
                   decoration: BoxDecoration(
                     color: Colors.transparent,
@@ -45,7 +45,7 @@ class CharacterCoin extends StatelessWidget {
             data: [
               PieChartData(elementEnergyPercent >= 100 ? Colors.yellow : Colors.yellow.shade100, elementEnergyPercent),
             ],
-            radius: 18,
+            radius: 20,
             child: Image.asset(imagePath!),
           ),
           if (character!.isAlly)
@@ -53,7 +53,7 @@ class CharacterCoin extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 40 * (1 - remainingHitPointPercentage),
+                  width: 50 * (1 - remainingHitPointPercentage),
                   height: 3,
                   decoration: BoxDecoration(
                     color: Colors.transparent,
@@ -61,7 +61,7 @@ class CharacterCoin extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  width: 40 * remainingHitPointPercentage,
+                  width: 50 * remainingHitPointPercentage,
                   height: 3,
                   decoration: BoxDecoration(
                     color: remainingHitPointPercentage <= 0.25 ? Colors.red : Colors.lightGreenAccent,

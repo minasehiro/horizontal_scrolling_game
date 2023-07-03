@@ -59,7 +59,7 @@ List<List<int>> calculateRawValidMoves(List<List<Character?>> field, int row, in
 
 // 対象の座標がフィールドにあるか
 bool isInField(int row, int col) {
-  return row >= 0 && row < 8 && col >= 0 && col < 8;
+  return row >= 0 && row < 6 && col >= 0 && col < 6;
 }
 
 // 元素爆発を発動可能か

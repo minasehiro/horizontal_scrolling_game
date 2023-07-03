@@ -1,12 +1,10 @@
 // CPU側の操作に関するメソッド群
 
-// 行動優先度:
-/// 5pt 強駒が取られるのを防ぐ
-/// 5pt 相手の強駒が取れる
-/// 3pt 弱駒が取られるのを防ぐ
-/// 3pt 相手の弱駒が取れる
-/// 1pt 相手陣に近づける
-/// 4pt 持ち駒を打つ（全体の駒の数が一定数を下回った場合）
+// 行動優先度案:
+/// 5pt 元素爆発を相手に撃つ
+/// 5pt 元素スキルを相手に撃つ
+/// 3pt 元素粒子を拾う
+/// 1pt 相手の付近から逃げる
 
 // 選択できる手を列挙する
 // [{ "piece": ShogiPiece1, "coordinates": [0, 3] }, { "piece": ShogiPiece2, "coordinates": [1, 1] }]
@@ -17,8 +15,8 @@ List<List<Map<String, dynamic>>> enumerateAvailableActions(board) {
   // 全ての駒を取得し、重要度・敵味方で分ける
   // [{ "piece": ShogiPiece1, "coordinates": [0, 3], "type": ShogiPieceType.kinsho },
   // { "piece": ShogiPiece2, "coordinates": [1, 1], "type": ShogiPieceType.hisya }]
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  for (int i = 0; i < 6; i++) {
+    for (int j = 0; j < 6; j++) {
       if (board[i][j] == null) {
         continue;
       } else if (board[i][j].isAlly) {

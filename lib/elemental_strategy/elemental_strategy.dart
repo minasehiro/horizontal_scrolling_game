@@ -40,10 +40,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   ];
   bool isLaunchElementalBurst = false; // 元素爆発を発動
   bool isLaunchElementalSkill = false; // 元素スキルを発動
-  late AnimationController animationController;
-  late ScrollController scrollController;
-  late Animation<Offset> offsetAnimation;
-  late TweenSequence<Offset> tweenSequence;
+  late AnimationController animationController; // カットイン
+  late Animation<Offset> offsetAnimation; // カットイン
+  late TweenSequence<Offset> tweenSequence; // カットイン
+  late ScrollController scrollController; // 行動履歴
 
   @override
   void initState() {
@@ -269,26 +269,24 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
   // 盤面の初期化
   void _initializeBoard() {
-    List<List<Character?>> newField = List.generate(8, (index) => List.generate(8, (index) => null));
+    List<List<Character?>> newField = List.generate(6, (index) => List.generate(6, (index) => null));
 
     // 元素粒子をランダムに発生させる
     // 敵の近くに2つ
-    elementalParticles.add(buildElementalParticle(enemyElements, [1], [1, 2, 3]));
-    elementalParticles.add(buildElementalParticle(enemyElements, [1], [4, 5, 6]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [1], [0, 1, 2]));
+    elementalParticles.add(buildElementalParticle(enemyElements, [1], [3, 4, 5]));
 
     // 味方の近くに2つ
-    elementalParticles.add(buildElementalParticle(allyElements, [6], [1, 2, 3]));
-    elementalParticles.add(buildElementalParticle(allyElements, [6], [4, 5, 6]));
+    elementalParticles.add(buildElementalParticle(allyElements, [4], [0, 1, 2]));
+    elementalParticles.add(buildElementalParticle(allyElements, [4], [3, 4, 5]));
 
-    // 中心付近に4つ
-    elementalParticles.add(buildElementalParticle(enemyElements, [2], [0, 1, 2, 3, 4, 5, 6, 7]));
-    elementalParticles.add(buildElementalParticle(enemyElements, [3], [0, 1, 2, 3, 4, 5, 6, 7]));
-    elementalParticles.add(buildElementalParticle(allyElements, [4], [0, 1, 2, 3, 4, 5, 6, 7]));
-    elementalParticles.add(buildElementalParticle(allyElements, [5], [0, 1, 2, 3, 4, 5, 6, 7]));
+    // 中心付近に2つ
+    elementalParticles.add(buildElementalParticle(enemyElements, [2], [0, 1, 2, 3, 4, 5]));
+    elementalParticles.add(buildElementalParticle(allyElements, [3], [0, 1, 2, 3, 4, 5]));
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 6; i++) {
       // 敵陣
-      newField[0][2] = Character(
+      newField[0][1] = Character(
         type: CharacterType.yanfei,
         elementType: ElementType.pyro,
         isAlly: false,
@@ -296,7 +294,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         elementEnergy: 0,
         hitPoint: 10,
       );
-      newField[0][3] = Character(
+      newField[0][2] = Character(
         type: CharacterType.xiao,
         elementType: ElementType.anemo,
         isAlly: false,
@@ -304,7 +302,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         elementEnergy: 0,
         hitPoint: 100,
       );
-      newField[0][4] = Character(
+      newField[0][3] = Character(
         type: CharacterType.nahida,
         elementType: ElementType.dendro,
         isAlly: false,
@@ -312,7 +310,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         elementEnergy: 0,
         hitPoint: 45,
       );
-      newField[0][5] = Character(
+      newField[0][4] = Character(
         type: CharacterType.zhongli,
         elementType: ElementType.geo,
         isAlly: false,
@@ -322,7 +320,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       );
 
       // 自陣
-      newField[7][2] = Character(
+      newField[5][1] = Character(
         type: CharacterType.kaedeharaKazuha,
         elementType: ElementType.anemo,
         isAlly: true,
@@ -330,7 +328,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         elementEnergy: 0,
         hitPoint: 100,
       );
-      newField[7][3] = Character(
+      newField[5][2] = Character(
         type: CharacterType.kamisatoAyaka,
         elementType: ElementType.cryo,
         isAlly: true,
@@ -338,7 +336,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         elementEnergy: 0,
         hitPoint: 100,
       );
-      newField[7][4] = Character(
+      newField[5][3] = Character(
         type: CharacterType.yaeMiko,
         elementType: ElementType.electro,
         isAlly: true,
@@ -346,7 +344,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         elementEnergy: 0,
         hitPoint: 100,
       );
-      newField[7][5] = Character(
+      newField[5][4] = Character(
         type: CharacterType.xingqiu,
         elementType: ElementType.hydro,
         isAlly: true,
@@ -364,8 +362,6 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     setState(() {
       isAllyTurn = !isAllyTurn;
       turnCount++;
-
-      elementalParticles.add(buildElementalParticle(enemyElements, [2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
     });
 
     // CPU行動
@@ -443,6 +439,9 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       selectedCol = -1;
       validMoves = [];
     });
+
+    elementalParticles.removeAt(0); // 一番古い元素粒子を消す
+    elementalParticles.add(buildElementalParticle(allyElements, [1, 2, 3, 4], [0, 1, 2, 3, 4, 5])); // 新たに元素粒子を生成
 
     // ターンチェンジ
     if (isAllyTurn) {
@@ -543,12 +542,12 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
               // フィールド
               Expanded(
                 child: GridView.builder(
-                  itemCount: 8 * 8,
+                  itemCount: 6 * 6,
                   physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 6),
                   itemBuilder: (context, index) {
-                    int row = index ~/ 8;
-                    int col = index % 8;
+                    int row = index ~/ 6;
+                    int col = index % 6;
                     bool isSelected = row == selectedRow && col == selectedCol;
                     bool isValidMove = false;
                     GenshinElement? element;
@@ -750,8 +749,6 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     setState(() {
       isAllyTurn = !isAllyTurn;
       turnCount++;
-
-      elementalParticles.add(buildElementalParticle(allyElements, [2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6, 7]));
     });
   }
 }

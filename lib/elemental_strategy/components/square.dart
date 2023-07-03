@@ -32,7 +32,7 @@ class Square extends StatelessWidget {
     } else if (isValidMove) {
       squareColor = Colors.blue[200]; // 選択しているキャラクターが移動可能
     } else {
-      squareColor = Colors.blueGrey[300];
+      squareColor = Colors.blueGrey[200];
     }
 
     if (piece != null) {
@@ -40,7 +40,7 @@ class Square extends StatelessWidget {
     } else if (element != null) {
       displayWidget = Stack(alignment: AlignmentDirectional.center, children: [
         Container(
-          margin: const EdgeInsets.all(10.0),
+          margin: const EdgeInsets.all(20.0),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.8),
             shape: BoxShape.circle,
@@ -48,7 +48,7 @@ class Square extends StatelessWidget {
         ),
         Image.asset(
           element!.imagePath,
-          width: 20.0,
+          width: 18.0,
         ),
       ]);
     } else {
