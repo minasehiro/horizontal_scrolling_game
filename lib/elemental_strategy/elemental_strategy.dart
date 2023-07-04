@@ -796,9 +796,9 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   }
 
   // 攻撃可能範囲を表示
-  void showAttackRange(damageRange) {
+  void showAttackRange(damageRange, character) {
     setState(() {
-      attackRange = calculateAttackRange(field, selectedRow, selectedCol, damageRange);
+      attackRange = calculateAttackRange(field, selectedRow, selectedCol, damageRange, character);
     });
   }
 
@@ -961,7 +961,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                         }
                       },
                       onLongPressStart: (details) {
-                        showAttackRange(selectedCharacter!.skill.damageRange);
+                        showAttackRange(selectedCharacter!.skill.damageRange, selectedCharacter);
                       },
                       onLongPressEnd: (details) {
                         hideAttackRange();
@@ -987,7 +987,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                         }
                       },
                       onLongPressStart: (details) {
-                        showAttackRange(selectedCharacter!.burst.damageRange);
+                        showAttackRange(selectedCharacter!.burst.damageRange, selectedCharacter);
                       },
                       onLongPressEnd: (details) {
                         hideAttackRange();

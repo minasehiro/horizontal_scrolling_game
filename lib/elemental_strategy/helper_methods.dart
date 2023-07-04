@@ -58,20 +58,20 @@ List<List<int>> calculateRawValidMoves(List<List<Character?>> field, int row, in
 }
 
 // 元素スキル・元素爆発の攻撃範囲を座標の配列で返す
-List<List<int>> calculateAttackRange(List<List<Character?>> field, int row, int col, List<List<int>> damageRange) {
+List<List<int>> calculateAttackRange(List<List<Character?>> field, int row, int col, List<List<int>> damageRange, Character character) {
   List<List<int>> attackRanges = [];
 
   for (var range in damageRange) {
-    var newRow = row + (range[0]);
-    var newCol = col + (range[1]);
+    var newRow = row + range[0];
+    var newCol = col + range[1];
 
     // フィールドから出た場合
     if (!isInField(newRow, newCol)) {
       continue;
     }
 
-    // 対象の座標にキャラクターがいる
-    if (field[newRow][newCol] != null) {
+    // 対象の座標に味方キャラクターがいる
+    if (field[newRow][newCol] != null && field[newRow][newCol]!.isAlly == character.isAlly) {
       continue;
     }
 
