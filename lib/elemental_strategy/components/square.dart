@@ -9,6 +9,7 @@ class Square extends StatelessWidget {
   final Character? piece;
   final bool isSelected;
   final bool isValidMove;
+  final bool canAttackRange;
   final void Function()? onTap;
   final GenshinElement? element;
 
@@ -17,6 +18,7 @@ class Square extends StatelessWidget {
     required this.piece,
     required this.isSelected,
     required this.isValidMove,
+    required this.canAttackRange,
     required this.onTap,
     required this.element,
   });
@@ -29,6 +31,8 @@ class Square extends StatelessWidget {
     // 座標の状態によって背景色を変化
     if (isSelected) {
       squareColor = Colors.blue; // キャラクターを選択中
+    } else if (canAttackRange) {
+      squareColor = Colors.yellow; // 攻撃可能範囲
     } else if (isValidMove) {
       squareColor = Colors.blue[200]; // 選択しているキャラクターが移動可能
     } else {

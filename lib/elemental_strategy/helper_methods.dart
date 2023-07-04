@@ -57,28 +57,13 @@ List<List<int>> calculateRawValidMoves(List<List<Character?>> field, int row, in
   return candidateMoves;
 }
 
-// キャラクターが移動可能な座標を配列で返す
-List<List<int>> calculateSkillRange(List<List<Character?>> field, int row, int col, Character? character) {
-  if (character == null) {
-    return [];
-  }
+// 元素スキル・元素爆発の攻撃範囲を座標の配列で返す
+List<List<int>> calculateAttackRange(List<List<Character?>> field, int row, int col, List<List<int>> damageRange) {
+  List<List<int>> attackRanges = [];
 
-  List<List<int>> candidateMoves = [];
-
-  var directions = [
-    [-1, 0], // 上
-    [1, 0], // 下
-    [0, -1], // 左
-    [0, 1], // 右
-    [-1, -1], // 左上
-    [-1, 1], // 右上
-    [1, -1], // 左下
-    [1, 1], // 右下
-  ];
-
-  for (var direction in directions) {
-    var newRow = row + (direction[0]);
-    var newCol = col + (direction[1]);
+  for (var range in damageRange) {
+    var newRow = row + (range[0]);
+    var newCol = col + (range[1]);
 
     // フィールドから出た場合
     if (!isInField(newRow, newCol)) {
@@ -90,10 +75,10 @@ List<List<int>> calculateSkillRange(List<List<Character?>> field, int row, int c
       continue;
     }
 
-    candidateMoves.add([newRow, newCol]);
+    attackRanges.add([newRow, newCol]);
   }
 
-  return candidateMoves;
+  return attackRanges;
 }
 
 // 対象の座標がフィールドにあるか

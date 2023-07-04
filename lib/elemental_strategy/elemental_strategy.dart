@@ -48,6 +48,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
   late List<Character> fieldCharacters; // 選択されたキャラクター一覧
   int currentCharacterIndex = 0; // 行動するキャラクター
+  List<List<int>> attackRange = []; // 攻撃予測範囲
 
   @override
   void initState() {
@@ -794,6 +795,20 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     animationController.forward();
   }
 
+  // 攻撃可能範囲を表示
+  void showAttackRange(damageRange) {
+    setState(() {
+      attackRange = calculateAttackRange(field, selectedRow, selectedCol, damageRange);
+    });
+  }
+
+  // 攻撃可能範囲を非表示
+  void hideAttackRange() {
+    setState(() {
+      attackRange = [];
+    });
+  }
+
   // どちらかのキャラクターがいなくなった場合、ダイアログを表示
   void isGameOver() {
     if (fieldCharacters.every((character) => character.isAlly) || fieldCharacters.every((character) => !character.isAlly)) {
@@ -893,12 +908,22 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                     int col = index % 6;
                     bool isSelected = row == selectedRow && col == selectedCol;
                     bool isValidMove = false;
+                    bool canAttackRange = false;
                     GenshinElement? element;
 
-                    // 選択中のキャラクターが移動可能な座標かどうか
-                    for (var position in validMoves) {
-                      if (position[0] == row && position[1] == col) {
-                        isValidMove = true;
+                    if (attackRange.isEmpty) {
+                      // 選択中のキャラクターが移動可能な座標かどうか
+                      for (var position in validMoves) {
+                        if (position[0] == row && position[1] == col) {
+                          isValidMove = true;
+                        }
+                      }
+                    } else {
+                      // 選択中のキャラクターが攻撃可能な座標かどうか
+                      for (var range in attackRange) {
+                        if (range[0] == row && range[1] == col) {
+                          canAttackRange = true;
+                        }
                       }
                     }
 
@@ -913,6 +938,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                       piece: field[row][col],
                       isSelected: isSelected,
                       isValidMove: isValidMove,
+                      canAttackRange: canAttackRange,
                       onTap: () => selectSquare(row, col),
                       element: element,
                     );
@@ -934,6 +960,12 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                           launchElementalSkill(selectedCharacter);
                         }
                       },
+                      onLongPressStart: (details) {
+                        showAttackRange(selectedCharacter!.skill.damageRange);
+                      },
+                      onLongPressEnd: (details) {
+                        hideAttackRange();
+                      },
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -953,6 +985,12 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                         if (canLaunchElementalBurst(selectedCharacter, turnCount)) {
                           launchElementalBurst(selectedCharacter);
                         }
+                      },
+                      onLongPressStart: (details) {
+                        showAttackRange(selectedCharacter!.burst.damageRange);
+                      },
+                      onLongPressEnd: (details) {
+                        hideAttackRange();
                       },
                       child: Container(
                         padding: const EdgeInsets.all(20),
