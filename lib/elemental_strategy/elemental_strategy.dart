@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:horizontal_scrolling_game/elemental_strategy/components/elemental_burst.dart';
+import 'package:horizontal_scrolling_game/elemental_strategy/components/elemental_skill.dart';
 
 import '../color_table.dart';
 import '../home_page.dart';
@@ -61,6 +63,36 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         hitPoint: 100,
         currentRow: 5,
         currentCol: 1,
+        skill: ElementalSkill(
+          name: "千早振る",
+          voice: "風を知れ",
+          damage: 30,
+          damageRange: [
+            [-1, 0], // 上
+            [1, 0], // 下
+            [0, -1], // 左
+            [0, 1], // 右
+            [-1, -1], // 左上
+            [-1, 1], // 右上
+            [1, -1], // 左下
+            [1, 1], // 右下
+          ],
+          coolTime: 2,
+          numberOfParticlesGenerated: 40,
+        ),
+        turnLastTriggeredSkill: 0,
+        burst: ElementalBurst(
+          name: "万葉の一刀",
+          voice: "雲隠れ、雁鳴くとき",
+          damage: 30,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 3,
+        ),
+        turnLastTriggeredBurst: 0,
       ),
       Character(
         type: CharacterType.zhongli,
@@ -68,9 +100,32 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_zhongli.png",
         elementEnergy: 0,
-        hitPoint: 70,
+        hitPoint: 100,
         currentRow: 0,
         currentCol: 4,
+        skill: ElementalSkill(
+          name: "地心",
+          voice: "壁立千仞！",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+          ],
+          coolTime: 2,
+          numberOfParticlesGenerated: 20,
+        ),
+        turnLastTriggeredSkill: 0,
+        burst: ElementalBurst(
+          name: "天星",
+          voice: "天道、ここに在り",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 1,
+        ),
+        turnLastTriggeredBurst: 0,
       ),
       Character(
         type: CharacterType.kamisatoAyaka,
@@ -81,6 +136,36 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         hitPoint: 100,
         currentRow: 5,
         currentCol: 2,
+        skill: ElementalSkill(
+          name: "神里流・氷華",
+          voice: "雪よ、舞え。",
+          damage: 40,
+          damageRange: [
+            [-1, 0], // 上
+            [1, 0], // 下
+            [0, -1], // 左
+            [0, 1], // 右
+            [-1, -1], // 左上
+            [-1, 1], // 右上
+            [1, -1], // 左下
+            [1, 1], // 右下
+          ],
+          coolTime: 2,
+          numberOfParticlesGenerated: 30,
+        ),
+        turnLastTriggeredSkill: 0,
+        burst: ElementalBurst(
+          name: "神里流・霜滅",
+          voice: "櫻吹雪！",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 1,
+        ),
+        turnLastTriggeredBurst: 0,
       ),
       Character(
         type: CharacterType.nahida,
@@ -88,9 +173,35 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_nahida.png",
         elementEnergy: 0,
-        hitPoint: 45,
+        hitPoint: 100,
         currentRow: 0,
         currentCol: 3,
+        skill: ElementalSkill(
+          name: "諸聞遍計",
+          voice: "蔓延りなさい。",
+          damage: 10,
+          damageRange: [
+            [1, 0], [2, 0], [3, 0], // 下
+            [1, -1], [2, -2], [3, -3], // 左下
+            [1, 1], [2, 2], [3, 3], // 右下
+            [2, -1], [3, -1], [3, -2], [2, 1], [3, 1], [3, 2],
+          ],
+          coolTime: 1,
+          numberOfParticlesGenerated: 30,
+        ),
+        turnLastTriggeredSkill: 0,
+        burst: ElementalBurst(
+          name: "心景幻成",
+          voice: "知識を、あなたにも。",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 1,
+        ),
+        turnLastTriggeredBurst: 0,
       ),
       Character(
         type: CharacterType.yaeMiko,
@@ -101,6 +212,27 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         hitPoint: 100,
         currentRow: 5,
         currentCol: 3,
+        skill: ElementalSkill(
+          name: "野干役呪・殺生櫻",
+          voice: "具現化せよ。",
+          damage: 0,
+          damageRange: [],
+          coolTime: 1,
+          numberOfParticlesGenerated: 0,
+        ),
+        turnLastTriggeredSkill: 0,
+        burst: ElementalBurst(
+          name: "大密法・天狐顕現",
+          voice: "雷光、いと美しきかな。",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 1,
+        ),
+        turnLastTriggeredBurst: 0,
       ),
       Character(
         type: CharacterType.xiao,
@@ -111,6 +243,30 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         hitPoint: 100,
         currentRow: 0,
         currentCol: 2,
+        skill: ElementalSkill(
+          name: "風輪両立",
+          voice: "無駄だ。",
+          damage: 30,
+          damageRange: [
+            [1, 0],
+            [2, 0],
+          ],
+          coolTime: 1,
+          numberOfParticlesGenerated: 20,
+        ),
+        turnLastTriggeredSkill: 0,
+        burst: ElementalBurst(
+          name: "靖妖儺舞",
+          voice: "喚くがいい！！",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 1,
+        ),
+        turnLastTriggeredBurst: 0,
       ),
       Character(
         type: CharacterType.xingqiu,
@@ -121,6 +277,29 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         hitPoint: 100,
         currentRow: 5,
         currentCol: 4,
+        skill: ElementalSkill(
+          name: "古華剣・裁雨留虹",
+          voice: "この剣はわかるかい？",
+          damage: 30,
+          damageRange: [
+            [-1, 0],
+          ],
+          coolTime: 3,
+          numberOfParticlesGenerated: 40,
+        ),
+        turnLastTriggeredSkill: 0,
+        burst: ElementalBurst(
+          name: "古華剣・画雨籠山",
+          voice: "古華奥義！",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 1,
+        ),
+        turnLastTriggeredBurst: 0,
       ),
       Character(
         type: CharacterType.yanfei,
@@ -128,9 +307,34 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         isAlly: false,
         imagePath: "lib/assets/images/elemental_strategy/characters/down_yanfei.png",
         elementEnergy: 0,
-        hitPoint: 10,
+        hitPoint: 100,
         currentRow: 0,
         currentCol: 1,
+        skill: ElementalSkill(
+          name: "丹書契約",
+          voice: "燃えよ♪",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 1,
+          numberOfParticlesGenerated: 20,
+        ),
+        turnLastTriggeredSkill: 0,
+        burst: ElementalBurst(
+          name: "契約成立",
+          voice: "丹書鉄契！",
+          damage: 10,
+          damageRange: [
+            [0, -1],
+            [0, -2],
+            [0, -3],
+          ],
+          coolTime: 1,
+        ),
+        turnLastTriggeredBurst: 0,
       ),
     ];
 
@@ -160,6 +364,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             hitPoint: selectedCharacter!.hitPoint,
             currentRow: selectedCharacter!.currentRow,
             currentCol: selectedCharacter!.currentCol,
+            skill: selectedCharacter!.skill,
+            turnLastTriggeredSkill: selectedCharacter!.turnLastTriggeredSkill,
+            burst: selectedCharacter!.burst,
+            turnLastTriggeredBurst: turnCount,
           );
 
           // 付近のキャラにダメージ
@@ -227,6 +435,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   hitPoint: remainingHitPoint,
                   currentRow: targetCharacter.currentRow,
                   currentCol: targetCharacter.currentCol,
+                  skill: targetCharacter.skill,
+                  turnLastTriggeredSkill: targetCharacter.turnLastTriggeredSkill,
+                  burst: targetCharacter.burst,
+                  turnLastTriggeredBurst: targetCharacter.turnLastTriggeredBurst,
                 );
 
                 // キャラクターを再展開
@@ -262,6 +474,21 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             }
           });
         } else if (isLaunchElementalSkill) {
+          var newCharacter = Character(
+            type: selectedCharacter!.type,
+            elementType: selectedCharacter!.elementType,
+            isAlly: selectedCharacter!.isAlly,
+            imagePath: selectedCharacter!.imagePath,
+            elementEnergy: selectedCharacter!.elementEnergy,
+            hitPoint: selectedCharacter!.hitPoint,
+            currentRow: selectedCharacter!.currentRow,
+            currentCol: selectedCharacter!.currentCol,
+            skill: selectedCharacter!.skill,
+            turnLastTriggeredSkill: turnCount,
+            burst: selectedCharacter!.burst,
+            turnLastTriggeredBurst: selectedCharacter!.turnLastTriggeredBurst,
+          );
+
           // 付近のキャラにダメージ
           List<List<int>> targetCoordinates = [];
 
@@ -327,6 +554,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   hitPoint: remainingHitPoint,
                   currentRow: targetCharacter.currentRow,
                   currentCol: targetCharacter.currentCol,
+                  skill: targetCharacter.skill,
+                  turnLastTriggeredSkill: targetCharacter.turnLastTriggeredSkill,
+                  burst: targetCharacter.burst,
+                  turnLastTriggeredBurst: targetCharacter.turnLastTriggeredBurst,
                 );
 
                 // キャラクターを再展開
@@ -346,6 +577,11 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
             // 元素スキル処理を終了
             isLaunchElementalSkill = false;
+
+            // スキル発動ターンをセットし、キャラクターを再展開
+            field[selectedRow][selectedCol] = newCharacter;
+            int targetIndex = fieldCharacters.indexWhere((character) => character.type == newCharacter.type);
+            fieldCharacters[targetIndex] = newCharacter;
 
             // 一番古い元素粒子を消す
             if (elementalParticles.isNotEmpty && elementalParticles.length > 6) {
@@ -487,6 +723,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       hitPoint: selectedCharacter!.hitPoint,
       currentRow: newRow,
       currentCol: newCol,
+      skill: selectedCharacter!.skill,
+      turnLastTriggeredSkill: selectedCharacter!.turnLastTriggeredSkill,
+      burst: selectedCharacter!.burst,
+      turnLastTriggeredBurst: selectedCharacter!.turnLastTriggeredBurst,
     );
 
     setState(() {
@@ -524,14 +764,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
   // 元素スキルの発動
   void launchElementalSkill(character) {
-    if (character == null || character.isSkillCoolTime()) {
-      return;
-    }
-
     setState(() {
       isLaunchElementalSkill = true;
 
-      history.add("${character.name()}が元素スキル ${character.elementalSkillName()} を発動");
+      history.add("${character.name()}が元素スキル ${character.skill.name} を発動");
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
@@ -544,14 +780,10 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
   // 元素爆発の発動
   void launchElementalBurst(character) {
-    if (character == null || character.elementEnergy < 100) {
-      return;
-    }
-
     setState(() {
       isLaunchElementalBurst = true;
 
-      history.add("${character.name()}が元素爆発 ${character.elementalBurstName()} を発動");
+      history.add("${character.name()}が元素爆発 ${character.burst.name} を発動");
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
@@ -698,14 +930,14 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                   children: [
                     GestureDetector(
                       onTap: () {
-                        if (canLaunchElementalSkill(selectedCharacter)) {
+                        if (canLaunchElementalSkill(selectedCharacter, turnCount)) {
                           launchElementalSkill(selectedCharacter);
                         }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: canLaunchElementalSkill(selectedCharacter) ? Colors.red[400] : Colors.grey[300],
+                          color: canLaunchElementalSkill(selectedCharacter, turnCount) ? Colors.red[400] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -718,14 +950,14 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                     ),
                     GestureDetector(
                       onTap: () {
-                        if (canLaunchElementalBurst(selectedCharacter)) {
+                        if (canLaunchElementalBurst(selectedCharacter, turnCount)) {
                           launchElementalBurst(selectedCharacter);
                         }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: canLaunchElementalBurst(selectedCharacter) ? Colors.yellow[400] : Colors.grey[300],
+                          color: canLaunchElementalBurst(selectedCharacter, turnCount) ? Colors.yellow[400] : Colors.grey[300],
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -760,7 +992,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                           Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
-                              selectedCharacter!.elementalBurstName().toString(),
+                              selectedCharacter!.burst.name,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -769,7 +1001,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                             ),
                           ),
                           Text(
-                            "~ ${selectedCharacter!.elementalBurstVoice().toString()} ~",
+                            "~ ${selectedCharacter!.burst.voice} ~",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -801,7 +1033,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                           Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
-                              selectedCharacter!.elementalSkillName().toString(),
+                              selectedCharacter!.skill.name,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -810,7 +1042,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                             ),
                           ),
                           Text(
-                            "~ ${selectedCharacter!.elementalSkillVoice().toString()} ~",
+                            "~ ${selectedCharacter!.skill.voice} ~",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
