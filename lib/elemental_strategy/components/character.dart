@@ -6,7 +6,7 @@ class Character {
   final bool isAlly;
   final String imagePath;
   final double elementEnergy;
-  final int hitPoint;
+  final double hitPoint;
   final int currentRow;
   final int currentCol;
 

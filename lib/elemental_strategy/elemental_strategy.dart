@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../color_table.dart';
+import '../home_page.dart';
 import 'components/character.dart';
 import 'components/genshin_element.dart';
 import 'components/square.dart';
@@ -21,7 +22,6 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   int selectedRow = -1; // 選択されている駒の行番号
   int selectedCol = -1; // 選択されている駒の列番号
   List<List<int>> validMoves = []; // 移動可能な座標の配列
-  bool isAllyTurn = true; // 味方のターンかどうか
   int turnCount = 1; // 経過ターン
   List<String> history = ["対戦開始！！"]; // ログ
   List<Map<String, dynamic>> elementalParticles = []; // 元素粒子の種類と発生座標
@@ -51,7 +51,6 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   void initState() {
     super.initState();
 
-    // 敵陣
     fieldCharacters = [
       Character(
         type: CharacterType.kaedeharaKazuha,
@@ -200,38 +199,58 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           }
 
           setState(() {
-            // 付近にいたキャラにダメージを与え、フィールドに展開
+            // 付近にいたキャラにダメージを与え、新しいHPでフィールドに再展開
             for (var targetCoordinate in targetCoordinates) {
-              var character = field[targetCoordinate[0]][targetCoordinate[1]];
-              var remainingHitPoint = character!.hitPoint - 50;
+              Character? targetCharacter = field[targetCoordinate[0]][targetCoordinate[1]];
+              double remainingHitPoint = targetCharacter!.hitPoint - 50;
 
-              var newCharacter = Character(
-                type: character.type,
-                elementType: character.elementType,
-                isAlly: character.isAlly,
-                imagePath: character.imagePath,
-                elementEnergy: character.elementEnergy,
-                hitPoint: remainingHitPoint > 0 ? remainingHitPoint : 100,
-                currentRow: character.currentRow,
-                currentCol: character.currentCol,
-              );
+              if (remainingHitPoint <= 0) {
+                field[targetCoordinate[0]][targetCoordinate[1]] = null;
+                fieldCharacters.removeWhere((character) => character.type == targetCharacter.type);
 
-              field[targetCoordinate[0]][targetCoordinate[1]] = newCharacter;
+                history.add("${targetCharacter.name()}に50ダメージ");
+                history.add("${targetCharacter.name()}は戦闘不能になった");
+                scrollController.animateTo(
+                  scrollController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
 
-              history.add("${newCharacter.name()}に50ダメージ");
-              history.add("${newCharacter.name()}の残りHP${newCharacter.hitPoint}");
-              scrollController.animateTo(
-                scrollController.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-              );
+                isGameOver();
+              } else {
+                var newCharacter = Character(
+                  type: targetCharacter.type,
+                  elementType: targetCharacter.elementType,
+                  isAlly: targetCharacter.isAlly,
+                  imagePath: targetCharacter.imagePath,
+                  elementEnergy: targetCharacter.elementEnergy,
+                  hitPoint: remainingHitPoint,
+                  currentRow: targetCharacter.currentRow,
+                  currentCol: targetCharacter.currentCol,
+                );
+
+                // キャラクターを再展開
+                field[targetCoordinate[0]][targetCoordinate[1]] = newCharacter;
+                int targetIndex = fieldCharacters.indexWhere((character) => character.type == targetCharacter.type);
+                fieldCharacters[targetIndex] = newCharacter;
+
+                history.add("${newCharacter.name()}に50ダメージ");
+                history.add("${newCharacter.name()}の残りHP${newCharacter.hitPoint}");
+                scrollController.animateTo(
+                  scrollController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              }
             }
 
             // 元素爆発を終了
             isLaunchElementalBurst = false;
 
-            // 元素エネルギーを減らしたキャラをフィールドに展開
+            // 元素エネルギーを減らしたキャラをフィールドに再展開
             field[selectedRow][selectedCol] = newCharacter;
+            int targetIndex = fieldCharacters.indexWhere((character) => character.type == newCharacter.type);
+            fieldCharacters[targetIndex] = newCharacter;
 
             // 一番古い元素粒子を消す
             if (elementalParticles.isNotEmpty && elementalParticles.length > 6) {
@@ -280,31 +299,49 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           }
 
           setState(() {
-            // 付近にいたキャラにダメージを与え、フィールドに展開
+            // 付近にいたキャラにダメージを与え、新しいHPでフィールドに再展開
             for (var targetCoordinate in targetCoordinates) {
-              var character = field[targetCoordinate[0]][targetCoordinate[1]];
-              var remainingHitPoint = character!.hitPoint - 25;
+              Character? targetCharacter = field[targetCoordinate[0]][targetCoordinate[1]];
+              double remainingHitPoint = targetCharacter!.hitPoint - 25;
 
-              var newCharacter = Character(
-                type: character.type,
-                elementType: character.elementType,
-                isAlly: character.isAlly,
-                imagePath: character.imagePath,
-                elementEnergy: character.elementEnergy,
-                hitPoint: remainingHitPoint > 0 ? remainingHitPoint : 100,
-                currentRow: character.currentRow,
-                currentCol: character.currentCol,
-              );
+              if (remainingHitPoint <= 0) {
+                field[targetCoordinate[0]][targetCoordinate[1]] = null;
+                fieldCharacters.removeWhere((character) => character.type == targetCharacter.type);
 
-              field[targetCoordinate[0]][targetCoordinate[1]] = newCharacter;
+                history.add("${targetCharacter.name()}に25ダメージ");
+                history.add("${targetCharacter.name()}は戦闘不能になった");
+                scrollController.animateTo(
+                  scrollController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
 
-              history.add("${newCharacter.name()}に25ダメージ");
-              history.add("${newCharacter.name()}の残りHP${newCharacter.hitPoint}");
-              scrollController.animateTo(
-                scrollController.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-              );
+                isGameOver();
+              } else {
+                var newCharacter = Character(
+                  type: targetCharacter.type,
+                  elementType: targetCharacter.elementType,
+                  isAlly: targetCharacter.isAlly,
+                  imagePath: targetCharacter.imagePath,
+                  elementEnergy: targetCharacter.elementEnergy,
+                  hitPoint: remainingHitPoint,
+                  currentRow: targetCharacter.currentRow,
+                  currentCol: targetCharacter.currentCol,
+                );
+
+                // キャラクターを再展開
+                field[targetCoordinate[0]][targetCoordinate[1]] = newCharacter;
+                int targetIndex = fieldCharacters.indexWhere((character) => character.type == targetCharacter.type);
+                fieldCharacters[targetIndex] = newCharacter;
+
+                history.add("${newCharacter.name()}に25ダメージ");
+                history.add("${newCharacter.name()}の残りHP${newCharacter.hitPoint}");
+                scrollController.animateTo(
+                  scrollController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              }
             }
 
             // 元素スキル処理を終了
@@ -397,65 +434,33 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
 
   // CPUへターンを渡す
   void turnChange() {
-    if (isAllyTurn) {
-      setState(() {
-        isAllyTurn = !isAllyTurn;
-        turnCount++;
-
-        if (currentCharacterIndex == 7) {
-          currentCharacterIndex = 0;
-        } else {
-          currentCharacterIndex++;
-        }
-
-        selectedCharacter = fieldCharacters[currentCharacterIndex];
-        selectedRow = selectedCharacter!.currentRow;
-        selectedCol = selectedCharacter!.currentCol;
-        validMoves = calculateRawValidMoves(field, selectedRow, selectedCol, selectedCharacter); // 移動可能な座標を計算
-      });
-
-      // CPU行動
-      cpuActionWithCpuAi();
-    } else {
-      setState(() {
-        isAllyTurn = !isAllyTurn;
-        turnCount++;
-
-        if (currentCharacterIndex == 7) {
-          currentCharacterIndex = 0;
-        } else {
-          currentCharacterIndex++;
-        }
-
-        selectedCharacter = fieldCharacters[currentCharacterIndex];
-        selectedRow = fieldCharacters[currentCharacterIndex].currentRow;
-        selectedCol = fieldCharacters[currentCharacterIndex].currentCol;
-        validMoves = calculateRawValidMoves(field, selectedRow, selectedCol, selectedCharacter); // 移動可能な座標を計算
-      });
-    }
-  }
-
-  // ピースを選択する
-  void selectCharacter(int row, int col) {
     setState(() {
-      // キャラクターを選択していない状態からキャラクターを選択した時
-      if (selectedCharacter == null && field[row][col] != null) {
-        if (field[row][col]!.isAlly == isAllyTurn) {
-          selectedCharacter = field[row][col];
-          selectedRow = row;
-          selectedCol = col;
-        }
-        // キャラクターを選択している状態で自分の他のキャラクターを選択した時
-      } else if (field[row][col] != null && field[row][col]!.isAlly == selectedCharacter!.isAlly) {
-        selectedCharacter = field[row][col];
-        selectedRow = row;
-        selectedCol = col;
-        // 移動可能な座標を選択した時
-      } else if (selectedCharacter != null && validMoves.any((coordinate) => coordinate[0] == row && coordinate[1] == col)) {
-        moveCharacter(row, col);
+      turnCount++;
+
+      if (currentCharacterIndex >= (fieldCharacters.length - 1)) {
+        currentCharacterIndex = 0;
+      } else {
+        currentCharacterIndex++;
       }
 
-      validMoves = calculateRawValidMoves(field, selectedRow, selectedCol, selectedCharacter); // 移動可能な座標を再計算
+      selectedCharacter = fieldCharacters[currentCharacterIndex];
+      selectedRow = selectedCharacter!.currentRow;
+      selectedCol = selectedCharacter!.currentCol;
+      validMoves = calculateRawValidMoves(field, selectedRow, selectedCol, selectedCharacter); // 移動可能な座標を計算
+
+      if (!selectedCharacter!.isAlly) {
+        cpuActionWithCpuAi();
+      }
+    });
+  }
+
+  // フィールドのマスを選択したときに呼ばれる
+  void selectSquare(int row, int col) {
+    setState(() {
+      // 移動可能な座標を選択した時
+      if (selectedCharacter != null && validMoves.any((coordinate) => coordinate[0] == row && coordinate[1] == col)) {
+        moveCharacter(row, col);
+      }
     });
   }
 
@@ -478,7 +483,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
       elementType: selectedCharacter!.elementType,
       isAlly: selectedCharacter!.isAlly,
       imagePath: selectedCharacter!.imagePath,
-      elementEnergy: totalEnergy,
+      elementEnergy: totalEnergy > 100 ? 100 : totalEnergy,
       hitPoint: selectedCharacter!.hitPoint,
       currentRow: newRow,
       currentCol: newCol,
@@ -557,17 +562,55 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
     animationController.forward();
   }
 
-  // 初期化
-  void resetGame() {
-    Navigator.pop(context);
+  // どちらかのキャラクターがいなくなった場合、ダイアログを表示
+  void isGameOver() {
+    if (fieldCharacters.every((character) => character.isAlly) || fieldCharacters.every((character) => !character.isAlly)) {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Center(
+              child: Column(
+                children: const [
+                  Text(
+                    "ゲーム終了",
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              GestureDetector(
+                onTap: () {
+                  // ゲームの初期化
+                  resetGame();
 
-    _initializeBoard();
-
-    setState(() {
-      turnCount = 1;
-      isAllyTurn = true;
-    });
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const HomePage()),
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    color: ColorTable.primaryWhiteColor,
+                    child: const Text(
+                      'ホームへ',
+                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            actionsAlignment: MainAxisAlignment.center,
+          );
+        },
+      );
+    }
   }
+
+  // 初期化
+  void resetGame() {}
 
   @override
   Widget build(BuildContext context) {
@@ -638,7 +681,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                       piece: field[row][col],
                       isSelected: isSelected,
                       isValidMove: isValidMove,
-                      onTap: () => selectCharacter(row, col),
+                      onTap: () => selectSquare(row, col),
                       element: element,
                     );
                   },
