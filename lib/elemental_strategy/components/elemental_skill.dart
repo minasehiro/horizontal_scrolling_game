@@ -1,6 +1,9 @@
+import 'package:horizontal_scrolling_game/elemental_strategy/constants.dart';
+
 class ElementalSkill {
   final String name;
   final String voice;
+  final ElementType elementType;
   final int coolTime;
   final double damage;
   final List<List<int>> damageRange;
@@ -9,6 +12,7 @@ class ElementalSkill {
   ElementalSkill({
     required this.name,
     required this.voice,
+    required this.elementType,
     required this.coolTime,
     required this.damage,
     required this.damageRange,

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:horizontal_scrolling_game/elemental_strategy/components/genshin_element.dart';
+import 'element_particle.dart';
 
 import '../../color_table.dart';
 import 'character.dart';
 import 'character_coin.dart';
+import 'damage.dart';
 
 class Square extends StatelessWidget {
   final Character? piece;
@@ -11,7 +12,8 @@ class Square extends StatelessWidget {
   final bool isValidMove;
   final bool canAttackRange;
   final void Function()? onTap;
-  final GenshinElement? element;
+  final ElementParticle? element;
+  final Damage? damage;
 
   const Square({
     super.key,
@@ -21,6 +23,7 @@ class Square extends StatelessWidget {
     required this.canAttackRange,
     required this.onTap,
     required this.element,
+    required this.damage,
   });
 
   @override
@@ -40,7 +43,11 @@ class Square extends StatelessWidget {
     }
 
     if (piece != null) {
-      displayWidget = CharacterCoin(character: piece, imagePath: piece!.imagePath);
+      displayWidget = CharacterCoin(
+        character: piece,
+        imagePath: piece!.imagePath,
+        damage: damage,
+      );
     } else if (element != null) {
       displayWidget = Stack(alignment: AlignmentDirectional.center, children: [
         Container(

@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:horizontal_scrolling_game/elemental_strategy/components/character.dart';
 
+import '../helper_methods.dart';
+import 'damage.dart';
+
 class CharacterCoin extends StatelessWidget {
   final Character? character;
   final String? imagePath;
+  final Damage? damage;
 
   const CharacterCoin({
     Key? key,
     required this.character,
     required this.imagePath,
+    required this.damage,
   }) : super(key: key);
 
   @override
@@ -42,12 +47,21 @@ class CharacterCoin extends StatelessWidget {
                 ),
               ],
             ),
-          PieChart(
-            data: [
-              PieChartData(elementEnergyPercent >= 100 ? Colors.yellow : Colors.yellow.shade100, elementEnergyPercent),
+          Stack(
+            alignment: AlignmentDirectional.center,
+            children: [
+              PieChart(
+                data: [
+                  PieChartData(elementEnergyPercent >= 100 ? Colors.yellow : Colors.yellow.shade100, elementEnergyPercent),
+                ],
+                radius: 20,
+                child: Image.asset(imagePath!),
+              ),
+              DamageNotation(
+                isVisible: damage != null,
+                damage: damage,
+              ),
             ],
-            radius: 20,
-            child: Image.asset(imagePath!),
           ),
           if (character!.isAlly)
             Row(
@@ -74,6 +88,43 @@ class CharacterCoin extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class DamageNotation extends StatelessWidget {
+  final bool isVisible;
+  final Damage? damage;
+
+  const DamageNotation({
+    required this.isVisible,
+    required this.damage,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (isVisible) {
+      return Container(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          "25",
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: elementColor(damage!.elementType),
+            shadows: [
+              Shadow(
+                color: Colors.black.withOpacity(0.5),
+                offset: const Offset(1.0, 1.0),
+                blurRadius: 5.0,
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return const Text("");
+    }
   }
 }
 

@@ -1,12 +1,16 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+
+import '../color_table.dart';
 import 'components/character.dart';
-import 'components/genshin_element.dart';
+import 'components/element_particle.dart';
+import 'constants.dart';
 
 // 元素粒子の種類と発生位置を計算
 Map<String, dynamic> buildElementalParticle(elements, rows, cols) {
   Random random = Random();
-  GenshinElement derivedElement;
+  ElementParticle derivedElement;
   List<int> derivedCoordinates;
 
   derivedElement = elements[random.nextInt(elements.length)];
@@ -100,4 +104,25 @@ bool canLaunchElementalSkill(character, currentTurn) {
     return true;
   }
   return false;
+}
+
+Color elementColor(ElementType type) {
+  switch (type) {
+    case ElementType.pyro:
+      return ColorTable.pyroColor;
+    case ElementType.hydro:
+      return ColorTable.hydroColor;
+    case ElementType.anemo:
+      return ColorTable.anemoColor;
+    case ElementType.electro:
+      return ColorTable.electroColor;
+    case ElementType.dendro:
+      return ColorTable.dendroColor;
+    case ElementType.cryo:
+      return ColorTable.cryoColor;
+    case ElementType.geo:
+      return ColorTable.geoColor;
+    default:
+      return ColorTable.pyroColor;
+  }
 }

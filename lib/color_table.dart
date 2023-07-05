@@ -49,4 +49,61 @@ class ColorTable {
       500: Color(_primaryBlackValue),
     },
   );
+
+  // elemental_strategy
+  static const int pyroValue = 0xFFDB5E4B;
+  static const MaterialColor pyroColor = MaterialColor(
+    pyroValue,
+    <int, Color>{
+      500: Color(pyroValue),
+    },
+  );
+
+  static const int hydroValue = 0xFF44A2DB;
+  static const MaterialColor hydroColor = MaterialColor(
+    hydroValue,
+    <int, Color>{
+      500: Color(hydroValue),
+    },
+  );
+
+  static const int anemoValue = 0xFF45C48C;
+  static const MaterialColor anemoColor = MaterialColor(
+    anemoValue,
+    <int, Color>{
+      500: Color(anemoValue),
+    },
+  );
+
+  static const int electroValue = 0xFFB073EA;
+  static const MaterialColor electroColor = MaterialColor(
+    electroValue,
+    <int, Color>{
+      500: Color(electroValue),
+    },
+  );
+
+  static const int dendroValue = 0xFF99BD12;
+  static const MaterialColor dendroColor = MaterialColor(
+    dendroValue,
+    <int, Color>{
+      500: Color(dendroValue),
+    },
+  );
+
+  static const int cryoValue = 0xFFABE8E0;
+  static const MaterialColor cryoColor = MaterialColor(
+    cryoValue,
+    <int, Color>{
+      500: Color(cryoValue),
+    },
+  );
+
+  static const int geoValue = 0xFFCDB642;
+  static const MaterialColor geoColor = MaterialColor(
+    geoValue,
+    <int, Color>{
+      500: Color(geoValue),
+    },
+  );
 }

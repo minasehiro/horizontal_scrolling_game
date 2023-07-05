@@ -1,12 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:horizontal_scrolling_game/elemental_strategy/components/damage.dart';
 import 'package:horizontal_scrolling_game/elemental_strategy/components/elemental_burst.dart';
 import 'package:horizontal_scrolling_game/elemental_strategy/components/elemental_skill.dart';
 
 import '../color_table.dart';
 import '../home_page.dart';
 import 'components/character.dart';
-import 'components/genshin_element.dart';
+import 'components/element_particle.dart';
 import 'components/square.dart';
 import 'constants.dart';
 import 'helper_methods.dart';
@@ -27,17 +28,17 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   int turnCount = 1; // 経過ターン
   List<String> history = ["対戦開始！！"]; // ログ
   List<Map<String, dynamic>> elementalParticles = []; // 元素粒子の種類と発生座標
-  List<GenshinElement> allyElements = [
-    GenshinElement(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png"),
-    GenshinElement(type: ElementType.cryo, imagePath: "lib/assets/images/elements/cryo.png"),
-    GenshinElement(type: ElementType.electro, imagePath: "lib/assets/images/elements/electro.png"),
-    GenshinElement(type: ElementType.hydro, imagePath: "lib/assets/images/elements/hydro.png"),
+  List<ElementParticle> allyElements = [
+    ElementParticle(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png", color: ColorTable.anemoColor),
+    ElementParticle(type: ElementType.cryo, imagePath: "lib/assets/images/elements/cryo.png", color: ColorTable.cryoColor),
+    ElementParticle(type: ElementType.electro, imagePath: "lib/assets/images/elements/electro.png", color: ColorTable.electroColor),
+    ElementParticle(type: ElementType.hydro, imagePath: "lib/assets/images/elements/hydro.png", color: ColorTable.hydroColor),
   ];
-  List<GenshinElement> enemyElements = [
-    GenshinElement(type: ElementType.pyro, imagePath: "lib/assets/images/elements/pyro.png"),
-    GenshinElement(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png"),
-    GenshinElement(type: ElementType.dendro, imagePath: "lib/assets/images/elements/dendro.png"),
-    GenshinElement(type: ElementType.geo, imagePath: "lib/assets/images/elements/geo.png"),
+  List<ElementParticle> enemyElements = [
+    ElementParticle(type: ElementType.pyro, imagePath: "lib/assets/images/elements/pyro.png", color: ColorTable.pyroColor),
+    ElementParticle(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png", color: ColorTable.anemoColor),
+    ElementParticle(type: ElementType.dendro, imagePath: "lib/assets/images/elements/dendro.png", color: ColorTable.dendroColor),
+    ElementParticle(type: ElementType.geo, imagePath: "lib/assets/images/elements/geo.png", color: ColorTable.geoColor),
   ];
   bool isLaunchElementalBurst = false; // 元素爆発を発動
   bool isLaunchElementalSkill = false; // 元素スキルを発動
@@ -49,6 +50,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   late List<Character> fieldCharacters; // 選択されたキャラクター一覧
   int currentCharacterIndex = 0; // 行動するキャラクター
   List<List<int>> attackRange = []; // 攻撃予測範囲
+  List<Map<String, dynamic>> currentDamages = []; // 発生したダメージ
 
   @override
   void initState() {
@@ -67,6 +69,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         skill: ElementalSkill(
           name: "千早振る",
           voice: "風を知れ",
+          elementType: ElementType.anemo,
           damage: 30,
           damageRange: [
             [-1, 0], // 上
@@ -85,6 +88,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         burst: ElementalBurst(
           name: "万葉の一刀",
           voice: "雲隠れ、雁鳴くとき",
+          elementType: ElementType.anemo,
           damage: 30,
           damageRange: [
             [0, -1],
@@ -107,6 +111,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         skill: ElementalSkill(
           name: "地心",
           voice: "壁立千仞！",
+          elementType: ElementType.geo,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -118,6 +123,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         burst: ElementalBurst(
           name: "天星",
           voice: "天道、ここに在り",
+          elementType: ElementType.geo,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -140,6 +146,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         skill: ElementalSkill(
           name: "神里流・氷華",
           voice: "雪よ、舞え。",
+          elementType: ElementType.cryo,
           damage: 40,
           damageRange: [
             [-1, 0], // 上
@@ -158,6 +165,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         burst: ElementalBurst(
           name: "神里流・霜滅",
           voice: "櫻吹雪！",
+          elementType: ElementType.cryo,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -180,6 +188,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         skill: ElementalSkill(
           name: "諸聞遍計",
           voice: "蔓延りなさい。",
+          elementType: ElementType.dendro,
           damage: 10,
           damageRange: [
             [1, 0], [2, 0], [3, 0], // 下
@@ -194,6 +203,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         burst: ElementalBurst(
           name: "心景幻成",
           voice: "知識を、あなたにも。",
+          elementType: ElementType.dendro,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -216,6 +226,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         skill: ElementalSkill(
           name: "野干役呪・殺生櫻",
           voice: "具現化せよ。",
+          elementType: ElementType.electro,
           damage: 0,
           damageRange: [],
           coolTime: 1,
@@ -225,6 +236,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         burst: ElementalBurst(
           name: "大密法・天狐顕現",
           voice: "雷光、いと美しきかな。",
+          elementType: ElementType.electro,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -247,6 +259,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         skill: ElementalSkill(
           name: "風輪両立",
           voice: "無駄だ。",
+          elementType: ElementType.anemo,
           damage: 30,
           damageRange: [
             [1, 0],
@@ -259,6 +272,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         burst: ElementalBurst(
           name: "靖妖儺舞",
           voice: "喚くがいい！！",
+          elementType: ElementType.anemo,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -281,6 +295,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         skill: ElementalSkill(
           name: "古華剣・裁雨留虹",
           voice: "この剣はわかるかい？",
+          elementType: ElementType.hydro,
           damage: 30,
           damageRange: [
             [-1, 0],
@@ -292,6 +307,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         burst: ElementalBurst(
           name: "古華剣・画雨籠山",
           voice: "古華奥義！",
+          elementType: ElementType.hydro,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -314,6 +330,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         skill: ElementalSkill(
           name: "丹書契約",
           voice: "燃えよ♪",
+          elementType: ElementType.pyro,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -327,6 +344,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         burst: ElementalBurst(
           name: "契約成立",
           voice: "丹書鉄契！",
+          elementType: ElementType.pyro,
           damage: 10,
           damageRange: [
             [0, -1],
@@ -411,13 +429,19 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             // 付近にいたキャラにダメージを与え、新しいHPでフィールドに再展開
             for (var targetCoordinate in targetCoordinates) {
               Character? targetCharacter = field[targetCoordinate[0]][targetCoordinate[1]];
-              double remainingHitPoint = targetCharacter!.hitPoint - 50;
+              double remainingHitPoint = targetCharacter!.hitPoint - selectedCharacter!.burst.damage;
+
+              // ダメージを生成
+              currentDamages.add({
+                "coordinates": [targetCoordinate[0], targetCoordinate[1]],
+                "object": Damage(elementType: selectedCharacter!.elementType, value: selectedCharacter!.burst.damage, isCritical: false),
+              });
+              history.add("${targetCharacter.name()}に${selectedCharacter!.burst.damage}ダメージ");
 
               if (remainingHitPoint <= 0) {
                 field[targetCoordinate[0]][targetCoordinate[1]] = null;
                 fieldCharacters.removeWhere((character) => character.type == targetCharacter.type);
 
-                history.add("${targetCharacter.name()}に50ダメージ");
                 history.add("${targetCharacter.name()}は戦闘不能になった");
                 scrollController.animateTo(
                   scrollController.position.maxScrollExtent,
@@ -447,7 +471,6 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                 int targetIndex = fieldCharacters.indexWhere((character) => character.type == targetCharacter.type);
                 fieldCharacters[targetIndex] = newCharacter;
 
-                history.add("${newCharacter.name()}に50ダメージ");
                 history.add("${newCharacter.name()}の残りHP${newCharacter.hitPoint}");
                 scrollController.animateTo(
                   scrollController.position.maxScrollExtent,
@@ -530,13 +553,19 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
             // 付近にいたキャラにダメージを与え、新しいHPでフィールドに再展開
             for (var targetCoordinate in targetCoordinates) {
               Character? targetCharacter = field[targetCoordinate[0]][targetCoordinate[1]];
-              double remainingHitPoint = targetCharacter!.hitPoint - 25;
+              double remainingHitPoint = targetCharacter!.hitPoint - selectedCharacter!.skill.damage;
+
+              // ダメージを生成
+              currentDamages.add({
+                "coordinates": [targetCoordinate[0], targetCoordinate[1]],
+                "object": Damage(elementType: selectedCharacter!.elementType, value: selectedCharacter!.skill.damage, isCritical: false),
+              });
+              history.add("${newCharacter.name()}に${selectedCharacter!.skill.damage}ダメージ");
 
               if (remainingHitPoint <= 0) {
                 field[targetCoordinate[0]][targetCoordinate[1]] = null;
                 fieldCharacters.removeWhere((character) => character.type == targetCharacter.type);
 
-                history.add("${targetCharacter.name()}に25ダメージ");
                 history.add("${targetCharacter.name()}は戦闘不能になった");
                 scrollController.animateTo(
                   scrollController.position.maxScrollExtent,
@@ -566,7 +595,6 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                 int targetIndex = fieldCharacters.indexWhere((character) => character.type == targetCharacter.type);
                 fieldCharacters[targetIndex] = newCharacter;
 
-                history.add("${newCharacter.name()}に25ダメージ");
                 history.add("${newCharacter.name()}の残りHP${newCharacter.hitPoint}");
                 scrollController.animateTo(
                   scrollController.position.maxScrollExtent,
@@ -672,6 +700,12 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
   // CPUへターンを渡す
   void turnChange() {
     setState(() {
+      Future.delayed(const Duration(seconds: 1), () {
+        setState(() {
+          currentDamages.clear();
+        });
+      });
+
       turnCount++;
 
       if (currentCharacterIndex >= (fieldCharacters.length - 1)) {
@@ -909,7 +943,8 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                     bool isSelected = row == selectedRow && col == selectedCol;
                     bool isValidMove = false;
                     bool canAttackRange = false;
-                    GenshinElement? element;
+                    ElementParticle? element;
+                    Damage? damageObject;
 
                     if (attackRange.isEmpty) {
                       // 選択中のキャラクターが移動可能な座標かどうか
@@ -934,6 +969,13 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                       }
                     }
 
+                    // ダメージが発生しているかどうか
+                    for (var damage in currentDamages) {
+                      if (damage["coordinates"][0] == row && damage["coordinates"][1] == col) {
+                        damageObject = damage["object"];
+                      }
+                    }
+
                     return Square(
                       piece: field[row][col],
                       isSelected: isSelected,
@@ -941,6 +983,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                       canAttackRange: canAttackRange,
                       onTap: () => selectSquare(row, col),
                       element: element,
+                      damage: damageObject,
                     );
                   },
                 ),
