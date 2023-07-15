@@ -1,4 +1,4 @@
-import '../constants.dart';
+import '../../constants.dart';
 
 class ElementalBurst {
   final String name;

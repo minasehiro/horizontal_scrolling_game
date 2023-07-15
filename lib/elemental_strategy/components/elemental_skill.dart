@@ -1,4 +1,4 @@
-import 'package:horizontal_scrolling_game/elemental_strategy/constants.dart';
+import '../../constants.dart';
 
 class ElementalSkill {
   final String name;

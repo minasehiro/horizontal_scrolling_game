@@ -9,7 +9,7 @@ import '../home_page.dart';
 import 'components/character.dart';
 import 'components/element_particle.dart';
 import 'components/square.dart';
-import 'constants.dart';
+import '../constants.dart';
 import 'helper_methods.dart';
 
 class ElementalStrategy extends StatefulWidget {
@@ -851,9 +851,9 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Center(
+            title: const Center(
               child: Column(
-                children: const [
+                children: [
                   Text(
                     "ゲーム終了",
                   ),

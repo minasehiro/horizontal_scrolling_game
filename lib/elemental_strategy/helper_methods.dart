@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../color_table.dart';
 import 'components/character.dart';
 import 'components/element_particle.dart';
-import 'constants.dart';
+import '../constants.dart';
 
 // 元素粒子の種類と発生位置を計算
 Map<String, dynamic> buildElementalParticle(elements, rows, cols) {

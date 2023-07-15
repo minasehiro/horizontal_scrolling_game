@@ -1,4 +1,4 @@
-import '../constants.dart';
+import '../../constants.dart';
 
 class Damage {
   ElementType elementType;

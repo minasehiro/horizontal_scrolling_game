@@ -1,4 +1,4 @@
-import '../constants.dart';
+import '../../constants.dart';
 import 'elemental_burst.dart';
 import 'elemental_skill.dart';
 
