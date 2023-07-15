@@ -260,7 +260,6 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
         // 棋譜に記録
         coordinatesHistory.add("${toKanjiNumeral(selectedRow + 1)}${selectedCol.toString()}${selectedPiece!.typeStr()}");
-        print(coordinatesHistory);
 
         // 現在の選択をリセット
         selectedPiece = null;
@@ -934,7 +933,6 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
     setState(() {
       // 棋譜に記録
       coordinatesHistory.add("${toKanjiNumeral(selectedRow + 1)}${selectedCol.toString()}${selectedPiece!.typeStr()}");
-      print(coordinatesHistory);
 
       selectedPiece = null;
       selectedRow = -1;
@@ -944,81 +942,83 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
 
     // 詰んでいた場合ダイアログを表示
     if (isCheckMate(isAllyTurn)) {
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Center(
-              child: Column(
-                children: [
-                  Text(
-                    "詰みです",
-                  ),
-                ],
+      if (context.mounted) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Center(
+                child: Column(
+                  children: [
+                    Text(
+                      "詰みです",
+                    ),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              GestureDetector(
-                onTap: () {
-                  // ゲームの初期化
-                  resetGame();
+              actions: [
+                GestureDetector(
+                  onTap: () {
+                    // ゲームの初期化
+                    resetGame();
 
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    color: ColorTable.primaryWhiteColor,
-                    child: const Text(
-                      'ホーム',
-                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                    );
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      color: ColorTable.primaryWhiteColor,
+                      child: const Text(
+                        'ホーム',
+                        style: TextStyle(color: ColorTable.primaryNavyColor),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  // ダイアログを閉じる
-                  Navigator.pop(context);
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    color: ColorTable.primaryWhiteColor,
-                    child: const Text(
-                      '盤面を見る',
-                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                GestureDetector(
+                  onTap: () {
+                    // ダイアログを閉じる
+                    Navigator.pop(context);
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      color: ColorTable.primaryWhiteColor,
+                      child: const Text(
+                        '盤面を見る',
+                        style: TextStyle(color: ColorTable.primaryNavyColor),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  // ゲームの初期化
-                  resetGame();
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    color: ColorTable.primaryWhiteColor,
-                    child: const Text(
-                      '再挑戦',
-                      style: TextStyle(color: ColorTable.primaryNavyColor),
+                GestureDetector(
+                  onTap: () {
+                    // ゲームの初期化
+                    resetGame();
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      color: ColorTable.primaryWhiteColor,
+                      child: const Text(
+                        '再挑戦',
+                        style: TextStyle(color: ColorTable.primaryNavyColor),
+                      ),
                     ),
                   ),
-                ),
-              )
-            ],
-            actionsAlignment: MainAxisAlignment.center,
-          );
-        },
-      );
+                )
+              ],
+              actionsAlignment: MainAxisAlignment.center,
+            );
+          },
+        );
+      }
     } else {
       // ターンチェンジ
       if (isAllyTurn) {
