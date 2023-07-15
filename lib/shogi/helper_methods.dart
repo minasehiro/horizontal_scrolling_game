@@ -57,10 +57,10 @@ ShogiPiece promotePiece(ShogiPiece piece) {
       newShogiPieceType = ShogiPieceType.promotedKeima;
       break;
     case ShogiPieceType.kyousya:
-      newShogiPieceType = ShogiPieceType.kyousya;
+      newShogiPieceType = ShogiPieceType.promotedKyousya;
       break;
     case ShogiPieceType.ginsho:
-      newShogiPieceType = ShogiPieceType.ginsho;
+      newShogiPieceType = ShogiPieceType.promotedGinsho;
       break;
     case ShogiPieceType.hohei:
       newShogiPieceType = ShogiPieceType.promotedHohei;

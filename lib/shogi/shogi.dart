@@ -276,9 +276,9 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Center(
+                title: const Center(
                   child: Column(
-                    children: const [
+                    children: [
                       Text(
                         "詰みです",
                       ),
@@ -846,8 +846,8 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
       ShogiPiece currentPiece = selectedPiece!;
 
       // 成りの対象駒で、まだ成っていない
-      if (promotablePieceTypes.contains(currentPiece.type) && !selectedPiece!.isPromoted) {
-        if (selectedPiece!.isAlly) {
+      if (promotablePieceTypes.contains(currentPiece.type) && !currentPiece.isPromoted) {
+        if (currentPiece.isAlly) {
           // 敵陣に入ったか、出た時
           if (newRow <= 2 && selectedRow >= 3 || newRow >= 3 && selectedRow <= 2) {
             await showDialog(
@@ -855,9 +855,9 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  title: Center(
+                  title: const Center(
                     child: Column(
-                      children: const [
+                      children: [
                         Text("成りますか？"),
                       ],
                     ),
@@ -949,9 +949,9 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Center(
+            title: const Center(
               child: Column(
-                children: const [
+                children: [
                   Text(
                     "詰みです",
                   ),
@@ -1199,9 +1199,9 @@ class _ShogiState extends State<Shogi> with TickerProviderStateMixin {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Center(
+            title: const Center(
               child: Column(
-                children: const [
+                children: [
                   Text(
                     "詰みです",
                   ),
