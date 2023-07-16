@@ -279,9 +279,9 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: ColorTable.primaryNavyColor,
-          title: Center(
+          title: const Center(
             child: Column(
-              children: const [
+              children: [
                 Text(
                   '元素をすべて集めました',
                   style: TextStyle(color: ColorTable.primaryWhiteColor),
@@ -353,12 +353,12 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
                               Image(
                                 height: deviceHeight, // 画面の高さに合わせる
                                 fit: BoxFit.fitHeight,
-                                image: const AssetImage('lib/assets/images/paimon_impact/background.png'),
+                                image: const AssetImage('lib/assets/images/genshin/background/mondo_sky.png'),
                               ),
                               Image(
                                 height: deviceHeight, // 画面の高さに合わせる
                                 fit: BoxFit.fitHeight,
-                                image: const AssetImage('lib/assets/images/paimon_impact/background.png'),
+                                image: const AssetImage('lib/assets/images/genshin/background/mondo_sky.png'),
                               ),
                             ],
                           ),
@@ -385,7 +385,7 @@ class _PaimonImpactState extends State<PaimonImpact> with SingleTickerProviderSt
                         child: Container(
                           alignment: Alignment(elementalBurstCoordinate[0], elementalBurstCoordinate[1]),
                           child: Image.asset(
-                            'lib/assets/images/paimon.png',
+                            'lib/assets/images/genshin/characters/paimon.png',
                             width: MediaQuery.of(context).size.height * paimonHeight / 2,
                             height: MediaQuery.of(context).size.height * paimonHeight / 2,
                             fit: BoxFit.fill,

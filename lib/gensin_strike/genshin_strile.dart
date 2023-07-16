@@ -19,16 +19,16 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
   int turnCount = 1; // 経過ターン
   List<Map<String, dynamic>> elementalParticles = []; // 元素粒子の種類と発生座標
   List<ElementParticle> allyElements = [
-    ElementParticle(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png", color: ColorTable.anemoColor),
-    ElementParticle(type: ElementType.cryo, imagePath: "lib/assets/images/elements/cryo.png", color: ColorTable.cryoColor),
-    ElementParticle(type: ElementType.electro, imagePath: "lib/assets/images/elements/electro.png", color: ColorTable.electroColor),
-    ElementParticle(type: ElementType.hydro, imagePath: "lib/assets/images/elements/hydro.png", color: ColorTable.hydroColor),
+    ElementParticle(type: ElementType.anemo, imagePath: "lib/assets/images/genshin/elements/anemo.png", color: ColorTable.anemoColor),
+    ElementParticle(type: ElementType.cryo, imagePath: "lib/assets/images/genshin/elements/cryo.png", color: ColorTable.cryoColor),
+    ElementParticle(type: ElementType.electro, imagePath: "lib/assets/images/genshin/elements/electro.png", color: ColorTable.electroColor),
+    ElementParticle(type: ElementType.hydro, imagePath: "lib/assets/images/genshin/elements/hydro.png", color: ColorTable.hydroColor),
   ];
   List<ElementParticle> enemyElements = [
-    ElementParticle(type: ElementType.pyro, imagePath: "lib/assets/images/elements/pyro.png", color: ColorTable.pyroColor),
-    ElementParticle(type: ElementType.anemo, imagePath: "lib/assets/images/elements/anemo.png", color: ColorTable.anemoColor),
-    ElementParticle(type: ElementType.dendro, imagePath: "lib/assets/images/elements/dendro.png", color: ColorTable.dendroColor),
-    ElementParticle(type: ElementType.geo, imagePath: "lib/assets/images/elements/geo.png", color: ColorTable.geoColor),
+    ElementParticle(type: ElementType.pyro, imagePath: "lib/assets/images/genshin/elements/pyro.png", color: ColorTable.pyroColor),
+    ElementParticle(type: ElementType.anemo, imagePath: "lib/assets/images/genshin/elements/anemo.png", color: ColorTable.anemoColor),
+    ElementParticle(type: ElementType.dendro, imagePath: "lib/assets/images/genshin/elements/dendro.png", color: ColorTable.dendroColor),
+    ElementParticle(type: ElementType.geo, imagePath: "lib/assets/images/genshin/elements/geo.png", color: ColorTable.geoColor),
   ];
   bool isLaunchElementalBurst = false; // 元素爆発を発動
   bool isLaunchElementalSkill = false; // 元素スキルを発動

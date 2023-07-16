@@ -62,10 +62,10 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - lib/assets/images/
-    - lib/assets/images/elements/
-    - lib/assets/images/elemental_strategy/
-    - lib/assets/images/elemental_strategy/characters/
-    - lib/assets/images/paimon_impact/
+    - lib/assets/images/genshin/background/
+    - lib/assets/images/genshin/characters/
+    - lib/assets/images/genshin/elements/
+    - lib/assets/images/genshin/enemies/
     - lib/assets/images/shogi/
 
   # An image asset can refer to one or more resolution-specific "variants", see

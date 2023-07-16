@@ -17,7 +17,7 @@ class Paimon extends StatelessWidget {
     return Container(
       alignment: Alignment(0, (2 * paimonY + paimonHeight) / (2 - paimonHeight)),
       child: Image.asset(
-        'lib/assets/images/paimon.png',
+        'lib/assets/images/genshin/characters/paimon.png',
         width: MediaQuery.of(context).size.height * paimonWidth / 2,
         height: MediaQuery.of(context).size.height * paimonHeight / 2,
         fit: BoxFit.fill,

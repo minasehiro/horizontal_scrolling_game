@@ -30,7 +30,7 @@ class ElementEnergyBox extends StatelessWidget {
             ),
           ),
           Image.asset(
-            'lib/assets/images/elements/${elementEnergy.elementType}.png',
+            'lib/assets/images/genshin/elements/${elementEnergy.elementType}.png',
             width: MediaQuery.of(context).size.width * elementEnergy.width / 2,
             height: MediaQuery.of(context).size.height * 3 / 4 * elementEnergy.height / 3,
             fit: BoxFit.fill,
