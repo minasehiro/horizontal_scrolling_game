@@ -17,6 +17,9 @@ class GenshinStrile extends StatefulWidget {
 class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProviderStateMixin {
   Character? selectedCharacter; // 選択されている駒
   int turnCount = 1; // 経過ターン
+  int speedClearTurn = 20; // スピードクリアと見なされるターン
+  double maxTeamHitPoint = 0; // チームHP
+  double currentTeamHitPoint = 0; // 現在のチームHP
   List<Map<String, dynamic>> elementalParticles = []; // 元素粒子の種類と発生座標
   List<ElementParticle> allyElements = [
     ElementParticle(type: ElementType.anemo, imagePath: "lib/assets/images/genshin/elements/anemo.png", color: ColorTable.anemoColor),
@@ -57,6 +60,22 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
       buildCharacter(CharacterType.yaeMiko, 0.2, 0.7),
       buildCharacter(CharacterType.xingqiu, 0.6, 0.7),
     ];
+
+    // 合計HPを計算
+    for (var character in fieldCharacters) {
+      maxTeamHitPoint += character.hitPoint;
+    }
+    currentTeamHitPoint = maxTeamHitPoint;
+
+    // 初期行動キャラを選択
+    selectedCharacter = fieldCharacters[currentCharacterIndex];
+
+    // 元素粒子をランダムに8個発生させる
+    for (var i = 0; i < 8; i++) {
+      elementalParticles.add(
+        buildElementalParticle(i.isEven ? allyElements : enemyElements),
+      );
+    }
 
     // 全部で1秒のアニメーション
     // TweenSequenceItem.weight によって分割される
@@ -108,11 +127,6 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     ]);
 
     offsetAnimation = animationController.drive(tweenSequence);
-
-    _initializeField();
-
-    // 初期行動キャラを選択
-    selectedCharacter = fieldCharacters[currentCharacterIndex];
   }
 
   @override
@@ -120,16 +134,6 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     super.dispose();
 
     animationController.dispose();
-  }
-
-  // 盤面の初期化
-  void _initializeField() {
-    // 元素粒子をランダムに発生させる
-    for (var i = 0; i < 8; i++) {
-      elementalParticles.add(
-        buildElementalParticle(i.isEven ? allyElements : enemyElements),
-      );
-    }
   }
 
   // 次のキャラクターにターンを渡す
@@ -142,6 +146,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
       });
 
       turnCount++;
+      speedClearTurn--;
 
       if (currentCharacterIndex >= (fieldCharacters.length - 1)) {
         currentCharacterIndex = 0;
@@ -250,141 +255,694 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.9,
-          height: MediaQuery.of(context).size.height * 0.9,
-          decoration: BoxDecoration(
-            color: Colors.blueGrey[200],
-            border: Border.all(width: 1.0, color: Colors.black),
-          ),
-          child: Stack(
-            children: [
-              ElementalParticle(elementalParticle: elementalParticles[0]),
-              ElementalParticle(elementalParticle: elementalParticles[1]),
-              ElementalParticle(elementalParticle: elementalParticles[2]),
-              ElementalParticle(elementalParticle: elementalParticles[3]),
-              ElementalParticle(elementalParticle: elementalParticles[4]),
-              ElementalParticle(elementalParticle: elementalParticles[5]),
-              ElementalParticle(elementalParticle: elementalParticles[6]),
-              ElementalParticle(elementalParticle: elementalParticles[7]),
-              CharacterBall(
-                character: fieldCharacters[0],
-                fieldCharacters: fieldCharacters,
-                currentCharacterIndex: currentCharacterIndex,
-                onPanStart: onPanStart,
-                onPanUpdate: onPanUpdate,
-                onPanEnd: onPanEnd,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.7,
+              decoration: BoxDecoration(
+                color: Colors.blueGrey[200],
               ),
-              CharacterBall(
-                character: fieldCharacters[1],
-                fieldCharacters: fieldCharacters,
-                currentCharacterIndex: currentCharacterIndex,
-                onPanStart: onPanStart,
-                onPanUpdate: onPanUpdate,
-                onPanEnd: onPanEnd,
-              ),
-              CharacterBall(
-                character: fieldCharacters[2],
-                fieldCharacters: fieldCharacters,
-                currentCharacterIndex: currentCharacterIndex,
-                onPanStart: onPanStart,
-                onPanUpdate: onPanUpdate,
-                onPanEnd: onPanEnd,
-              ),
-              CharacterBall(
-                character: fieldCharacters[3],
-                fieldCharacters: fieldCharacters,
-                currentCharacterIndex: currentCharacterIndex,
-                onPanStart: onPanStart,
-                onPanUpdate: onPanUpdate,
-                onPanEnd: onPanEnd,
-              ),
-              if (selectedCharacter != null && isLaunchElementalBurst)
-                Center(
-                  child: SlideTransition(
-                    position: offsetAnimation,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: 80,
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Image.asset(selectedCharacter!.imagePath),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
+                children: [
+                  ElementalParticle(elementalParticle: elementalParticles[0]),
+                  ElementalParticle(elementalParticle: elementalParticles[1]),
+                  ElementalParticle(elementalParticle: elementalParticles[2]),
+                  ElementalParticle(elementalParticle: elementalParticles[3]),
+                  ElementalParticle(elementalParticle: elementalParticles[4]),
+                  ElementalParticle(elementalParticle: elementalParticles[5]),
+                  ElementalParticle(elementalParticle: elementalParticles[6]),
+                  ElementalParticle(elementalParticle: elementalParticles[7]),
+                  CharacterBall(
+                    character: fieldCharacters[0],
+                    fieldCharacters: fieldCharacters,
+                    currentCharacterIndex: currentCharacterIndex,
+                    onPanStart: onPanStart,
+                    onPanUpdate: onPanUpdate,
+                    onPanEnd: onPanEnd,
+                  ),
+                  CharacterBall(
+                    character: fieldCharacters[1],
+                    fieldCharacters: fieldCharacters,
+                    currentCharacterIndex: currentCharacterIndex,
+                    onPanStart: onPanStart,
+                    onPanUpdate: onPanUpdate,
+                    onPanEnd: onPanEnd,
+                  ),
+                  CharacterBall(
+                    character: fieldCharacters[2],
+                    fieldCharacters: fieldCharacters,
+                    currentCharacterIndex: currentCharacterIndex,
+                    onPanStart: onPanStart,
+                    onPanUpdate: onPanUpdate,
+                    onPanEnd: onPanEnd,
+                  ),
+                  CharacterBall(
+                    character: fieldCharacters[3],
+                    fieldCharacters: fieldCharacters,
+                    currentCharacterIndex: currentCharacterIndex,
+                    onPanStart: onPanStart,
+                    onPanUpdate: onPanUpdate,
+                    onPanEnd: onPanEnd,
+                  ),
+                  if (selectedCharacter != null && isLaunchElementalBurst)
+                    Center(
+                      child: SlideTransition(
+                        position: offsetAnimation,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 80,
+                          padding: const EdgeInsets.symmetric(vertical: 5.0),
+                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Text(
-                                  selectedCharacter!.burst.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                              Image.asset(selectedCharacter!.imagePath),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Text(
+                                      selectedCharacter!.burst.name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              Text(
-                                "~ ${selectedCharacter!.burst.voice} ~",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
+                                  Text(
+                                    "~ ${selectedCharacter!.burst.voice} ~",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              if (selectedCharacter != null && isLaunchElementalSkill)
-                Center(
-                  child: SlideTransition(
-                    position: offsetAnimation,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: 80,
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Image.asset(selectedCharacter!.imagePath),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                  if (selectedCharacter != null && isLaunchElementalSkill)
+                    Center(
+                      child: SlideTransition(
+                        position: offsetAnimation,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 80,
+                          padding: const EdgeInsets.symmetric(vertical: 5.0),
+                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Text(
-                                  selectedCharacter!.skill.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                              Image.asset(selectedCharacter!.imagePath),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Text(
+                                      selectedCharacter!.skill.name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              Text(
-                                "~ ${selectedCharacter!.skill.voice} ~",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
+                                  Text(
+                                    "~ ${selectedCharacter!.skill.voice} ~",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.only(bottom: 30),
+            color: Colors.amberAccent[400],
+            child: Column(
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: Column(
+                          children: [
+                            Stack(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        height: 15,
+                                        color: Colors.black,
+                                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        child: const Center(
+                                          child: Text(
+                                            "HP",
+                                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.greenAccent),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        color: Colors.black,
+                                        height: 15,
+                                        padding: const EdgeInsets.only(right: 5.0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              width: (MediaQuery.of(context).size.width * 0.6) * double.parse((currentTeamHitPoint / maxTeamHitPoint).toStringAsFixed(2)),
+                                              height: 10,
+                                              decoration: BoxDecoration(
+                                                color: double.parse((currentTeamHitPoint / maxTeamHitPoint).toStringAsFixed(2)) <= 0.25 ? Colors.red : Colors.lightGreenAccent,
+                                                borderRadius: BorderRadius.circular(25),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: (MediaQuery.of(context).size.width * 0.6) * (1 - double.parse((currentTeamHitPoint / maxTeamHitPoint).toStringAsFixed(2))),
+                                              height: 10,
+                                              decoration: BoxDecoration(
+                                                color: Colors.transparent,
+                                                borderRadius: BorderRadius.circular(25),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.only(top: 7.0, right: 30.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        currentTeamHitPoint.round().toString(),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          shadows: [
+                                            Shadow(
+                                              offset: Offset(-1.1, -1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(1.1, -1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(1.1, 1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(-1.1, 1.1),
+                                              color: Colors.black38,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Text(
+                                        " / ",
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          shadows: [
+                                            Shadow(
+                                              offset: Offset(-1.1, -1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(1.1, -1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(1.1, 1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(-1.1, 1.1),
+                                              color: Colors.black38,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Text(
+                                        maxTeamHitPoint.round().toString(),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          shadows: [
+                                            Shadow(
+                                              offset: Offset(-1.1, -1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(1.1, -1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(1.1, 1.1),
+                                              color: Colors.black38,
+                                            ),
+                                            Shadow(
+                                              offset: Offset(-1.1, 1.1),
+                                              color: Colors.black38,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                CharacterPanel(character: fieldCharacters[0]),
+                                CharacterPanel(character: fieldCharacters[1]),
+                                CharacterPanel(character: fieldCharacters[2]),
+                                CharacterPanel(character: fieldCharacters[3]),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.2,
+                        child: Column(
+                          children: [
+                            Container(
+                              color: Colors.indigo[900],
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
+                              margin: const EdgeInsets.only(top: 5.0, right: 5.0, bottom: 5.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  const Text(
+                                    "スピード\nクリア",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 10.0,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.0,
+                                      color: Colors.cyanAccent,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(-1.1, -1.1),
+                                          color: Colors.black26,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, -1.1),
+                                          color: Colors.black26,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, 1.1),
+                                          color: Colors.white24,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(-1.1, 1.1),
+                                          color: Colors.white24,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    speedClearTurn.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(-1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(-1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(width: 3.0, color: Colors.grey),
+                                color: Colors.grey[800],
+                              ),
+                              child: Image.asset(
+                                "lib/assets/images/genshin/characters/paimon.png",
+                                width: MediaQuery.of(context).size.width * 0.12,
+                                height: MediaQuery.of(context).size.width * 0.12,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
                   ),
                 ),
-            ],
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              color: Colors.brown[400],
+                              margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                              child: Column(
+                                children: [
+                                  const Text(
+                                    "TURN",
+                                    style: TextStyle(
+                                      fontSize: 10.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(-1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(-1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    turnCount.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(-1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(-1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              color: Colors.brown[400],
+                              margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                              padding: const EdgeInsets.only(right: 60.0),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.monetization_on,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 3.0,
+                                    height: 3.0,
+                                  ),
+                                  Text(
+                                    "0",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(-1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(-1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              color: Colors.brown[400],
+                              margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                              padding: const EdgeInsets.only(right: 5.0),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.diamond,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 3.0,
+                                    height: 3.0,
+                                  ),
+                                  Text(
+                                    "0",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(-1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(-1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              color: Colors.brown[400],
+                              margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                              padding: const EdgeInsets.only(right: 5.0),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.egg,
+                                    color: Colors.yellow[600],
+                                    size: 20,
+                                  ),
+                                  const SizedBox(
+                                    width: 3.0,
+                                    height: 3.0,
+                                  ),
+                                  const Text(
+                                    "0",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(-1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(-1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              color: Colors.brown[400],
+                              margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                              padding: const EdgeInsets.only(right: 5.0),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.egg,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 3.0,
+                                    height: 3.0,
+                                  ),
+                                  Text(
+                                    "0",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(-1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, -1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                        Shadow(
+                                          offset: Offset(-1.1, 1.1),
+                                          color: Colors.black38,
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.2,
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(3.0),
+                              decoration: const BoxDecoration(
+                                color: Colors.teal,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.priority_high,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Container(
+                              color: Colors.blue[800],
+                              padding: const EdgeInsets.all(3.0),
+                              child: const Icon(
+                                Icons.menu,
+                                color: Colors.white,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+class CharacterPanel extends StatelessWidget {
+  const CharacterPanel({
+    super.key,
+    required this.character,
+  });
+
+  final Character character;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: elementColor(character.elementType)),
+      child: Image.asset(
+        character.imagePath,
+        width: 70,
       ),
     );
   }
@@ -460,7 +1018,7 @@ class ElementalParticle extends StatelessWidget {
       alignment: Alignment(elementalParticle["coordinates"][0], elementalParticle["coordinates"][1]),
       child: Image.asset(
         elementalParticle["element"].imagePath,
-        width: 20.0,
+        width: 30.0,
       ),
     );
   }
