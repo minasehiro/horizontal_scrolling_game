@@ -9,12 +9,12 @@ class Character {
   final String imagePath;
   final double elementEnergy;
   final double hitPoint;
-  final int currentRow;
-  final int currentCol;
+  final double currentRow;
+  final double currentCol;
   final ElementalSkill skill;
-  final int turnLastTriggeredSkill;
+  final int lastTriggeredSkill;
   final ElementalBurst burst;
-  final int turnLastTriggeredBurst;
+  final int lastTriggeredBurst;
 
   Character({
     required this.type,
@@ -26,9 +26,9 @@ class Character {
     required this.currentRow,
     required this.currentCol,
     required this.skill,
-    required this.turnLastTriggeredSkill,
+    required this.lastTriggeredSkill,
     required this.burst,
-    required this.turnLastTriggeredBurst,
+    required this.lastTriggeredBurst,
   });
 
   // キャラクター名

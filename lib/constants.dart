@@ -21,3 +21,10 @@ enum CharacterType {
   yaeMiko,
   cyno,
 }
+
+enum Direction {
+  up,
+  down,
+  left,
+  right,
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:horizontal_scrolling_game/elemental_strategy/elemental_strategy.dart';
+import 'package:horizontal_scrolling_game/gensin_strike/genshin_strile.dart';
 import 'package:horizontal_scrolling_game/shogi/shogi.dart';
 import 'package:horizontal_scrolling_game/color_table.dart';
 import 'package:horizontal_scrolling_game/flappy_paimon/flappy_paimon.dart';
@@ -35,6 +36,35 @@ class _HomePageState extends State<HomePage> {
                 color: ColorTable.primaryBlackColor,
                 indent: 50.0,
                 endIndent: 50.0,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const GenshinStrile()),
+                );
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: 50,
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.amber,
+                    width: 3.0,
+                  ),
+                ),
+                child: const Center(
+                  child: Text(
+                    "Genshin Strike",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      letterSpacing: 2.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ),
             GestureDetector(
