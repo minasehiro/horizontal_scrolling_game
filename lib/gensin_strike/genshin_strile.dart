@@ -44,6 +44,8 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
   int currentCharacterIndex = 0; // 行動するキャラクター
   List<Map<String, dynamic>> currentDamages = []; // 発生したダメージ
 
+  double baseMoveValue = 0.05; // 基本の移動距離
+  int gameSpeedMilliseconds = 10; // ゲームスピード
   late Offset dragStartOffset;
   late Offset dragOffset = const Offset(0, 0); // ドラッグ位置
   late Direction xDragDirection;
@@ -205,11 +207,16 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
 
   // ドラッグの終了
   Future<void> onPanEnd() async {
+    // ひっぱり強度
     double xDiff = (dragStartOffset.dx.abs() - dragOffset.dx.abs()).abs();
     double yDiff = (dragStartOffset.dy.abs() - dragOffset.dy.abs()).abs();
     double pulledDistance = xDiff + yDiff;
 
-    Timer.periodic(const Duration(milliseconds: 10), (timer) {
+    // 目標座標
+    double reverseXPositionAbs = dragOffset.dx.abs();
+    double reverseYPositionAbs = dragOffset.dy.abs();
+
+    Timer.periodic(Duration(milliseconds: gameSpeedMilliseconds), (timer) {
       setState(() {
         if (selectedCharacter!.currentRow + xMoveValue < -1) {
           xDragDirection = Direction.right;
@@ -221,8 +228,14 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
           yDragDirection = Direction.up;
         }
 
-        xMoveValue = xDragDirection == Direction.right ? 0.05 : -0.05;
-        yMoveValue = yDragDirection == Direction.down ? 0.05 : -0.05;
+        // 目標座標までの距離を細分化
+        while (reverseXPositionAbs > baseMoveValue && reverseYPositionAbs > baseMoveValue) {
+          reverseXPositionAbs = reverseXPositionAbs / 2;
+          reverseYPositionAbs = reverseYPositionAbs / 2;
+        }
+
+        xMoveValue = reverseXPositionAbs * (xDragDirection == Direction.right ? 1 : -1);
+        yMoveValue = reverseYPositionAbs * (yDragDirection == Direction.down ? 1 : -1);
       });
 
       setState(() {
