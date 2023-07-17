@@ -172,7 +172,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: const Center(
                   child: Text(
-                    "TETRIS with Genshin Impact",
+                    "TETRIS",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
