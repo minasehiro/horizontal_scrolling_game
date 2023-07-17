@@ -44,14 +44,12 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
   int currentCharacterIndex = 0; // 行動するキャラクター
   List<Map<String, dynamic>> currentDamages = []; // 発生したダメージ
 
-  double baseMoveValue = 0.05; // 基本の移動距離
+  double baseMoveValue = 0.1; // 基本の移動距離
   int gameSpeedMilliseconds = 10; // ゲームスピード
   late Offset dragStartOffset;
   late Offset dragOffset = const Offset(0, 0); // ドラッグ位置
   late Direction xDragDirection;
   late Direction yDragDirection;
-  late double xMoveValue = 0; // X軸の移動距離
-  late double yMoveValue = 0; // Y軸の移動距離
 
   @override
   void initState() {
@@ -216,6 +214,32 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     double reverseXPositionAbs = dragOffset.dx.abs();
     double reverseYPositionAbs = dragOffset.dy.abs();
 
+    // 移動距離
+    late double xMoveValue = 0.1;
+    late double yMoveValue = 0.1;
+
+    // 簡易摩擦係数
+    late double friction;
+
+    // 初速を設定
+    while (reverseXPositionAbs > baseMoveValue || reverseYPositionAbs > baseMoveValue) {
+      reverseXPositionAbs = reverseXPositionAbs / 2;
+      reverseYPositionAbs = reverseYPositionAbs / 2;
+    }
+
+    // ひっぱり強度によって摩擦係数を調整
+    if (pulledDistance > 200) {
+      friction = 0.99;
+    } else if (pulledDistance > 100) {
+      friction = 0.97;
+    } else if (pulledDistance > 50) {
+      friction = 0.95;
+    } else {
+      friction = 0.93;
+    }
+
+    int timerIndex = 1;
+
     Timer.periodic(Duration(milliseconds: gameSpeedMilliseconds), (timer) {
       setState(() {
         if (selectedCharacter!.currentRow + xMoveValue < -1) {
@@ -228,14 +252,9 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
           yDragDirection = Direction.up;
         }
 
-        // 目標座標までの距離を細分化
-        while (reverseXPositionAbs > baseMoveValue && reverseYPositionAbs > baseMoveValue) {
-          reverseXPositionAbs = reverseXPositionAbs / 2;
-          reverseYPositionAbs = reverseYPositionAbs / 2;
-        }
-
-        xMoveValue = reverseXPositionAbs * (xDragDirection == Direction.right ? 1 : -1);
-        yMoveValue = reverseYPositionAbs * (yDragDirection == Direction.down ? 1 : -1);
+        // 初速 × 摩擦（0.98のTimerループ数乗） × 壁にぶつかっていた場合は正負切り替え
+        xMoveValue = reverseXPositionAbs * math.pow(friction, timerIndex) * (xDragDirection == Direction.right ? 1 : -1);
+        yMoveValue = reverseYPositionAbs * math.pow(friction, timerIndex) * (yDragDirection == Direction.down ? 1 : -1);
       });
 
       setState(() {
@@ -260,8 +279,9 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
       });
 
       pulledDistance -= 0.5;
+      timerIndex++;
 
-      if (pulledDistance <= 0) {
+      if (pulledDistance <= 0 || xMoveValue.abs() < 0.0005 || yMoveValue.abs() < 0.0005) {
         timer.cancel();
 
         turnChange();
