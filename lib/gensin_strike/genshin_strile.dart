@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import '../color_table.dart';
@@ -44,7 +45,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
   List<Map<String, dynamic>> currentDamages = []; // 発生したダメージ
 
   late Offset dragStartOffset;
-  late double dragDistance; // 引っ張った距離
+  late Offset dragOffset = const Offset(0, 0); // ドラッグ位置
   late Direction xDragDirection;
   late Direction yDragDirection;
   late double xMoveValue = 0; // X軸の移動距離
@@ -55,10 +56,10 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     super.initState();
 
     fieldCharacters = [
-      buildCharacter(CharacterType.nahida, -0.6, 0.7),
-      buildCharacter(CharacterType.zhongli, -0.2, 0.7),
-      buildCharacter(CharacterType.yaeMiko, 0.2, 0.7),
-      buildCharacter(CharacterType.xingqiu, 0.6, 0.7),
+      buildCharacter(CharacterType.nahida, -0.6, 0.8),
+      buildCharacter(CharacterType.zhongli, -0.2, 0.8),
+      buildCharacter(CharacterType.yaeMiko, 0.2, 0.8),
+      buildCharacter(CharacterType.xingqiu, 0.6, 0.8),
     ];
 
     // 合計HPを計算
@@ -177,25 +178,24 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
   }
 
   // ドラッグの開始
-  void onPanStart(detail) {
+  void onPanStart(details) {
     setState(() {
-      dragStartOffset = detail.globalPosition;
-      dragDistance = 0.0;
+      dragStartOffset = details.localPosition;
     });
   }
 
   // ドラッグ位置の変更
-  void onPanUpdate(detail) {
+  void onPanUpdate(details) {
     setState(() {
-      dragDistance += detail.delta.distance;
+      dragOffset += details.delta;
 
-      if (dragStartOffset.dx < detail.globalPosition.dx) {
+      if (dragStartOffset.dx < details.localPosition.dx) {
         xDragDirection = Direction.left;
       } else {
         xDragDirection = Direction.right;
       }
 
-      if (dragStartOffset.dy < detail.globalPosition.dy) {
+      if (dragStartOffset.dy < details.localPosition.dy) {
         yDragDirection = Direction.up;
       } else {
         yDragDirection = Direction.down;
@@ -205,7 +205,9 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
 
   // ドラッグの終了
   Future<void> onPanEnd() async {
-    double dragDistanceValue = dragDistance;
+    double xDiff = (dragStartOffset.dx.abs() - dragOffset.dx.abs()).abs();
+    double yDiff = (dragStartOffset.dy.abs() - dragOffset.dy.abs()).abs();
+    double pulledDistance = xDiff + yDiff;
 
     Timer.periodic(const Duration(milliseconds: 10), (timer) {
       setState(() {
@@ -219,8 +221,8 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
           yDragDirection = Direction.up;
         }
 
-        xMoveValue = xDragDirection == Direction.right ? 0.02 : -0.02;
-        yMoveValue = yDragDirection == Direction.down ? 0.02 : -0.02;
+        xMoveValue = xDragDirection == Direction.right ? 0.05 : -0.05;
+        yMoveValue = yDragDirection == Direction.down ? 0.05 : -0.05;
       });
 
       setState(() {
@@ -240,11 +242,13 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
         );
 
         selectedCharacter = fieldCharacters[currentCharacterIndex];
+
+        dragOffset = const Offset(0, 0);
       });
 
-      dragDistanceValue -= 1;
+      pulledDistance -= 0.5;
 
-      if (dragDistanceValue <= 0) {
+      if (pulledDistance <= 0) {
         timer.cancel();
 
         turnChange();
@@ -282,6 +286,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
                     onPanStart: onPanStart,
                     onPanUpdate: onPanUpdate,
                     onPanEnd: onPanEnd,
+                    dragOffset: dragOffset,
                   ),
                   CharacterBall(
                     character: fieldCharacters[1],
@@ -290,6 +295,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
                     onPanStart: onPanStart,
                     onPanUpdate: onPanUpdate,
                     onPanEnd: onPanEnd,
+                    dragOffset: dragOffset,
                   ),
                   CharacterBall(
                     character: fieldCharacters[2],
@@ -298,6 +304,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
                     onPanStart: onPanStart,
                     onPanUpdate: onPanUpdate,
                     onPanEnd: onPanEnd,
+                    dragOffset: dragOffset,
                   ),
                   CharacterBall(
                     character: fieldCharacters[3],
@@ -306,6 +313,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
                     onPanStart: onPanStart,
                     onPanUpdate: onPanUpdate,
                     onPanEnd: onPanEnd,
+                    dragOffset: dragOffset,
                   ),
                   if (selectedCharacter != null && isLaunchElementalBurst)
                     Center(
@@ -426,9 +434,11 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
                                         ),
                                       ),
                                       Container(
-                                        color: Colors.black,
                                         height: 15,
                                         padding: const EdgeInsets.only(right: 5.0),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black,
+                                        ),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
@@ -486,9 +496,9 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
                                         ),
                                       ),
                                       const Text(
-                                        " / ",
+                                        "  /  ",
                                         style: TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                           shadows: [
@@ -957,6 +967,7 @@ class CharacterBall extends StatelessWidget {
     required this.onPanStart,
     required this.onPanUpdate,
     required this.onPanEnd,
+    required this.dragOffset,
   });
 
   final Character character;
@@ -965,6 +976,7 @@ class CharacterBall extends StatelessWidget {
   final Function onPanStart;
   final Function onPanUpdate;
   final Function onPanEnd;
+  final Offset dragOffset;
 
   @override
   Widget build(BuildContext context) {
@@ -997,10 +1009,63 @@ class CharacterBall extends StatelessWidget {
                 character.imagePath,
               ),
             ),
+            if (fieldCharacters[currentCharacterIndex].type == character.type)
+              CustomPaint(
+                painter: DrawArrow(
+                  centerRow: -0.6,
+                  centerCol: 0.8,
+                  dragOffset: dragOffset,
+                ),
+              ),
           ],
         ),
       ),
     );
+  }
+}
+
+class DrawArrow extends CustomPainter {
+  DrawArrow({
+    required this.centerRow,
+    required this.centerCol,
+    required this.dragOffset,
+  });
+
+  final double centerRow;
+  final double centerCol;
+  final Offset dragOffset;
+
+  final _paint = Paint()
+    ..color = Colors.black
+    ..strokeWidth = 2;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (dragOffset.dx.abs() > 0 || dragOffset.dy.abs() > 0) {
+      final p1 = Offset(dragOffset.dx + 25, dragOffset.dy + 25);
+      final p2 = Offset((dragOffset.dx * -1) + 25, (dragOffset.dy * -1) + 25);
+
+      canvas.drawLine(p1, p2, _paint);
+
+      final dX = p2.dx - p1.dx;
+      final dY = p2.dy - p1.dy;
+      final angle = math.atan2(dY, dX);
+      const arrowSize = 15;
+      const arrowAngle = 25 * math.pi / 180;
+
+      final path = Path();
+
+      path.moveTo(p2.dx - arrowSize * math.cos(angle - arrowAngle), p2.dy - arrowSize * math.sin(angle - arrowAngle));
+      path.lineTo(p2.dx, p2.dy);
+      path.lineTo(p2.dx - arrowSize * math.cos(angle + arrowAngle), p2.dy - arrowSize * math.sin(angle + arrowAngle));
+      path.close();
+      canvas.drawPath(path, _paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
   }
 }
 
