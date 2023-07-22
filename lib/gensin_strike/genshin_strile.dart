@@ -15,7 +15,7 @@ class GenshinStrile extends StatefulWidget {
   State<GenshinStrile> createState() => _GenshinStrileState();
 }
 
-class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProviderStateMixin {
+class _GenshinStrileState extends State<GenshinStrile> with TickerProviderStateMixin {
   Character? selectedCharacter; // 選択されている駒
   int turnCount = 1; // 経過ターン
   int speedClearTurn = 20; // スピードクリアと見なされるターン
@@ -34,11 +34,14 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     ElementParticle(type: ElementType.dendro, imagePath: "lib/assets/images/genshin/elements/dendro.png", color: ColorTable.dendroColor),
     ElementParticle(type: ElementType.geo, imagePath: "lib/assets/images/genshin/elements/geo.png", color: ColorTable.geoColor),
   ];
+  bool waitingElementalBurst = false; // 元素爆発 発動待ち状態
   bool isLaunchElementalBurst = false; // 元素爆発を発動
   bool isLaunchElementalSkill = false; // 元素スキルを発動
   late AnimationController animationController; // カットイン
   late Animation<Offset> offsetAnimation; // カットイン
   late TweenSequence<Offset> tweenSequence; // カットイン
+  late AnimationController flashingAnimationController; // 点滅アニメーションコントローラー
+  late DecorationTween flashingDecorationTween; // 点滅アニメーション
 
   late List<Character> fieldCharacters; // 選択されたキャラクター一覧
   int currentCharacterIndex = 0; // 行動するキャラクター
@@ -56,10 +59,10 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     super.initState();
 
     fieldCharacters = [
-      buildCharacter(CharacterType.nahida, -0.6, 0.8),
+      buildCharacter(CharacterType.kaedeharaKazuha, -0.6, 0.8),
       buildCharacter(CharacterType.zhongli, -0.2, 0.8),
       buildCharacter(CharacterType.yaeMiko, 0.2, 0.8),
-      buildCharacter(CharacterType.xingqiu, 0.6, 0.8),
+      buildCharacter(CharacterType.kamisatoAyaka, 0.6, 0.8),
     ];
 
     // 合計HPを計算
@@ -82,7 +85,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     // TweenSequenceItem.weight によって分割される
     animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1500),
     );
 
     // アニメーション終了時に発火
@@ -97,8 +100,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
           isLaunchElementalSkill = false;
         }
 
-        // ターンチェンジ
-        turnChange();
+        waitingElementalBurst = false;
       }
     });
 
@@ -109,25 +111,39 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
           begin: const Offset(1.0, 0.0),
           end: const Offset(0.0, 0.0),
         ),
-        weight: 1,
+        weight: 2,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: const Offset(0.0, 0.0),
           end: const Offset(0.0, 0.0),
         ),
-        weight: 8,
+        weight: 6,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: const Offset(0.0, 0.0),
           end: const Offset(-1.0, 0.0),
         ),
-        weight: 1,
+        weight: 2,
       ),
     ]);
 
     offsetAnimation = animationController.drive(tweenSequence);
+
+    flashingAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    flashingDecorationTween = DecorationTween(
+      begin: const BoxDecoration(
+        color: Colors.white,
+      ),
+      end: const BoxDecoration(
+        color: Colors.black,
+      ),
+    );
   }
 
   @override
@@ -135,6 +151,7 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     super.dispose();
 
     animationController.dispose();
+    flashingAnimationController.dispose();
   }
 
   // 次のキャラクターにターンを渡す
@@ -177,6 +194,13 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     animationController.forward();
   }
 
+  // 元素爆発 発動切り替え
+  void toggleWaitingElementalBurst() {
+    setState(() {
+      waitingElementalBurst = !waitingElementalBurst;
+    });
+  }
+
   // ドラッグの開始
   void onPanStart(details) {
     setState(() {
@@ -204,7 +228,15 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
   }
 
   // ドラッグの終了
-  Future<void> onPanEnd() async {
+  void onPanEnd(character) {
+    // 元素爆発発動待ち状態なら発動
+    if (waitingElementalBurst) {
+      // 点滅アニメーションを止める
+      flashingAnimationController.reset();
+
+      launchElementalBurst(character);
+    }
+
     // ひっぱり強度
     double xDiff = (dragStartOffset.dx.abs() - dragOffset.dx.abs()).abs();
     double yDiff = (dragStartOffset.dy.abs() - dragOffset.dy.abs()).abs();
@@ -221,6 +253,11 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     // 簡易摩擦係数
     late double friction;
 
+    // 摩擦
+    // 動摩擦力：F’=μ’N （動摩擦係数: μ’ × 垂直抗力: N）
+    // 摩擦係数は素材によって
+    // 垂直抗力は質量によって
+
     // 初速を設定
     while (reverseXPositionAbs > baseMoveValue || reverseYPositionAbs > baseMoveValue) {
       reverseXPositionAbs = reverseXPositionAbs / 2;
@@ -231,60 +268,69 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
     if (pulledDistance > 200) {
       friction = 0.99;
     } else if (pulledDistance > 100) {
-      friction = 0.97;
+      friction = 0.90;
+    } else if (pulledDistance > 80) {
+      friction = 0.85;
     } else if (pulledDistance > 50) {
-      friction = 0.95;
+      friction = 0.75;
     } else {
-      friction = 0.93;
+      friction = 0.70;
     }
 
     int timerIndex = 1;
 
     Timer.periodic(Duration(milliseconds: gameSpeedMilliseconds), (timer) {
-      setState(() {
-        if (selectedCharacter!.currentRow + xMoveValue < -1) {
-          xDragDirection = Direction.right;
-        } else if (selectedCharacter!.currentRow + xMoveValue > 1) {
-          xDragDirection = Direction.left;
-        } else if (selectedCharacter!.currentCol + yMoveValue < -1) {
-          yDragDirection = Direction.down;
-        } else if (selectedCharacter!.currentCol + yMoveValue > 1) {
-          yDragDirection = Direction.up;
+      if (!waitingElementalBurst) {
+        setState(() {
+          if (selectedCharacter!.currentRow + xMoveValue < -1) {
+            xDragDirection = Direction.right;
+          } else if (selectedCharacter!.currentRow + xMoveValue > 1) {
+            xDragDirection = Direction.left;
+          } else if (selectedCharacter!.currentCol + yMoveValue < -1) {
+            yDragDirection = Direction.down;
+          } else if (selectedCharacter!.currentCol + yMoveValue > 1) {
+            yDragDirection = Direction.up;
+          }
+
+          // 初速 × 摩擦（0.98のTimerループ数乗） × 壁にぶつかっていた場合は正負切り替え
+          xMoveValue = reverseXPositionAbs * math.pow(friction, timerIndex) * (xDragDirection == Direction.right ? 1 : -1);
+          yMoveValue = reverseYPositionAbs * math.pow(friction, timerIndex) * (yDragDirection == Direction.down ? 1 : -1);
+        });
+
+        setState(() {
+          fieldCharacters[currentCharacterIndex] = Character(
+            type: selectedCharacter!.type,
+            elementType: selectedCharacter!.elementType,
+            isAlly: selectedCharacter!.isAlly,
+            imagePath: selectedCharacter!.imagePath,
+            elementEnergy: selectedCharacter!.elementEnergy,
+            hitPoint: selectedCharacter!.hitPoint,
+            currentRow: selectedCharacter!.currentRow + xMoveValue,
+            currentCol: selectedCharacter!.currentCol + yMoveValue,
+            skill: selectedCharacter!.skill,
+            lastTriggeredSkill: selectedCharacter!.lastTriggeredSkill,
+            burst: selectedCharacter!.burst,
+            lastTriggeredBurst: selectedCharacter!.lastTriggeredBurst,
+          );
+
+          selectedCharacter = fieldCharacters[currentCharacterIndex];
+
+          dragOffset = const Offset(0, 0);
+        });
+
+        if (pulledDistance > 200) {
+          pulledDistance -= 0.5;
+        } else {
+          pulledDistance -= 1.0;
         }
 
-        // 初速 × 摩擦（0.98のTimerループ数乗） × 壁にぶつかっていた場合は正負切り替え
-        xMoveValue = reverseXPositionAbs * math.pow(friction, timerIndex) * (xDragDirection == Direction.right ? 1 : -1);
-        yMoveValue = reverseYPositionAbs * math.pow(friction, timerIndex) * (yDragDirection == Direction.down ? 1 : -1);
-      });
+        timerIndex++;
 
-      setState(() {
-        fieldCharacters[currentCharacterIndex] = Character(
-          type: selectedCharacter!.type,
-          elementType: selectedCharacter!.elementType,
-          isAlly: selectedCharacter!.isAlly,
-          imagePath: selectedCharacter!.imagePath,
-          elementEnergy: selectedCharacter!.elementEnergy,
-          hitPoint: selectedCharacter!.hitPoint,
-          currentRow: selectedCharacter!.currentRow + xMoveValue,
-          currentCol: selectedCharacter!.currentCol + yMoveValue,
-          skill: selectedCharacter!.skill,
-          lastTriggeredSkill: selectedCharacter!.lastTriggeredSkill,
-          burst: selectedCharacter!.burst,
-          lastTriggeredBurst: selectedCharacter!.lastTriggeredBurst,
-        );
+        if (pulledDistance <= 0 || xMoveValue.abs() < 0.0003 || yMoveValue.abs() < 0.0003) {
+          timer.cancel();
 
-        selectedCharacter = fieldCharacters[currentCharacterIndex];
-
-        dragOffset = const Offset(0, 0);
-      });
-
-      pulledDistance -= 0.5;
-      timerIndex++;
-
-      if (pulledDistance <= 0 || xMoveValue.abs() < 0.0005 || yMoveValue.abs() < 0.0005) {
-        timer.cancel();
-
-        turnChange();
+          turnChange();
+        }
       }
     });
   }
@@ -354,35 +400,30 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
                         position: offsetAnimation,
                         child: Container(
                           width: MediaQuery.of(context).size.width,
-                          height: 80,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.8)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(selectedCharacter!.imagePath),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: Text(
-                                      selectedCharacter!.burst.name,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text(
+                                  selectedCharacter!.burst.name,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
-                                  Text(
-                                    "~ ${selectedCharacter!.burst.voice} ~",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ],
+                                ),
+                              ),
+                              Text(
+                                "~ ${selectedCharacter!.burst.voice} ~",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
                               ),
                             ],
                           ),
@@ -587,10 +628,38 @@ class _GenshinStrileState extends State<GenshinStrile> with SingleTickerProvider
                             ),
                             Row(
                               children: [
-                                CharacterPanel(character: fieldCharacters[0]),
-                                CharacterPanel(character: fieldCharacters[1]),
-                                CharacterPanel(character: fieldCharacters[2]),
-                                CharacterPanel(character: fieldCharacters[3]),
+                                CharacterPanel(
+                                  character: fieldCharacters[0],
+                                  actionableCharacter: fieldCharacters[currentCharacterIndex],
+                                  onTap: toggleWaitingElementalBurst,
+                                  waitingElementalBurst: waitingElementalBurst,
+                                  animationController: flashingAnimationController,
+                                  decorationTween: flashingDecorationTween,
+                                ),
+                                CharacterPanel(
+                                  character: fieldCharacters[1],
+                                  actionableCharacter: fieldCharacters[currentCharacterIndex],
+                                  onTap: toggleWaitingElementalBurst,
+                                  waitingElementalBurst: waitingElementalBurst,
+                                  animationController: flashingAnimationController,
+                                  decorationTween: flashingDecorationTween,
+                                ),
+                                CharacterPanel(
+                                  character: fieldCharacters[2],
+                                  actionableCharacter: fieldCharacters[currentCharacterIndex],
+                                  onTap: toggleWaitingElementalBurst,
+                                  waitingElementalBurst: waitingElementalBurst,
+                                  animationController: flashingAnimationController,
+                                  decorationTween: flashingDecorationTween,
+                                ),
+                                CharacterPanel(
+                                  character: fieldCharacters[3],
+                                  actionableCharacter: fieldCharacters[currentCharacterIndex],
+                                  onTap: toggleWaitingElementalBurst,
+                                  waitingElementalBurst: waitingElementalBurst,
+                                  animationController: flashingAnimationController,
+                                  decorationTween: flashingDecorationTween,
+                                ),
                               ],
                             ),
                           ],
@@ -975,17 +1044,47 @@ class CharacterPanel extends StatelessWidget {
   const CharacterPanel({
     super.key,
     required this.character,
+    required this.actionableCharacter,
+    required this.onTap,
+    required this.waitingElementalBurst,
+    required this.animationController,
+    required this.decorationTween,
   });
 
   final Character character;
+  final Character actionableCharacter;
+  final Function onTap;
+  final bool waitingElementalBurst;
+  final AnimationController animationController;
+  final DecorationTween decorationTween;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: elementColor(character.elementType)),
-      child: Image.asset(
-        character.imagePath,
-        width: 70,
+    return GestureDetector(
+      onTap: () {
+        if (character.type == actionableCharacter.type && !waitingElementalBurst) {
+          animationController.repeat(reverse: true);
+        } else {
+          animationController.reset();
+        }
+
+        if (character.type == actionableCharacter.type) {
+          onTap();
+        }
+      },
+      child: DecoratedBoxTransition(
+        decoration: decorationTween.animate(animationController),
+        child: Container(
+          margin: const EdgeInsets.all(3.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: elementColor(character.elementType),
+          ),
+          child: Image.asset(
+            character.imagePath,
+            width: 60,
+          ),
+        ),
       ),
     );
   }
@@ -1031,7 +1130,7 @@ class CharacterBall extends StatelessWidget {
         // ドラッグの終了
         onPanEnd: (details) {
           if (fieldCharacters[currentCharacterIndex].type == character.type) {
-            onPanEnd();
+            onPanEnd(character);
           }
         },
         child: Stack(
