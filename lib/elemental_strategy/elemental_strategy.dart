@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:horizontal_scrolling_game/elemental_strategy/components/damage.dart';
@@ -560,7 +561,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
                 "coordinates": [targetCoordinate[0], targetCoordinate[1]],
                 "object": Damage(elementType: selectedCharacter!.elementType, value: selectedCharacter!.skill.damage, isCritical: false),
               });
-              history.add("${newCharacter.name()}に${selectedCharacter!.skill.damage}ダメージ");
+              history.add("${targetCharacter.name()}に${selectedCharacter!.skill.damage}ダメージ");
 
               if (remainingHitPoint <= 0) {
                 field[targetCoordinate[0]][targetCoordinate[1]] = null;
