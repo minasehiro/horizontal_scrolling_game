@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:horizontal_scrolling_game/elemental_strategy/components/damage.dart';
@@ -90,7 +89,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           name: "万葉の一刀",
           voice: "雲隠れ、雁鳴くとき",
           elementType: ElementType.anemo,
-          damage: 30,
+          damage: 50,
           damageRange: [
             [-1, 0], // 上
             [1, 0], // 下
@@ -130,7 +129,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           name: "天星",
           voice: "天道、ここに在り",
           elementType: ElementType.geo,
-          damage: 10,
+          damage: 30,
           damageRange: [
             [0, -1],
             [0, -2],
@@ -172,7 +171,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           name: "神里流・霜滅",
           voice: "櫻吹雪！",
           elementType: ElementType.cryo,
-          damage: 10,
+          damage: 80,
           damageRange: [
             [-1, 0],
             [-2, 0],
@@ -210,7 +209,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           name: "心景幻成",
           voice: "知識を、あなたにも。",
           elementType: ElementType.dendro,
-          damage: 10,
+          damage: 0,
           damageRange: [
             [0, -1],
             [0, -2],
@@ -243,7 +242,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           name: "大密法・天狐顕現",
           voice: "雷光、いと美しきかな。",
           elementType: ElementType.electro,
-          damage: 10,
+          damage: 50,
           damageRange: [
             [0, -1],
             [0, -2],
@@ -266,7 +265,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           name: "風輪両立",
           voice: "無駄だ。",
           elementType: ElementType.anemo,
-          damage: 30,
+          damage: 40,
           damageRange: [
             [1, 0],
             [2, 0],
@@ -279,7 +278,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           name: "靖妖儺舞",
           voice: "喚くがいい！！",
           elementType: ElementType.anemo,
-          damage: 10,
+          damage: 0,
           damageRange: [
             [0, -1],
             [0, -2],
