@@ -92,9 +92,14 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           elementType: ElementType.anemo,
           damage: 30,
           damageRange: [
-            [0, -1],
-            [0, -2],
-            [0, -3],
+            [-1, 0], // 上
+            [1, 0], // 下
+            [0, -1], // 左
+            [0, 1], // 右
+            [-1, -1], // 左上
+            [-1, 1], // 右上
+            [1, -1], // 左下
+            [1, 1], // 右下
           ],
           coolTime: 3,
         ),
@@ -169,9 +174,9 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           elementType: ElementType.cryo,
           damage: 10,
           damageRange: [
-            [0, -1],
-            [0, -2],
-            [0, -3],
+            [-1, 0],
+            [-2, 0],
+            [-3, 0],
           ],
           coolTime: 1,
         ),
@@ -311,9 +316,7 @@ class _ElementalStrategyState extends State<ElementalStrategy> with SingleTicker
           elementType: ElementType.hydro,
           damage: 10,
           damageRange: [
-            [0, -1],
-            [0, -2],
-            [0, -3],
+            [-1, 0],
           ],
           coolTime: 1,
         ),
