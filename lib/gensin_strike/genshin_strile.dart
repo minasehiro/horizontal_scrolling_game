@@ -111,21 +111,21 @@ class _GenshinStrileState extends State<GenshinStrile> with TickerProviderStateM
           begin: const Offset(1.0, 0.0),
           end: const Offset(0.0, 0.0),
         ),
-        weight: 2,
+        weight: 1,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: const Offset(0.0, 0.0),
           end: const Offset(0.0, 0.0),
         ),
-        weight: 6,
+        weight: 8,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: const Offset(0.0, 0.0),
           end: const Offset(-1.0, 0.0),
         ),
-        weight: 2,
+        weight: 1,
       ),
     ]);
 
@@ -243,38 +243,23 @@ class _GenshinStrileState extends State<GenshinStrile> with TickerProviderStateM
     double pulledDistance = xDiff + yDiff;
 
     // 目標座標
-    double reverseXPositionAbs = dragOffset.dx.abs();
-    double reverseYPositionAbs = dragOffset.dy.abs();
+    double velocityX = dragOffset.dx.abs();
+    double velocityY = dragOffset.dy.abs();
 
     // 移動距離
-    late double xMoveValue = 0.1;
-    late double yMoveValue = 0.1;
+    late double xMoveValue;
+    late double yMoveValue;
 
     // 簡易摩擦係数
-    late double friction;
-
-    // 摩擦
+    double friction = 0.99;
     // 動摩擦力：F’=μ’N （動摩擦係数: μ’ × 垂直抗力: N）
     // 摩擦係数は素材によって
     // 垂直抗力は質量によって
 
     // 初速を設定
-    while (reverseXPositionAbs > baseMoveValue || reverseYPositionAbs > baseMoveValue) {
-      reverseXPositionAbs = reverseXPositionAbs / 2;
-      reverseYPositionAbs = reverseYPositionAbs / 2;
-    }
-
-    // ひっぱり強度によって摩擦係数を調整
-    if (pulledDistance > 200) {
-      friction = 0.99;
-    } else if (pulledDistance > 100) {
-      friction = 0.90;
-    } else if (pulledDistance > 80) {
-      friction = 0.85;
-    } else if (pulledDistance > 50) {
-      friction = 0.75;
-    } else {
-      friction = 0.70;
+    while (velocityX > baseMoveValue || velocityY > baseMoveValue) {
+      velocityX /= 2;
+      velocityY /= 2;
     }
 
     int timerIndex = 1;
@@ -282,6 +267,10 @@ class _GenshinStrileState extends State<GenshinStrile> with TickerProviderStateM
     Timer.periodic(Duration(milliseconds: gameSpeedMilliseconds), (timer) {
       if (!waitingElementalBurst) {
         setState(() {
+          // 初速 × 摩擦（摩擦係数のTimerループ数乗）
+          xMoveValue = velocityX * math.pow(friction, timerIndex);
+          yMoveValue = velocityY * math.pow(friction, timerIndex);
+
           if (selectedCharacter!.currentRow + xMoveValue < -1) {
             xDragDirection = Direction.right;
           } else if (selectedCharacter!.currentRow + xMoveValue > 1) {
@@ -292,9 +281,9 @@ class _GenshinStrileState extends State<GenshinStrile> with TickerProviderStateM
             yDragDirection = Direction.up;
           }
 
-          // 初速 × 摩擦（0.98のTimerループ数乗） × 壁にぶつかっていた場合は正負切り替え
-          xMoveValue = reverseXPositionAbs * math.pow(friction, timerIndex) * (xDragDirection == Direction.right ? 1 : -1);
-          yMoveValue = reverseYPositionAbs * math.pow(friction, timerIndex) * (yDragDirection == Direction.down ? 1 : -1);
+          // 壁にぶつかっていた場合は正負切り替えて反射させる
+          xMoveValue *= (xDragDirection == Direction.right ? 1 : -1);
+          yMoveValue *= (yDragDirection == Direction.down ? 1 : -1);
         });
 
         setState(() {
@@ -318,10 +307,10 @@ class _GenshinStrileState extends State<GenshinStrile> with TickerProviderStateM
           dragOffset = const Offset(0, 0);
         });
 
-        if (pulledDistance > 200) {
-          pulledDistance -= 0.5;
+        if (pulledDistance > 100) {
+          pulledDistance -= 0.05;
         } else {
-          pulledDistance -= 1.0;
+          pulledDistance -= 0.1;
         }
 
         timerIndex++;
@@ -400,30 +389,35 @@ class _GenshinStrileState extends State<GenshinStrile> with TickerProviderStateM
                         position: offsetAnimation,
                         child: Container(
                           width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height * 0.5,
+                          height: 80,
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.8)),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.6)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Image.asset(selectedCharacter!.imagePath),
-                              Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Text(
-                                  selectedCharacter!.burst.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Text(
+                                      selectedCharacter!.burst.name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              Text(
-                                "~ ${selectedCharacter!.burst.voice} ~",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
+                                  Text(
+                                    "~ ${selectedCharacter!.burst.voice} ~",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
